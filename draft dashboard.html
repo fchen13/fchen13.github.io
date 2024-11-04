@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="./favicon.jpg">
+    <title>Earth BioGenome Project</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #e9ecef;
+            margin: 0;
+            padding: 20px;
+            color: #495057;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+            color: #343a40;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+        #content-container {
+            max-width: 700px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .link {
+            display: block;
+            width: 100%;
+            background: #6c757d;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            transition: background 0.3s, transform 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .link:hover {
+            background: #5a6268;
+            transform: translateY(-3px);
+        }
+        .link:active {
+            transform: translateY(1px);
+        }
+    </style>
+</head>
+<body>
+    <h1>EBP Dashboard</h1>
+    
+    <div id="content-container">
+        <!-- 动态加载内容 -->
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        const container = document.getElementById('content-container');
+
+        pages.forEach((page, index) => {
+            const link = document.createElement('a');
+            link.classList.add('link');
+            link.href = page.file;  // 设置链接到页面文件
+            link.textContent = page.name;  // 设置链接的显示文本
+            link.target = '_blank';  // 设置链接在新标签中打开
+            link.title = page.description
+
+            // 将链接添加到容器中
+            container.appendChild(link);
+        });
+    </script>
+</body>
+</html>

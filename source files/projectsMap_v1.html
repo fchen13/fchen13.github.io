@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EBP affiliates map</title>
+    <script src="./echarts.min.js"></script>
+    <script src="./world.js"></script>
+    <script src="./projectsWebsites.js"></script>
+    <style>
+        #main {
+            width: 100%;
+            height: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div id="main"></div>
+    <script>
+        // 假设这是从 Excel 中提取的数据
+        const data = projectsData;
+        console.log(data)
+
+        // 初始化 ECharts 实例
+        const myChart = echarts.init(document.getElementById('main'));
+
+        // 配置地图选项
+        const option = {
+            tooltip: {
+                trigger: 'item',
+                formatter: function (params) {
+                    const dataItem = data[params.dataIndex];
+                    return `
+                        <div>
+                            <strong>${dataItem.projectName}</strong><br>
+                            Address: ${dataItem.address}<br>
+                            <a href="${dataItem.website}" target="_blank">Click to open the webpage</a>
+                        </div>
+                    `;
+                }
+            },
+            geo: {
+                map: 'world', // 使用世界地图
+                roam: true,
+                zoom: 1,
+                label: {
+                    show: false
+                },
+                itemStyle: {
+                    normal: {
+                        areaColor: '#f3f3f3',
+                        borderColor: '#999'
+                    },
+                    emphasis: {
+                        areaColor: '#ddd'
+                    }
+                }
+            },
+            series: [{
+                type: 'scatter',
+                coordinateSystem: 'geo',
+                data: data.map(item => ({
+                    name: item.projectName,
+                    value: [item.longitude, item.latitude]
+                })),
+                symbolSize: 10,
+                encode: {
+                    tooltip: 0 // 使用第一个字段作为 tooltip
+                }
+            }]
+        };
+
+        // 使用刚指定的配置项和数据显示图表
+        myChart.setOption(option);
+
+        // 点击事件
+        myChart.on('click', function (params) {
+            if (params.componentType === 'series') {
+                const dataItem = data[params.dataIndex];
+                window.open(dataItem.website, '_blank'); // 打开网址
+            }
+        });
+    </script>
+</body>
+</html>
