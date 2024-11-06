@@ -254,10 +254,10 @@ const projectsData = [
   {
     projectName: "CanSeq150",
     continent: "North America",
-    address: "570 W 7th Ave, Vancouver, BC V5Z 4S6, Canada",
+    address: "CGEn 686 Bay Street, Toronto, ON M5G 0A4 Canada",
     website: "http://www.cgen.ca/canseq150",
-    latitude: 49.2649489036227,
-    longitude: -123.116816944927,
+    latitude: 43.6577,
+    longitude: -79.3854,
   },
   {
     projectName: "Deep-Ocean Genomes projectName",
@@ -387,10 +387,10 @@ const projectsData = [
   {
     projectName: "Canadian Earth BioGenome projectName",
     continent: "North America",
-    address: "University of British Columbia, Vancouver, BC V6T 1Z4, Canada",
+    address: "British Columbia Cancer-Vancouver, 600 West 10th Avenue, Vancouver, BC, V5Z 4E6",
     website: "https://earthbiogenome.ca/",
-    latitude: 49.260125680538,
-    longitude: -123.242998256668,
+    latitude: 49.26218,
+    longitude: -123.11772,
   },
   {
     projectName: "Plant and Fungi Trees of Life (PAFTOL)",
@@ -464,7 +464,7 @@ const projectsData = [
     address:
       "R. Boaventura da Silva, 955 - Nazaré, Belém - PA, 66055-090, Brazil",
     website:
-      "https://urldefense.com/v3/__https://www.itv.org/en/genomics-of-the-brazilian-biodiversity-gbb/__;!!IKRxdwAv5BmarQ!awfBpNjxXStAg2W86oAE-9zIWZ_y3yq2WSpBC5DA20KCtwDsYxLAWcXZfkH_S3aLYhmr9supxH1Z-ySQGVPviWD_3DqfjzbF$",
+      "https://www.itv.org/en/genomics-of-the-brazilian-biodiversity-gbb/",
     latitude: -1.4466457631436,
     longitude: -48.4822375192399,
   },
@@ -481,8 +481,7 @@ const projectsData = [
     projectName: "Wise Ancestors",
     continent: "North America",
     address: "570 W 7th Ave, Vancouver, BC V5Z 4S6, Canada",
-    website:
-      "https://urldefense.com/v3/__http://www.wiseancestors.org__;!!IKRxdwAv5BmarQ!exbSyINIvOQTGqw9cOPQu8krsO_dXOrWXm86XJ6LORTXp3Kt2htjxXnEFMQvGDJTNOLQI1msLydDEwlw6r5SQEgbYl0$",
+    website: "https://www.wiseancestors.org/",
     latitude: 49.2648508862858,
     longitude: -123.11688131794,
   },
@@ -651,7 +650,7 @@ const projectsData = [
     projectName: "Wise Ancestors",
     continent: "North Amerca",
     website:
-      "https://urldefense.com/v3/__http://www.wiseancestors.org__;!!IKRxdwAv5BmarQ!exbSyINIvOQTGqw9cOPQu8krsO_dXOrWXm86XJ6LORTXp3Kt2htjxXnEFMQvGDJTNOLQI1msLydDEwlw6r5SQEgbYl0$",
+      "https://www.wiseancestors.org/",
     address: "Bermuda",
     latitude: 32.321384,
     longitude: -64.75737,
@@ -895,7 +894,7 @@ const projectsData = [
     projectName: "Wise Ancestors",
     continent: "South America",
     website:
-      "https://urldefense.com/v3/__http://www.wiseancestors.org__;!!IKRxdwAv5BmarQ!exbSyINIvOQTGqw9cOPQu8krsO_dXOrWXm86XJ6LORTXp3Kt2htjxXnEFMQvGDJTNOLQI1msLydDEwlw6r5SQEgbYl0$",
+      "https://www.wiseancestors.org/",
     address: "Colombia",
     latitude: 4.624335,
     longitude: -74.063644,
