@@ -279,10 +279,10 @@ const projectsData = [
     projectName: "Soil Invertebrate Genome Initiative",
     continent: "Europe",
     address:
-      "300 bd Sébastien Brant - BP 10413 - F-67412 Illkirch Cedex, France",
+      "Senckenberganlage 25 D-60325 Frankfurt/Main, France",
     website: undefined,
-    latitude: 50.1171516011758,
-    longitude: 8.65149548210233,
+    latitude: 48.642620,
+    longitude: -1.903690,
   },
   {
     projectName: "European Reference Genome Atlas",
@@ -469,7 +469,7 @@ const projectsData = [
     longitude: -48.4822375192399,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "Europe",
     address:
       "Wellcome Trust Genome Campus, Hinxton, Saffron Walden CB10 1RQ, United Kingdom",
@@ -497,9 +497,9 @@ const projectsData = [
     projectName: "Catalan Initiative for the Earth Biogenome projectName",
     continent: "Europe",
     website: "https://www.scb.cat/biogenoma/en/home/",
-    address: "Andorra",
-    latitude: 42.506317,
-    longitude: 1.521835,
+    address: "Old Hospital de la Santa Creu, Barcelona",
+    latitude: 41.405340,
+    longitude: 2.156580,
     isNew: true,
   },
   {
