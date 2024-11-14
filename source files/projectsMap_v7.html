@@ -21,7 +21,7 @@
             height: 100vh;
             /* margin-bottom: 20px; */
             overflow: hidden;
-            background-color: #a4d3f3;
+            background-color: #1b2a58;
         }
 
         #barContainer {
@@ -159,8 +159,8 @@
             });
 
             const colorMap =  [
-                "#191919", // 
-                "#dbc649", // 
+                "#dbc649", // color code for project headquarters
+                "#759f98", // color code for areas samples collected
                 "#F28C28",
                 "#B0B3B8", // 烟灰色
                 "#D4808B", // 金色
@@ -235,9 +235,9 @@
                         },
                         regions: Array.from(countries).map(countryName => (
                             {
-                            name: countryName,  // 美国的名称
+                            name: countryName,  // 国家的名称
                             itemStyle: {
-                                areaColor: '#dbc649' // 使用红色高亮美国
+                                areaColor: '#759f98' // color code for country presence
                             }
                         }))
                     },
@@ -519,7 +519,7 @@
                     type: 'bar',
                     data: barData,
                     itemStyle: {
-                        color: '#38aadd' // 
+                        color: '#38aadd' // color code for statistic bars
                     },
                     barWidth: '50%'
                 }]
