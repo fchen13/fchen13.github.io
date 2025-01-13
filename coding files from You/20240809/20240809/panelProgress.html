@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>panelProgress</title>
+    <script src="./echarts.min.js"></script>
+    <script src="./utils.js"></script>
+    <script src="./services.js"></script>
+    <style>
+      .container {
+        display: flex;
+        justify-content: space-between;  /* Reduce space between columns */
+        flex-wrap: wrap;
+      }
+      .column {
+        width: 48%;  /* Adjusted column width */
+        box-sizing: border-box;
+        padding: 0;
+      }
+      .chart-container {
+        width: 100%;
+        /* height: 500px; */
+        height: 50vh;
+        margin: 10px 0;
+        position: relative;
+      }
+
+      /* Container for centering and styling */
+    .select-container {
+      display: flex;
+      justify-content: right;
+      align-items: center;
+      /* height: 100vh; */
+      /* background-color: #f5f5f5; */
+      margin: 10px;
+    }
+
+    /* Custom select style */
+    .custom-select {
+      position: relative;
+      display: inline-block;
+      width: 200px;
+    }
+
+    .select-box {
+      appearance: none;
+      background-color: #ffffff;
+      border: 2px solid #cccccc;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 16px;
+      color: #333333;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .select-box::after {
+      content: '▼';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: #888888;
+    }
+
+    .select-box:hover,
+    .select-box:focus {
+      border-color: #666666;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Dropdown list */
+    .options-container {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background-color: #ffffff;
+      border: 2px solid #cccccc;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      display: none;
+      z-index: 999;
+    }
+
+    .option {
+      padding: 10px 20px;
+      font-size: 16px;
+      color: #333333;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .option:hover {
+      background-color: #f0f0f0;
+    }
+
+    /* Show options on click */
+    .custom-select.active .options-container {
+      display: block;
+    }
+    </style>
+  </head>
+  <body>
+    <div class="select-container">
+      <div class="custom-select">
+        <div class="select-box">Cumulative</div>
+        <div class="options-container">
+          <div class="option">Cumulative</div>
+          <div class="option">Actual</div>
+          <div class="option">YoY Growth</div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="column">
+        <!-- Family Progress -->
+        <!-- <div id="familyProgressContainer1" class="chart-container"></div>
+        <div id="familyProgressContainer2" class="chart-container"></div>
+        <div id="familyProgressContainer3" class="chart-container"></div> -->
+        <div id="familyProgressContainer" class="chart-container"></div>
+      </div>
+      <div class="column">
+        <!-- Species Progress -->
+        <!-- <div id="speciesProgressContainer1" class="chart-container"></div>
+        <div id="speciesProgressContainer2" class="chart-container"></div>
+        <div id="speciesProgressContainer3" class="chart-container"></div> -->
+        <div id="speciesProgressContainer" class="chart-container"></div>
+    </div>
+
+    <script>
+      const familyDataMap = {}
+      const speciesDataMap = {}
+      let activeType = 'Cumulative'
+      let familyChart = null
+      let speciesChart = null
+      window.onload = function () {
+        // Family Progress
+        const familyUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=min%28assembly_date%29%20AND%20bioproject%3DPRJNA533106&result=taxon&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&includeEstimates=true&rank=Family&xOpts=2006%2C%2C2%2C%2CAssembly%20date&caption=Cumulative%20number%20of%20eukaryotic%20families%20for%20which%20assemblies%20were%20generated%20by%20EBP%20affiliates%20over%20time&taxonomy=ncbi&queryId=sFA8htDEr0";
+        getStackedBarData(familyUrl).then(({formatData, defaultData, percentData}) => {
+          // initEchart(formatData, 'familyProgressContainer1', 'Count of Families (Cumulative)');
+          // initEchart(defaultData, 'familyProgressContainer2', 'Count of Families (Actual)');
+          // initEchart(percentData, 'familyProgressContainer3', 'Count of Families (YoY Growth)');
+          familyDataMap['Cumulative'] = formatData
+          familyDataMap['Actual'] = defaultData
+          familyDataMap['YoY Growth'] = percentData
+          familyChart = initEchart(familyDataMap[activeType], 'familyProgressContainer', `Count of Families (${activeType})`);
+          window.addEventListener('resize', familyChart.resize)
+        });
+
+        // Species Progress
+        const speciesUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=min%28assembly_date%29%20AND%20bioproject%3DPRJNA533106&rank=species&result=taxon&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&xOpts=2006%2C%2C2%2C%2CAssembly%20date&caption=Cumulative%20number%20of%20assemblies%20for%20eukaryotic%20species%20generated%20by%20EBP%20affiliates%20over%20time&taxonomy=ncbi&queryId=RoGT737W-3";
+        getStackedBarData(speciesUrl).then(({formatData, defaultData, percentData}) => {
+          // initEchart(formatData, 'speciesProgressContainer1', 'Count of Species (Cumulative)');
+          // initEchart(defaultData, 'speciesProgressContainer2', 'Count of Species (Actual)');
+          // initEchart(percentData, 'speciesProgressContainer3', 'Count of Species (YoY Growth)');
+          speciesDataMap['Cumulative'] = formatData
+          speciesDataMap['Actual'] = defaultData
+          speciesDataMap['YoY Growth'] = percentData
+          speciesChart = initEchart(speciesDataMap[activeType], 'speciesProgressContainer', `Count of Species (${activeType})`);
+          window.addEventListener('resize', speciesChart.resize)
+        });
+      };
+
+      function checkoutChart(type) {
+        if(activeType === type) return;
+        const familyOption = familyChart.getOption();
+        const speciesOption = speciesChart.getOption();
+        familyOption.yAxis[0].name = `Count of Families (${type})`;
+        speciesOption.yAxis[0].name = `Count of Species (${type})`;
+        familyOption.series = familyDataMap[type].series
+        speciesOption.series = speciesDataMap[type].series
+        familyChart.setOption(familyOption);
+        speciesChart.setOption(speciesOption, );
+        activeType = type
+      }
+
+      function initEchart(data, containerId, yLabel) {
+        const chartDom = document.getElementById(containerId);
+        const myChart = echarts.init(chartDom);
+
+        const option = {
+          legend: {
+            show: true,
+            selectedMode: false,
+            data: ['contig', 'scaffold', 'chromosome', 'complete genome'], // Reorder legend items
+            textStyle: {
+              color: '#000',
+              fontSize: 12,
+              fontWeight: 'bold',
+            }
+          },
+          color: ['#FF0000', '#00FF00', '#0000FF', '#FFA500'], // Higher contrast colors with distinct color for complete genome
+          grid: {
+            left: '7%',  // Decreased left margin
+            right: '2%',
+            bottom: '3%',
+            containLabel: true
+          },
+          yAxis: {
+            type: "value",
+            name: yLabel,
+            nameLocation: 'middle',
+            nameRotate: 90,
+            nameGap: 45,  // Adjust gap to bring label closer
+            nameTextStyle: {
+              fontWeight: 'bold',
+              fontSize: 14,
+            },
+            axisLine: {
+              show: true,
+              lineStyle: {
+                color: "#000",
+                width: 1,
+              },
+            },
+            axisLabel: {
+              show: true,
+              color: "#000",
+              fontSize: 12,
+              margin: 5, // Move labels closer to the axis
+            },
+            splitLine: {
+              show: true,
+              lineStyle: {
+                color: '#ccc'
+              }
+            },
+          },
+          xAxis: {
+            type: "category",
+            data: Array.from({length: 2024 - 2006 + 1}, (_, i) => 2006 + i), // Create an array of years from 2006 to 2024
+            axisLine: {
+              show: true,
+              lineStyle: {
+                color: "#000",
+                width: 1,
+              },
+            },
+            axisLabel: {
+              show: true,
+              color: "#000",
+              fontSize: 12,
+            },
+            splitLine: {
+              show: false,
+            },
+          },
+          tooltip: {
+            trigger: "axis",
+            formatter: function (params) {
+              var res = params
+                .map(function (item) {
+                  return item.seriesName + ": " + item.value + (activeType.includes('YoY Growth') ? '%' : ''); // Show percentage only in specific containers
+                })
+                .join("<br/>");
+
+              // For total calculation
+              if (!activeType.includes('YoY Growth')) {
+                var categoryMap = {};
+                params.forEach(function (item) {
+                  var category = item.name;
+                  var value = item.value;
+
+                  if (!categoryMap[category]) {
+                    categoryMap[category] = 0;
+                  }
+
+                  categoryMap[category] += value;
+                });
+
+                var totalStr = "";
+                for (var category in categoryMap) {
+                  totalStr += "Total (" + category + "): " + categoryMap[category] + "<br/>";
+                }
+                return res + "<br/>" + totalStr;
+              }
+
+              return res;
+            },
+          },
+          series: data.series,
+        };
+        myChart.setOption(option);
+      
+        return myChart
+      }
+
+       // JavaScript to handle dropdown functionality
+    document.querySelector('.select-box').addEventListener('click', function() {
+      const select = this.parentElement;
+      select.classList.toggle('active');
+    });
+
+    document.querySelectorAll('.option').forEach(option => {
+      option.addEventListener('click', function() {
+        const selectBox = option.parentElement.previousElementSibling;
+        selectBox.textContent = option.textContent;
+        selectBox.parentElement.classList.remove('active');
+        checkoutChart(option.textContent)
+      });
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+      const select = document.querySelector('.custom-select');
+      if (!select.contains(event.target)) {
+        select.classList.remove('active');
+      }
+    });
+    </script>
+  </body>
+</html>

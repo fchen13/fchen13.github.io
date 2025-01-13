@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ECharts Map Example</title>
+    <script src="./echarts.min.js"></script>
+    <script src="./geoMap/world.js"></script>
+    <script src="./geoMap/projectsWebsites.js"></script>
+    <link href="./geoMap/bootstrap.min.css" rel="stylesheet" />
+    <script src="./geoMap/jquery-3.6.0.min.js"></script>
+    <script src="./geoMap/popper.min.js"></script>
+    <script src="./geoMap/bootstrap.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+        }
+
+        #mapContainer {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #c4e1ff;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mapContainer"></div>
+    <script>
+        function initMap() {
+            const data = projectsData;
+
+            const addressMap = {};
+            const aggregatedData = data.map((item) => {
+                const address = item.address;
+                if (!addressMap[address]) addressMap[address] = 1;
+                else addressMap[address]++;
+
+                const offsetX = addressMap[address] > 1 ? ((Math.random() - 5) * 2) / 5 : 0;
+                const offsetY = addressMap[address] > 1 ? ((Math.random() + 0) * 2) / 5 : 0;
+
+                return {
+                    name: item.projectName,
+                    value: [item.longitude + offsetX, item.latitude + offsetY, addressMap[address]],
+                    type: item.type,
+                    website: item.website,
+                    address: item.isCenter ? "" : address,
+                    isCenter: item.type === "Headquarter" || !!item.isCenter,
+                    symbolSize: item.isCenter
+                        ? 9
+                        : item.type === "Headquarter"
+                            ? 9
+                            : 6,
+                    isNew: !!item.isNew,
+                    itemStyle: {
+                        color: "#333",
+                        borderColor: item.type === "Headquarter" ? "#dbc649" : (!!item.isCenter ? "#FFFF00" : "transparent"),
+                        borderWidth: 4,
+                        opacity: 1,
+                    },
+                };
+            });
+
+            const filteredData = aggregatedData.filter((point) => !point.isNew);
+
+            const ebpSecretariat = filteredData.find((point) => point.isCenter);
+
+            const ebpLinks = filteredData
+                .filter((point) => !point.isCenter)
+                .map((point) => ({
+                    fromName: ebpSecretariat.name,
+                    toName: point.name,
+                    coords: [ebpSecretariat.value, point.value],
+                    lineStyle: { normal: { curveness: 0.3 } },
+                }));
+
+            const canadianProjectHeadquarter = filteredData.find(
+                (point) => point.name.includes("Canadian BioGenome") && point.type == "Headquarter"
+            );
+
+            const africanProjectHeadquarter = filteredData.find(
+                (point) => point.name.includes("African BioGenome") && point.type == "Headquarter"
+            );
+
+            const canadianLinks = filteredData
+                .filter((point) => point.name.includes("Canadian BioGenome") && point.type !== "Headquarter")
+                .map((point) => ({
+                    fromName: canadianProjectHeadquarter.name,
+                    toName: point.name,
+                    coords: [canadianProjectHeadquarter.value, point.value],
+                    lineStyle: { normal: { curveness: 0.3 } },
+                }));
+
+            const africanLinks = filteredData
+                .filter((point) => point.name.includes("African BioGenome") && point.type !== "Headquarter")
+                .map((point) => ({
+                    fromName: africanProjectHeadquarter.name,
+                    toName: point.name,
+                    coords: [africanProjectHeadquarter.value, point.value],
+                    lineStyle: { normal: { curveness: 0.3 } },
+                }));
+
+            const myChart = echarts.init(document.getElementById("mapContainer"));
+            const option = {
+                tooltip: {
+                    trigger: "item",
+                    formatter: (params) => {
+                        if (params.seriesType === "scatter") {
+                            const item = filteredData[params.dataIndex];
+                            return `${item.name}<br/>${item.type || ""}`;
+                        }
+                        return null;
+                    },
+                },
+                geo: {
+                    map: "world",
+                    roam: true,
+                    label: { show: false },
+                    itemStyle: {
+                        normal: { areaColor: "#f3f3f3", borderColor: "#999" },
+                        emphasis: { areaColor: "#FFFF00" },
+                    },
+                },
+                series: [
+                    {
+                        type: "scatter",
+                        coordinateSystem: "geo",
+                        data: filteredData.filter((point) => !point.name.includes("Canadian BioGenome") && !point.name.includes("African BioGenome")),
+                        symbolSize: 6,
+                    },
+                    {
+                        type: "scatter",
+                        coordinateSystem: "geo",
+                        data: [ebpSecretariat, canadianProjectHeadquarter, africanProjectHeadquarter],
+                        symbolSize: 9,
+                    },
+                ],
+            };
+
+            myChart.setOption(option);
+
+            myChart.on("mouseover", function (params) {
+                if (params.seriesType === "scatter") {
+                    const item = filteredData[params.dataIndex];
+
+                    if (item === ebpSecretariat) {
+                        myChart.setOption({
+                            series: [
+                                option.series[0],
+                                option.series[1],
+                                {
+                                    type: "lines",
+                                    data: ebpLinks,
+                                    lineStyle: { normal: { color: "#333", width: 1, opacity: 0.5, curveness: 0.3 } },
+                                },
+                            ],
+                        });
+                    } else if (item === canadianProjectHeadquarter) {
+                        myChart.setOption({
+                            series: [
+                                option.series[0],
+                                option.series[1],
+                                {
+                                    type: "scatter",
+                                    coordinateSystem: "geo",
+                                    data: filteredData.filter((point) => point.name.includes("Canadian BioGenome") && point.type !== "Headquarter"),
+                                    symbolSize: 6,
+                                },
+                                {
+                                    type: "lines",
+                                    data: canadianLinks,
+                                    lineStyle: { normal: { color: "#333", width: 1, opacity: 0.5, curveness: 0.3 } },
+                                },
+                            ],
+                        });
+                    } else if (item === africanProjectHeadquarter) {
+                        myChart.setOption({
+                            series: [
+                                option.series[0],
+                                option.series[1],
+                                {
+                                    type: "scatter",
+                                    coordinateSystem: "geo",
+                                    data: filteredData.filter((point) => point.name.includes("African BioGenome") && point.type !== "Headquarter"),
+                                    symbolSize: 6,
+                                },
+                                {
+                                    type: "lines",
+                                    data: africanLinks,
+                                    lineStyle: { normal: { color: "#333", width: 1, opacity: 0.5, curveness: 0.3 } },
+                                },
+                            ],
+                        });
+                    }
+                }
+            });
+
+            myChart.on("mouseout", function (params) {
+                myChart.setOption(option);
+            });
+        }
+
+        initMap();
+    </script>
+</body>
+
+</html>

@@ -21,6 +21,7 @@
         height: 100vh;
         /* margin-bottom: 20px; */
         overflow: hidden;
+        background-color: #c4e1ff;
       }
 
       #barContainer {
@@ -147,242 +148,242 @@
       // ];
       // 定义不同洲对应的颜色
       const continentColors = {
-        'Asia': '#33FF57',
-        'Europe': '#66ccff',
-        'Africa': '#FF5733',
-        'North America': '#FF33A1',
-        'South America': '#FFD700',
-        'Oceania': '#8A2BE2',
-        'Antarctica': '#c4e1ff',
+        Asia: "#ffffff",
+        Europe: "#ffffff",
+        Africa: "#ffffff",
+        "North America": "#ffffff",
+        "South America": "#ffffff",
+        Oceania: "#ffffff",
+        Antarctica: "#ffffff",
       };
       const countryToContinent = {
         // 亚洲
-        "Afghanistan": "Asia",
-        "Armenia": "Asia",
-        "Azerbaijan": "Asia",
-        "Bahrain": "Asia",
-        "Bangladesh": "Asia",
-        "Bhutan": "Asia",
-        "Brunei": "Asia",
-        "Cambodia": "Asia",
-        "China": "Asia",
-        "Cyprus": "Asia",
-        "Georgia": "Asia",
-        "India": "Asia",
-        "Indonesia": "Asia",
-        "Iran": "Asia",
-        "Iraq": "Asia",
-        "Israel": "Asia",
-        "Japan": "Asia",
-        "Jordan": "Asia",
-        "Kazakhstan": "Asia",
-        "Kuwait": "Asia",
+        Afghanistan: "Asia",
+        Armenia: "Asia",
+        Azerbaijan: "Asia",
+        Bahrain: "Asia",
+        Bangladesh: "Asia",
+        Bhutan: "Asia",
+        Brunei: "Asia",
+        Cambodia: "Asia",
+        China: "Asia",
+        Cyprus: "Asia",
+        Georgia: "Asia",
+        India: "Asia",
+        Indonesia: "Asia",
+        Iran: "Asia",
+        Iraq: "Asia",
+        Israel: "Asia",
+        Japan: "Asia",
+        Jordan: "Asia",
+        Kazakhstan: "Asia",
+        Kuwait: "Asia",
         "Dem. Rep. Korea": "Asia",
-        "Korea": "Asia",
-        "Kyrgyzstan": "Asia",
-        "Laos": "Asia",
-        "Lebanon": "Asia",
-        "Malaysia": "Asia",
-        "Maldives": "Asia",
-        "Mongolia": "Asia",
-        "Myanmar": "Asia",
-        "Nepal": "Asia",
-        "Oman": "Asia",
-        "Pakistan": "Asia",
-        "Palestine": "Asia",
-        "Philippines": "Asia",
-        "Qatar": "Asia",
+        Korea: "Asia",
+        Kyrgyzstan: "Asia",
+        Laos: "Asia",
+        Lebanon: "Asia",
+        Malaysia: "Asia",
+        Maldives: "Asia",
+        Mongolia: "Asia",
+        Myanmar: "Asia",
+        Nepal: "Asia",
+        Oman: "Asia",
+        Pakistan: "Asia",
+        Palestine: "Asia",
+        Philippines: "Asia",
+        Qatar: "Asia",
         "Saudi Arabia": "Asia",
-        "Singapore": "Asia",
+        Singapore: "Asia",
         "Sri Lanka": "Asia",
-        "Syria": "Asia",
-        "Tajikistan": "Asia",
-        "Thailand": "Asia",
+        Syria: "Asia",
+        Tajikistan: "Asia",
+        Thailand: "Asia",
         "Timor-Leste": "Asia",
-        "Turkey": "Asia",
-        "Turkmenistan": "Asia",
+        Turkey: "Asia",
+        Turkmenistan: "Asia",
         "United Arab Emirates": "Asia",
-        "Uzbekistan": "Asia",
-        "Vietnam": "Asia",
-        "Yemen": "Asia",
+        Uzbekistan: "Asia",
+        Vietnam: "Asia",
+        Yemen: "Asia",
 
         // 欧洲
-        "Albania": "Europe",
-        "Andorra": "Europe",
-        "Austria": "Europe",
-        "Belarus": "Europe",
-        "Belgium": "Europe",
+        Albania: "Europe",
+        Andorra: "Europe",
+        Austria: "Europe",
+        Belarus: "Europe",
+        Belgium: "Europe",
         "Bosnia and Herzegovina": "Europe",
-        "Bulgaria": "Europe",
-        "Croatia": "Europe",
-        "Cyprus": "Europe",
-        "Czech Rep.": "Europe",  // 更新为常见缩写
-        "Denmark": "Europe",
-        "Estonia": "Europe",
-        "Finland": "Europe",
-        "France": "Europe",
-        "Germany": "Europe",
-        "Greece": "Europe",
-        "Hungary": "Europe",
-        "Iceland": "Europe",
-        "Ireland": "Europe",
-        "Italy": "Europe",
-        "Latvia": "Europe",
-        "Liechtenstein": "Europe",
-        "Lithuania": "Europe",
-        "Luxembourg": "Europe",
-        "Malta": "Europe",
-        "Moldova": "Europe",
-        "Monaco": "Europe",
-        "Montenegro": "Europe",
-        "Netherlands": "Europe",
+        Bulgaria: "Europe",
+        Croatia: "Europe",
+        Cyprus: "Europe",
+        "Czech Rep.": "Europe", // 更新为常见缩写
+        Denmark: "Europe",
+        Estonia: "Europe",
+        Finland: "Europe",
+        France: "Europe",
+        Germany: "Europe",
+        Greece: "Europe",
+        Hungary: "Europe",
+        Iceland: "Europe",
+        Ireland: "Europe",
+        Italy: "Europe",
+        Latvia: "Europe",
+        Liechtenstein: "Europe",
+        Lithuania: "Europe",
+        Luxembourg: "Europe",
+        Malta: "Europe",
+        Moldova: "Europe",
+        Monaco: "Europe",
+        Montenegro: "Europe",
+        Netherlands: "Europe",
         "North Macedonia": "Europe",
-        "Norway": "Europe",
-        "Poland": "Europe",
-        "Portugal": "Europe",
-        "Romania": "Europe",
-        "Russia": "Europe",
+        Norway: "Europe",
+        Poland: "Europe",
+        Portugal: "Europe",
+        Romania: "Europe",
+        Russia: "Europe",
         "San Marino": "Europe",
-        "Serbia": "Europe",
-        "Slovakia": "Europe",
-        "Slovenia": "Europe",
-        "Spain": "Europe",
-        "Sweden": "Europe",
-        "Switzerland": "Europe",
-        "Ukraine": "Europe",
+        Serbia: "Europe",
+        Slovakia: "Europe",
+        Slovenia: "Europe",
+        Spain: "Europe",
+        Sweden: "Europe",
+        Switzerland: "Europe",
+        Ukraine: "Europe",
         "United Kingdom": "Europe",
         "Vatican City": "Europe",
 
         // 非洲
-        "Algeria": "Africa",
-        "Angola": "Africa",
-        "Benin": "Africa",
-        "Botswana": "Africa",
+        Algeria: "Africa",
+        Angola: "Africa",
+        Benin: "Africa",
+        Botswana: "Africa",
         "Burkina Faso": "Africa",
-        "Burundi": "Africa",
+        Burundi: "Africa",
         "Cabo Verde": "Africa",
-        "Cameroon": "Africa",
+        Cameroon: "Africa",
         "Central African Republic": "Africa",
-        "Chad": "Africa",
-        "Comoros": "Africa",
+        Chad: "Africa",
+        Comoros: "Africa",
         "Congo, Democratic Republic of the": "Africa",
         "Congo, Republic of the": "Africa",
-        "Djibouti": "Africa",
-        "Egypt": "Africa",
+        Djibouti: "Africa",
+        Egypt: "Africa",
         "Equatorial Guinea": "Africa",
-        "Eritrea": "Africa",
-        "Eswatini": "Africa",
-        "Ethiopia": "Africa",
-        "Gabon": "Africa",
-        "Gambia": "Africa",
-        "Ghana": "Africa",
-        "Guinea": "Africa",
+        Eritrea: "Africa",
+        Eswatini: "Africa",
+        Ethiopia: "Africa",
+        Gabon: "Africa",
+        Gambia: "Africa",
+        Ghana: "Africa",
+        Guinea: "Africa",
         "Guinea-Bissau": "Africa",
         "Ivory Coast": "Africa",
-        "Kenya": "Africa",
-        "Lesotho": "Africa",
-        "Liberia": "Africa",
-        "Libya": "Africa",
-        "Madagascar": "Africa",
-        "Malawi": "Africa",
-        "Mali": "Africa",
-        "Mauritania": "Africa",
-        "Mauritius": "Africa",
-        "Morocco": "Africa",
-        "Mozambique": "Africa",
-        "Namibia": "Africa",
-        "Niger": "Africa",
-        "Nigeria": "Africa",
-        "Rwanda": "Africa",
+        Kenya: "Africa",
+        Lesotho: "Africa",
+        Liberia: "Africa",
+        Libya: "Africa",
+        Madagascar: "Africa",
+        Malawi: "Africa",
+        Mali: "Africa",
+        Mauritania: "Africa",
+        Mauritius: "Africa",
+        Morocco: "Africa",
+        Mozambique: "Africa",
+        Namibia: "Africa",
+        Niger: "Africa",
+        Nigeria: "Africa",
+        Rwanda: "Africa",
         "Sao Tome and Principe": "Africa",
-        "Senegal": "Africa",
-        "Seychelles": "Africa",
+        Senegal: "Africa",
+        Seychelles: "Africa",
         "Sierra Leone": "Africa",
-        "Somalia": "Africa",
+        Somalia: "Africa",
         "South Africa": "Africa",
         "South Sudan": "Africa",
-        "Sudan": "Africa",
-        "Tanzania": "Africa",
-        "Togo": "Africa",
-        "Tunisia": "Africa",
-        "Uganda": "Africa",
-        "Zambia": "Africa",
-        "Zimbabwe": "Africa",
+        Sudan: "Africa",
+        Tanzania: "Africa",
+        Togo: "Africa",
+        Tunisia: "Africa",
+        Uganda: "Africa",
+        Zambia: "Africa",
+        Zimbabwe: "Africa",
 
         // 北美洲
         "Antigua and Barbuda": "North America",
-        "Bahamas": "North America",
-        "Barbados": "North America",
-        "Belize": "North America",
-        "Canada": "North America",
+        Bahamas: "North America",
+        Barbados: "North America",
+        Belize: "North America",
+        Canada: "North America",
         "Costa Rica": "North America",
-        "Cuba": "North America",
-        "Dominica": "North America",
+        Cuba: "North America",
+        Dominica: "North America",
         "Dominican Rep.": "North America",
         "El Salvador": "North America",
-        "Grenada": "North America",
-        "Guatemala": "North America",
-        "Haiti": "North America",
-        "Honduras": "North America",
-        "Jamaica": "North America",
-        "Mexico": "North America",
-        "Nicaragua": "North America",
-        "Panama": "North America",
+        Grenada: "North America",
+        Guatemala: "North America",
+        Haiti: "North America",
+        Honduras: "North America",
+        Jamaica: "North America",
+        Mexico: "North America",
+        Nicaragua: "North America",
+        Panama: "North America",
         "Saint Kitts and Nevis": "North America",
         "Saint Lucia": "North America",
         "Saint Vincent and the Grenadines": "North America",
         "United States": "North America",
         "Puerto Rico": "North America", // 虽然为美国领土但常列为国家
-        "Greenland": "North America",
+        Greenland: "North America",
 
         // 南美洲
-        "Argentina": "South America",
-        "Bolivia": "South America",
-        "Brazil": "South America",
-        "Chile": "South America",
-        "Colombia": "South America",
-        "Ecuador": "South America",
-        "Guyana": "South America",
-        "Paraguay": "South America",
-        "Peru": "South America",
-        "Suriname": "South America",
-        "Uruguay": "South America",
-        "Venezuela": "South America",
+        Argentina: "South America",
+        Bolivia: "South America",
+        Brazil: "South America",
+        Chile: "South America",
+        Colombia: "South America",
+        Ecuador: "South America",
+        Guyana: "South America",
+        Paraguay: "South America",
+        Peru: "South America",
+        Suriname: "South America",
+        Uruguay: "South America",
+        Venezuela: "South America",
         "Falkland Is.": "South America",
         "S. Geo. and S. Sandw. Is.": "South America",
 
         // 大洋洲
-        "Australia": "Oceania",
-        "Fiji": "Oceania",
-        "Kiribati": "Oceania",
+        Australia: "Oceania",
+        Fiji: "Oceania",
+        Kiribati: "Oceania",
         "Marshall Islands": "Oceania",
-        "Micronesia": "Oceania",
-        "Nauru": "Oceania",
+        Micronesia: "Oceania",
+        Nauru: "Oceania",
         "New Zealand": "Oceania",
-        "Palau": "Oceania",
+        Palau: "Oceania",
         "Papua New Guinea": "Oceania",
-        "Samoa": "Oceania",
+        Samoa: "Oceania",
         "Solomon Islands": "Oceania",
-        "Tonga": "Oceania",
-        "Tuvalu": "Oceania",
-        "Vanuatu": "Oceania",
+        Tonga: "Oceania",
+        Tuvalu: "Oceania",
+        Vanuatu: "Oceania",
         "W. Sahara": "Africa",
         "Côte d'Ivoire": "Africa",
         "Central African Rep.": "Africa",
         "S. Sudan": "Africa",
-        "Congo": "Africa",
+        Congo: "Africa",
         "Dem. Rep. Congo": "Africa",
-        "Swaziland": "Africa",
-        "Eq. Guinea": "Africa", 
+        Swaziland: "Africa",
+        "Eq. Guinea": "Africa",
         "Siachen Glacier": "Asia",
         "Korea, North": "Asia",
         "Korea, South": "Asia",
-        "Australia": "Oceania",
+        Australia: "Oceania",
         "New Zealand": "Oceania",
         "Papua New Guinea": "Oceania",
         "Solomon Is.": "Oceania",
-        "Fiji": "Oceania",
-        "Vanuatu": "Oceania",
+        Fiji: "Oceania",
+        Vanuatu: "Oceania",
         "New Caledonia": "Oceania",
       };
       const data = projectsData;
@@ -401,66 +402,111 @@
             addressMap[address] > 1 ? ((Math.random() - 5) * 2) / 5 : 0;
           const offsetY =
             addressMap[address] > 1 ? ((Math.random() + 0) * 2) / 5 : 0;
-          return {
+          const data = {
             name: item.projectName,
             value: [
               item.longitude + offsetX,
               item.latitude + offsetY,
               addressMap[address],
             ],
+            type: item.type,
             website: item.website,
-            address: address,
-            isCenter: !!item.isCenter,
+            address: item.isCenter ? "" : address,
+            isCenter: item.type === "Headquarter" || !!item.isCenter,
+            symbolSize: item.isCenter
+              ? 9 // Size for center dots
+              : item.type === "Headquarter"
+                ? 9 // Size for headquarters
+                : 6, // Default size for other points
             isNew: !!item.isNew,
             itemStyle: {
-                color: "#333", // 其他点颜色
-                borderColor: !!item.isCenter ? "#ffff00" :  "transparent", // 轮廓颜色
-                borderWidth: 3, // 轮廓宽度
-                opacity: 0.9,
-              },
+              color: "#333", // 其他点颜色
+              borderColor: !!item.isCenter ? "#FFFF00" : "transparent", // 轮廓颜色
+              borderWidth: 4, // 轮廓宽度
+              opacity: 1,
+            },
           };
+          if (data.type === "Headquarter") {
+            data.itemStyle.borderColor = "#dbc649";
+          }
+          return data;
         });
         // Filter out dots with isNew: true
         const filteredData = aggregatedData.filter((point) => !point.isNew);
 
         const center = filteredData.find((point) => point.isCenter);
-
+        const canadianProjectHeadquarter = filteredData.find(
+          (point) =>
+            point.name.includes("Canadian BioGenome") &&
+            point.type == "Headquarter"
+        );
         const links = [];
+        const canadianLinks = [];
 
         filteredData.forEach((point) => {
-          if (point.isCenter) return; // 中心点不需要链接自己
+          if (point.isCenter && point.type !== 'Headquarter') return; // 中心点不需要链接自己
 
           // Compute consistent curveness directions
-          const curveness = point.value[0] >= center.value[0] ? 0.4 : -0.4
+          // const curveness = point.value[0] >= center.value[0] ? 0.4 : -0.4;
 
-          // 添加飞线连接中心点
-          links.push({
-            fromName: center.name,
-            toName: point.name,
-            coords: [center.value, point.value], // Always start with the center
-            lineStyle: {
+          if (
+            point.name.includes("Canadian BioGenome") &&
+            point.type !== "Headquarter"
+          ) {
+            canadianLinks.push({
+              fromName: canadianProjectHeadquarter.name,
+              toName: point.name,
+              coords: [canadianProjectHeadquarter.value, point.value], // Always start with the center
+              lineStyle: {
                 normal: {
-                    curveness: curveness, // Positive for right, negative for left
+                  curveness:
+                    point.value[0] >= canadianProjectHeadquarter.value[0]
+                      ? 0.3
+                      : -0.3, // Positive for right, negative for left
                 },
-            },             
-          });
+              },
+            });
+          } else {
+            // 添加飞线连接中心点
+            links.push({
+              fromName: center.name,
+              toName: point.name,
+              coords: [center.value, point.value], // Always start with the center
+              lineStyle: {
+                normal: {
+                  curveness: point.value[0] >= center.value[0] ? 0.4 : -0.4, // Positive for right, negative for left
+                },
+              },
+            });
+          }
+          console.log(links)
         });
+
         const myChart = echarts.init(document.getElementById("mapContainer"));
         // Configure the map options
         const option = {
           tooltip: {
             trigger: "item",
             formatter: function (params) {
-              if (params.seriesType === "lines") {
-                const item = links[params.dataIndex];
-                return `${item.fromName} -> ${item.toName}`; // 飞线
-              } else if (params.seriesType === "scatter") {
+              if (params.seriesType === "scatter") {
                 const item = filteredData[params.dataIndex];
-                return `Name: ${item.name}<br/>Address: ${
-                  item.address
-                }<br/>Website: ${item.website || "-"}`; // Show count
-              }
+                let result = `${item.name}<br/>`; // 飞线
+                if (item.type) {
+                    result += `${item.type}`;
+                }
+                return result;
+              } 
+              return null;
             },
+            textStyle: {
+              fontSize: 12, // 设置字体大小
+            },
+            // 设置 tooltip 的样式，包括背景色、边框等
+            backgroundColor: "rgba(255, 255, 255, 0.8)", // 可以设置背景颜色
+            borderWidth: 1,
+            borderColor: "#ccc",
+            padding: [10, 10], // 设置内容的内边距
+            extraCssText: "max-width: 200px; white-space: normal; word-break: break-all", // 设置最大宽度和换行
           },
           // visualMap: {
           //   show: true,
@@ -491,40 +537,71 @@
               emphasis: {
                 areaColor: "#FFFF00",
               },
-            },            
-            regions: Object.keys(countryToContinent).map(countryName => (
+            },
+            regions: [
+              // Include standard regions dynamically
+              ...Object.keys(countryToContinent)
+                .filter(
+                  (countryName) => countryName !== "Chukotka Autonomous Okrug"
+                ) // Exclude the region
+                .map((countryName) => ({
+                  name: countryName,
+                  itemStyle: {
+                    areaColor: continentColors[countryToContinent[countryName]], // Setting country color
+                  },
+                })),
+
+              // Special case for Russia to group and shift its position
               {
-                name: countryName,  // 美国的名称
+                name: "Russia", // Handle Russia separately
                 itemStyle: {
-                  areaColor: continentColors[countryToContinent[countryName]]// 使用红色高亮美国
-                }
-              }))
-          },           
+                  normal: {
+                    areaColor: "#33FF57", // Use a distinct color for Russia
+                  },
+                },
+                transform: {
+                  x: 360, // Shift to the right
+                  y: 0, // No vertical adjustment
+                  scale: 1, // Keep the same scale
+                },
+              },
+            ],
+            regions: Object.keys(countryToContinent)
+              .filter(
+                (countryName) => countryName !== "Chukotka Autonomous Okrug"
+              ) // Exclude the region
+              .map((countryName) => ({
+                name: countryName,
+                itemStyle: {
+                  areaColor: continentColors[countryToContinent[countryName]], // Setting country color
+                },
+              })),
+          },
           series: [
             {
               type: "scatter",
               coordinateSystem: "geo",
               data: filteredData, //use filtered data
-              symbolSize: 8,
-            //   itemStyle: {
-            //     color: "#333", // 其他点颜色
-            //     borderColor: "#333", // 轮廓颜色
-            //     borderWidth: 2 // 轮廓宽度
+              symbolSize: 6,
+              //   itemStyle: {
+              //     color: "#333", // 其他点颜色
+              //     borderColor: "#333", // 轮廓颜色
+              //     borderWidth: 2 // 轮廓宽度
+              //   },
+            },
+            // {
+            //   type: "lines",
+            //   z: 2,
+            //   lineStyle: {
+            //     normal: {
+            //       color: "#333",
+            //       width: 1,
+            //       opacity: 0.5,
+            //       curveness: 0.4, // 线的弯曲度
+            //     },
             //   },
-            },
-            {
-              type: "lines",
-              z: 2,
-              lineStyle: {
-                normal: {
-                  color: "#333",
-                  width: 1,
-                  opacity: 0.5,
-                  curveness: 0.4, // 线的弯曲度
-                },
-              },
-              data: links,
-            },
+            //   data: links,
+            // },
           ],
         };
 
@@ -539,6 +616,126 @@
               window.alert("no website!");
             }
           }
+        });
+
+        myChart.on("mouseover", function (params) {
+          let lines = [];
+          if (params.seriesType === "scatter") {
+            if (filteredData[params.dataIndex].type === "Headquarter") {
+              lines = canadianLinks;
+            } else if (filteredData[params.dataIndex].isCenter) {
+              lines = links;
+            }
+            myChart.setOption({
+              series: [
+                {
+                  type: "scatter",
+                  coordinateSystem: "geo",
+                  data: filteredData, //use filtered data
+                  symbolSize: 6,
+                  //   itemStyle: {
+                  //     color: "#333", // 其他 点颜色
+                  //     borderColor: "#333", // 轮廓颜色
+                  //     borderWidth: 2 // 轮廓宽度
+                  //   },
+                },
+                {
+                  type: "lines",
+                  z: 2,
+                  lineStyle: {
+                    normal: {
+                      color: "#333",
+                      width: 1,
+                      opacity: 0.5,
+                      curveness: 0.4, // 线的弯曲度
+                    },
+                  },
+                  data: lines,
+                },
+              ],
+            });
+          }
+          // // 当鼠标悬停在中心点上时
+          // if (
+          //   params.seriesType === "scatter" &&
+          //   filteredData[params.dataIndex].isCenter
+          // ) {
+
+          //   // 移除现有的连接线
+          //   myChart.setOption({
+          //     series: [
+          //       {
+          //         type: "scatter",
+          //         coordinateSystem: "geo",
+          //         data: filteredData, //use filtered data
+          //         symbolSize: 8,
+          //         //   itemStyle: {
+          //         //     color: "#333", // 其他点颜色
+          //         //     borderColor: "#333", // 轮廓颜色
+          //         //     borderWidth: 2 // 轮廓宽度
+          //         //   },
+          //       },
+          //       {
+          //         type: "lines",
+          //         z: 2,
+          //         lineStyle: {
+          //           normal: {
+          //             color: "#333",
+          //             width: 1,
+          //             opacity: 0.5,
+          //             curveness: 0.4, // 线的弯曲度
+          //           },
+          //         },
+          //         data: links,
+          //       },
+          //     ],
+          //   });
+          // }
+          // else {
+          //   // 当鼠标不在中心点上时，隐藏线条
+          //   myChart.setOption({
+          //     series: [
+          //       {
+          //         type: "scatter",
+          //         coordinateSystem: "geo",
+          //         data: filteredData, //use filtered data
+          //         symbolSize: 8,
+          //         //   itemStyle: {
+          //         //     color: "#333", // 其他点颜色
+          //         //     borderColor: "#333", // 轮廓颜色
+          //         //     borderWidth: 2 // 轮廓宽度
+          //         //   },
+          //       },
+          //       {
+          //         type: "lines",
+          //         data: [], // 隐藏连线
+          //       },
+          //     ],
+          //   });
+          // }
+        });
+
+        // 还原处理，当鼠标移开时也可以处理
+        myChart.on("mouseout", function () {
+          myChart.setOption({
+            series: [
+              {
+                type: "scatter",
+                coordinateSystem: "geo",
+                data: filteredData, //use filtered data
+                symbolSize: 6,
+                //   itemStyle: {
+                //     color: "#333", // 其他点颜色
+                //     borderColor: "#333", // 轮廓颜色
+                //     borderWidth: 2 // 轮廓宽度
+                //   },
+              },
+              {
+                type: "lines",
+                data: [], // 重新设置为空
+              },
+            ],
+          });
         });
 
         // const colorMap =  [

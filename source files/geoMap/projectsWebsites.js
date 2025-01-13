@@ -43,7 +43,7 @@ const projectsData = [
     longitude: -77.0294015895757,
   },
   {
-    projectName: "10,000 Plants projectName (10KP)",
+    projectName: "10,000 Plants (10KP)",
     continent: "Asia",
     address: "China National GeneBank. Address: Shenzhen 518120, China",
     website: "https://academic.oup.com/gigascience/article/7/3/giy013/4880447",
@@ -76,7 +76,7 @@ const projectsData = [
     longitude: -71.0887906164154,
   },
   {
-    projectName: "Darwin Tree of Life projectName (DToL)",
+    projectName: "Darwin Tree of Life (DToL)",
     continent: "Europe",
     address:
       "Wellcome Trust Genome Campus, Hinxton, Saffron Walden CB10 1RQ, United Kingdom",
@@ -93,7 +93,7 @@ const projectsData = [
     longitude: -70.6405703032793,
   },
   {
-    projectName: "Taiwan BioGenomes projectName",
+    projectName: "Taiwan BioGenomes Project",
     continent: "Asia",
     address:
       "No. 128, Section 2, Academia Rd, Nangang District, Taipei City, Taiwan",
@@ -171,7 +171,7 @@ const projectsData = [
     longitude: -1.19553812098056,
   },
   {
-    projectName: "Catalan Initiative for the Earth BioGenome projectName",
+    projectName: "Catalan Initiative for the Earth BioGenome Project",
     continent: "Europe",
     address: "Carrer del Carme, 4708001 Barcelona, Spain",
     website: "https://www.scb.cat/biogenoma/en/home/",
@@ -195,7 +195,7 @@ const projectsData = [
     longitude: 11.6263254702019,
   },
   {
-    projectName: "Primate Genome projectName",
+    projectName: "Primate Genome Project",
     continent: "Asia",
     address: "866 Yuhangtang Rd, Xihu, Hangzhou, Zhejiang, 310027, China",
     website: undefined,
@@ -211,7 +211,7 @@ const projectsData = [
     longitude: 139.990672369802,
   },
   {
-    projectName: "Butterfly Genome projectName",
+    projectName: "Butterfly Genome Project",
     continent: "Asia",
     address: "E Jiaochang Rd, Wuhua District, Kunming, Yunnan, 650023, China",
     website: undefined,
@@ -219,7 +219,7 @@ const projectsData = [
     longitude: 102.710641454124,
   },
   {
-    projectName: "Crab Genome projectName",
+    projectName: "Crab Genome Project",
     continent: "Asia",
     address: "Yancheng, 224051, China",
     website: undefined,
@@ -227,7 +227,7 @@ const projectsData = [
     longitude: -76.6058867760655,
   },
   {
-    projectName: "Lilioid Monocots Core Group Genome projectName",
+    projectName: "Lilioid Monocots Core Group Genome Project",
     continent: "Asia",
     address: "Shaanxi, Xi'An, Beilin, 友谊西路127号 邮政编码: 710060, China",
     website: undefined,
@@ -235,7 +235,7 @@ const projectsData = [
     longitude: 108.91149145442,
   },
   {
-    projectName: "Cartilaginous Fish Genome projectName",
+    projectName: "Cartilaginous Fish Genome Project",
     continent: "Asia",
     address:
       "127 West Youyi Road, Beilin District, Xi'an Shaanxi, 710072, China",
@@ -244,7 +244,7 @@ const projectsData = [
     longitude: 108.928872912091,
   },
   {
-    projectName: "Ungulates Genome projectName",
+    projectName: "Ungulates Genome Project",
     continent: "Asia",
     address: "Shaanxi, Xi'An, Beilin, 友谊西路127号 邮政编码: 710060, China",
     website: undefined,
@@ -254,13 +254,13 @@ const projectsData = [
   {
     projectName: "CanSeq150",
     continent: "North America",
-    address: "CGEn 686 Bay Street, Toronto, ON M5G 0A4 Canada",
+    address: "686 Bay Street, Toronto, ON M5G 0A4, Canada",
     website: "http://www.cgen.ca/canseq150",
-    latitude: 43.6577,
-    longitude: -79.3854,
+    latitude: 43.657768,
+    longitude: -79.384883,
   },
   {
-    projectName: "Deep-Ocean Genomes projectName",
+    projectName: "Deep-Ocean Genomes Project",
     continent: "North America",
     address: "86 Water St, Falmouth, MA 02543, United States",
     website: undefined,
@@ -279,10 +279,10 @@ const projectsData = [
     projectName: "Soil Invertebrate Genome Initiative",
     continent: "Europe",
     address:
-      "Senckenberganlage 25 D-60325 Frankfurt/Main, France",
+      "300 bd Sébastien Brant - BP 10413 - F-67412 Illkirch Cedex, France",
     website: undefined,
-    latitude: 48.642620,
-    longitude: -1.903690,
+    latitude: 50.1171516011758,
+    longitude: 8.65149548210233,
   },
   {
     projectName: "European Reference Genome Atlas",
@@ -293,7 +293,7 @@ const projectsData = [
     longitude: 13.5214660552365,
   },
   {
-    projectName: "Aquatic Symbiosis Genomics projectName",
+    projectName: "Aquatic Symbiosis Genomics Project",
     continent: "Europe",
     address:
       "Wellcome Trust Genome Campus, Hinxton, Saffron Walden CB10 1RQ, United Kingdom",
@@ -311,8 +311,9 @@ const projectsData = [
     longitude: -121.492643403082,
   },
   {
-    projectName: "African BioGenome projectName (AfricaBP)",
+    projectName: "African BioGenome Project (AfricaBP)",
     continent: "Africa",
+    type: 'Headquarter',
     address:
       "Jomo Kenyatta University of Agriculture and Technology, Juja Kwale, Rd, Juja, Kenya",
     website: "http://africanbiogenome.org/",
@@ -320,7 +321,43 @@ const projectsData = [
     longitude: 37.0118027267846,
   },
   {
-    projectName: "Vertebrate Genomes projectName",
+    projectName: "African BioGenome Project (AfricaBP)",
+    continent: "Africa",
+    type: 'Affiliate',
+    address:
+      "Agricultural Research Council, Pretoria, South Africa",    
+    latitude: -25.7485438,
+    longitude: 28.236981,
+  },
+  {
+    projectName: "African BioGenome Project (AfricaBP)",
+    continent: "Africa",
+    type: 'Affiliate',
+    address:
+      "Agricultural Research Council, Pretoria, South Africa",
+    latitude: 9.081999,
+    longitude: 8.675277,
+  },
+  {
+    projectName: "African BioGenome Project (AfricaBP)",
+    continent: "Africa",
+    type: 'Affiliate',
+    address:
+      "Agricultural Research Council, Pretoria, South Africa",
+    latitude: -33.9162159,
+    longitude: 18.6044098,
+  },
+  {
+    projectName: "African BioGenome Project (AfricaBP)",
+    continent: "Africa",
+    type: 'Affiliate',
+    address:
+      "Agricultural Research Council, Pretoria, South Africa",
+    latitude: 31.791702,
+    longitude: -7.09262,
+  },
+  {
+    projectName: "Vertebrate Genomes Project",
     continent: "North America",
     address: "1230 York Ave, New York, NY 10065, United States",
     website: "https://vertebrategenomesproject.org/",
@@ -328,7 +365,7 @@ const projectsData = [
     longitude: -73.9561296183326,
   },
   {
-    projectName: "California Conservation Genomes projectName",
+    projectName: "California Conservation Genomes Project",
     continent: "North America",
     address: "31915 Mulholland Hwy, Malibu, CA 90265, United States",
     website: "https://www.ccgproject.org/",
@@ -336,7 +373,7 @@ const projectsData = [
     longitude: -118.815749345584,
   },
   {
-    projectName: "AusARG Reptile and Amphibian Genomics projectName",
+    projectName: "AusARG Reptile and Amphibian Genomics Project",
     continent: "Australia",
     address: "University of Canberra, Bruce ACT 2617 , Australia",
     website:
@@ -345,7 +382,7 @@ const projectsData = [
     longitude: 149.083920042811,
   },
   {
-    projectName: "Polar Genomes projectName",
+    projectName: "Polar Genomes Project",
     continent: "Asia",
     address: "26 Songdomirae-ro, Yeonsu-gu, Incheon, South Korea",
     website: undefined,
@@ -353,7 +390,7 @@ const projectsData = [
     longitude: 126.646222252692,
   },
   {
-    projectName: "Dresden HQ Genomes projectName",
+    projectName: "Dresden HQ Genomes Project",
     continent: "Europe",
     address: "Fetscherstraße 105, 01307 Dresden, Germany",
     website: undefined,
@@ -361,7 +398,7 @@ const projectsData = [
     longitude: 13.7767650686559,
   },
   {
-    projectName: "Epizoic Diatom Genomes projectName",
+    projectName: "Epizoic Diatom Genomes Project",
     continent: "Europe",
     address: "Building F1 11 Hoffman Street Potchefstroom 2531, Norway",
     website: undefined,
@@ -385,13 +422,38 @@ const projectsData = [
     longitude: 10.7215439556399,
   },
   {
-    projectName: "Canadian Earth BioGenome projectName",
+    projectName: "Canadian BioGenome Project",
     continent: "North America",
-    address: "British Columbia Cancer-Vancouver, 600 West 10th Avenue, Vancouver, BC, V5Z 4E6",
+    type: 'Headquarter',
+    address: "University of British Columbia, Vancouver, BC V6T 1Z4, Canada",
     website: "https://earthbiogenome.ca/",
-    latitude: 49.26218,
-    longitude: -123.11772,
+    latitude: 49.260125680538,
+    longitude: -123.242998256668,
   },
+  {
+    projectName: "Canadian BioGenome Project",
+    continent: "North America",
+    type: "Affiliate",
+    website: "https://earthbiogenome.ca/",
+    latitude: 43.662536,
+    longitude: -79.37189,
+    },
+    {
+    projectName: "Canadian BioGenome Project",
+    continent: "North America",
+    type: "Affiliate",
+    website: "https://earthbiogenome.ca/",
+    latitude: 45.499981,
+    longitude: -73.556587,
+    },
+    {
+    projectName: "Canadian BioGenome Project",
+    continent: "North America",
+    type: "Affiliate",
+    website: "https://earthbiogenome.ca/",
+    latitude: 53.51485,
+    longitude: -113.516594,
+    },
   {
     projectName: "Plant and Fungi Trees of Life (PAFTOL)",
     continent: "Europe",
@@ -428,10 +490,10 @@ const projectsData = [
   {
     projectName: "ATLASea",
     continent: "North America",
-    address: "2451 Signal St, San Pedro, CA 90731, United States",
+    address: "École normale supérieure 46, Rue d’Ulm 75005 Paris",
     website: "http://www.atlasea.fr/en/",
-    latitude: 33.7224776153701,
-    longitude: -118.273488818611,
+    latitude: 48.842107,
+    longitude: 2.343990,
   },
   {
     projectName: "Ocean Genomes",
@@ -442,7 +504,7 @@ const projectsData = [
     longitude: 115.819773580779,
   },
   {
-    projectName: "Cetaceans Genome projectName",
+    projectName: "Cetaceans Genome Project",
     continent: "North America",
     address:
       "401 Constitution Avenue NW, Room 5128 Washington, DC 20230, United States",
@@ -464,7 +526,7 @@ const projectsData = [
     address:
       "R. Boaventura da Silva, 955 - Nazaré, Belém - PA, 66055-090, Brazil",
     website:
-      "https://www.itv.org/en/genomics-of-the-brazilian-biodiversity-gbb/",
+      "https://urldefense.com/v3/__https://www.itv.org/en/genomics-of-the-brazilian-biodiversity-gbb/__;!!IKRxdwAv5BmarQ!awfBpNjxXStAg2W86oAE-9zIWZ_y3yq2WSpBC5DA20KCtwDsYxLAWcXZfkH_S3aLYhmr9supxH1Z-ySQGVPviWD_3DqfjzbF$",
     latitude: -1.4466457631436,
     longitude: -48.4822375192399,
   },
@@ -480,10 +542,11 @@ const projectsData = [
   {
     projectName: "Wise Ancestors",
     continent: "North America",
-    address: "570 W 7th Ave, Vancouver, BC V5Z 4S6, Canada",
-    website: "https://www.wiseancestors.org/",
-    latitude: 49.2648508862858,
-    longitude: -123.11688131794,
+    address: "Delaware Mail Stop Genomics, 2300 Delaware Ave, Santa Cruz, CA 95060",
+    website:
+      "https://urldefense.com/v3/__http://www.wiseancestors.org__;!!IKRxdwAv5BmarQ!exbSyINIvOQTGqw9cOPQu8krsO_dXOrWXm86XJ6LORTXp3Kt2htjxXnEFMQvGDJTNOLQI1msLydDEwlw6r5SQEgbYl0$",
+    latitude: 36.955401,
+    longitude: -122.058069,
   },
   {
     projectName: "Hong Kong EBP",
@@ -494,12 +557,12 @@ const projectsData = [
     longitude: 114.206728409877,
   },
   {
-    projectName: "Catalan Initiative for the Earth Biogenome projectName",
+    projectName: "Catalan Initiative for the Earth Biogenome Project",
     continent: "Europe",
     website: "https://www.scb.cat/biogenoma/en/home/",
-    address: "Old Hospital de la Santa Creu, Barcelona",
-    latitude: 41.405340,
-    longitude: 2.156580,
+    address: "Andorra",
+    latitude: 42.506317,
+    longitude: 1.521835,
     isNew: true,
   },
   {
@@ -579,7 +642,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "Europe",
     website: "https://www.projectpsyche.org/",
     address: "Austria",
@@ -650,7 +713,7 @@ const projectsData = [
     projectName: "Wise Ancestors",
     continent: "North Amerca",
     website:
-      "https://www.wiseancestors.org/",
+      "https://urldefense.com/v3/__http://www.wiseancestors.org__;!!IKRxdwAv5BmarQ!exbSyINIvOQTGqw9cOPQu8krsO_dXOrWXm86XJ6LORTXp3Kt2htjxXnEFMQvGDJTNOLQI1msLydDEwlw6r5SQEgbYl0$",
     address: "Bermuda",
     latitude: 32.321384,
     longitude: -64.75737,
@@ -725,7 +788,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "Europe",
     website: "https://www.projectpsyche.org/",
     address: "Bulgaria",
@@ -787,7 +850,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "North America",
     website: "https://www.projectpsyche.org/",
     address: "Canada",
@@ -894,7 +957,7 @@ const projectsData = [
     projectName: "Wise Ancestors",
     continent: "South America",
     website:
-      "https://www.wiseancestors.org/",
+      "https://urldefense.com/v3/__http://www.wiseancestors.org__;!!IKRxdwAv5BmarQ!exbSyINIvOQTGqw9cOPQu8krsO_dXOrWXm86XJ6LORTXp3Kt2htjxXnEFMQvGDJTNOLQI1msLydDEwlw6r5SQEgbYl0$",
     address: "Colombia",
     latitude: 4.624335,
     longitude: -74.063644,
@@ -970,7 +1033,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "Europe",
     website: "https://www.projectpsyche.org/",
     address: "Czech Republic",
@@ -979,7 +1042,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "African Biogenome projectName",
+    projectName: "African Biogenome Project",
     continent: "Africa",
     website: "http://africanbiogenome.org/",
     address: "Democratic Republic of the Congo",
@@ -1092,7 +1155,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "African Biogenome projectName",
+    projectName: "African Biogenome Project",
     continent: "Africa",
     website: "http://africanbiogenome.org/",
     address: "Egypt",
@@ -1110,7 +1173,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "Europe",
     website: "https://www.projectpsyche.org/",
     address: "Estonia",
@@ -1119,7 +1182,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "African Biogenome projectName",
+    projectName: "African Biogenome Project",
     continent: "Africa",
     website: "http://africanbiogenome.org/",
     address: "Ethiopia",
@@ -1170,7 +1233,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "Europe",
     website: "https://www.projectpsyche.org/",
     address: "Finland",
@@ -1224,7 +1287,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "Catalan Initiative for the Earth Biogenome projectName",
+    projectName: "Catalan Initiative for the Earth Biogenome Project",
     continent: "Europe",
     website: "https://www.scb.cat/biogenoma/en/home/",
     address: "France",
@@ -1242,7 +1305,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "Europe",
     website: "https://www.projectpsyche.org/",
     address: "France",
@@ -1260,7 +1323,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "Africa",
     website: "https://www.projectpsyche.org/",
     address: "Georgia",
@@ -1314,7 +1377,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "Cetacean Genomes projectName",
+    projectName: "Cetacean Genomes Project",
     continent: "Europe",
     address: "Germany",
     latitude: 52.520008,
@@ -1331,7 +1394,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "Open Green Genome projectName",
+    projectName: "Open Green Genome Project",
     continent: "Europe",
     website:
       "https://jgi.doe.gov/csp-2018-leebens-mack-open-green-genomes-initiative/",
@@ -1341,7 +1404,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "Europe",
     website: "https://www.projectpsyche.org/",
     address: "Germany",
@@ -1358,7 +1421,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "African Biogenome projectName",
+    projectName: "African Biogenome Project",
     continent: "Africa",
     website: "http://africanbiogenome.org/",
     address: "Ghana",
@@ -1574,7 +1637,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "Europe",
     website: "https://www.projectpsyche.org/",
     address: "Italy",
@@ -1620,7 +1683,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "Open Green Genome projectName",
+    projectName: "Open Green Genome Project",
     continent: "Asia",
     website:
       "https://jgi.doe.gov/csp-2018-leebens-mack-open-green-genomes-initiative/",
@@ -1639,11 +1702,11 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "African Biogenome projectName",
+    projectName: "African Biogenome Project",
     continent: "Africa",
     website: "http://africanbiogenome.org/",
     address: "Madagascar",
-    latitude: -18.7669,
+    latitude: 18.7669,
     longitude: 46.8691,
     isNew: true,
   },
@@ -1720,7 +1783,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "African Biogenome projectName",
+    projectName: "African Biogenome Project",
     continent: "Africa",
     website: "http://africanbiogenome.org/",
     address: "Morocco",
@@ -1729,7 +1792,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "African Biogenome projectName",
+    projectName: "African Biogenome Project",
     continent: "Africa",
     website: "http://africanbiogenome.org/",
     address: "Namibia",
@@ -1757,7 +1820,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "Open Green Genome projectName",
+    projectName: "Open Green Genome Project",
     continent: "Africa",
     website:
       "https://jgi.doe.gov/csp-2018-leebens-mack-open-green-genomes-initiative/",
@@ -1794,7 +1857,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "Europe",
     website: "https://www.projectpsyche.org/",
     address: "Netherlands",
@@ -1838,7 +1901,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "African Biogenome projectName",
+    projectName: "African Biogenome Project",
     continent: "Africa",
     website: "http://africanbiogenome.org/",
     address: "Nigeria",
@@ -1909,7 +1972,7 @@ const projectsData = [
     projectName: "Bat1K ",
     continent: "Asia",
     website: "https://bat1k.com/",
-    address: "Pakistan",
+    address: "Paikstan",
     latitude: 30.375321,
     longitude: 69.345116,
     isNew: true,
@@ -2001,7 +2064,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "Europe",
     website: "https://www.projectpsyche.org/",
     address: "Poland",
@@ -2037,7 +2100,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "Europe",
     website: "https://www.projectpsyche.org/",
     address: "Portugal",
@@ -2063,7 +2126,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "African Biogenome projectName",
+    projectName: "African Biogenome Project",
     continent: "Africa",
     website: "http://africanbiogenome.org/",
     address: "Rwanda",
@@ -2134,7 +2197,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "African Biogenome projectName",
+    projectName: "African Biogenome Project",
     continent: "Africa",
     website: "http://africanbiogenome.org/",
     address: "South Africa",
@@ -2170,7 +2233,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "Open Green Genome projectName",
+    projectName: "Open Green Genome Project",
     continent: "Africa",
     website:
       "https://jgi.doe.gov/csp-2018-leebens-mack-open-green-genomes-initiative/",
@@ -2232,7 +2295,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "Europe",
     website: "https://www.projectpsyche.org/",
     address: "Spain",
@@ -2275,7 +2338,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "Europe",
     website: "https://www.projectpsyche.org/",
     address: "Sweden",
@@ -2337,7 +2400,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "Open Green Genome projectName",
+    projectName: "Open Green Genome Project",
     continent: "Europe",
     website:
       "https://jgi.doe.gov/csp-2018-leebens-mack-open-green-genomes-initiative/",
@@ -2356,7 +2419,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "Europe",
     website: "https://www.projectpsyche.org/",
     address: "Switzerland",
@@ -2420,7 +2483,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "African Biogenome projectName",
+    projectName: "African Biogenome Project",
     continent: "Africa",
     website: "http://africanbiogenome.org/",
     address: "Uganda",
@@ -2473,7 +2536,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "Cetacean Genomes projectName",
+    projectName: "Cetacean Genomes Project",
     continent: "Europe",
     address: "United Kingdom of Great Britain",
     latitude: 51.509865,
@@ -2490,7 +2553,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "African Biogenome projectName",
+    projectName: "African Biogenome Project",
     continent: "Africa",
     website: "http://africanbiogenome.org/",
     address: "United Republic of Tanzania",
@@ -2562,7 +2625,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "Lilioid Monocots Core Group Genome projectName",
+    projectName: "Lilioid Monocots Core Group Genome Project",
     continent: "North America",
     address: "United States of America",
     latitude: 38.889805,
@@ -2570,7 +2633,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "Open Green Genome projectName",
+    projectName: "Open Green Genome Project",
     continent: "North America",
     website:
       "https://jgi.doe.gov/csp-2018-leebens-mack-open-green-genomes-initiative/",
@@ -2580,7 +2643,7 @@ const projectsData = [
     isNew: true,
   },
   {
-    projectName: "projectName Psyche",
+    projectName: "Project Psyche",
     continent: "North America",
     website: "https://www.projectpsyche.org/",
     address: "United States of America",

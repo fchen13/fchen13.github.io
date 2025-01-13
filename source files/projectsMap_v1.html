@@ -3,46 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EBP affiliates map</title>
+    <title>EBP affiliate map</title>
     <script src="./echarts.min.js"></script>
-    <script src="./world.js"></script>
-    <script src="./projectsWebsites.js"></script>
+    <script src="./geoMap/world.js"></script>
+    <script src="./geoMap/projectsWebsites.js"></script>
+    <link href="./geoMap/bootstrap.min.css" rel="stylesheet">
+    <script src="./geoMap/jquery-3.6.0.min.js"></script>
+    <script src="./geoMap/popper.min.js"></script>
+    <script src="./geoMap/bootstrap.min.js"></script>
     <style>
-        #main {
-            width: 100%;
-            height: 600px;
+        * {
+            margin: 0;
         }
+        #main {
+            width: 100vw;
+            height: 100vh;
+            /* margin-bottom: 20px; */
+        }
+
+        #relationshipGraph {
+            width: 766px;
+            height: 400px;  /* 设置为100%以占满弹窗 */
+        }
+        
     </style>
 </head>
 <body>
     <div id="main"></div>
-    <script>
-        // 假设这是从 Excel 中提取的数据
-        const data = projectsData;
-        console.log(data)
 
-        // 初始化 ECharts 实例
+    <!-- Modal for displaying relationship graph -->
+    <div class="modal fade" id="relationshipModal" tabindex="-1" aria-labelledby="relationshipModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="relationshipModalLabel">Project Relationships</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h4 id="addressTitle"></h4>
+                    <div id="relationshipGraph"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data with some addresses being the same
+        // const data = [
+        //     { projectName: 'Project 1', address: 'Address A', website: 'https://example.com/1', latitude: 34.5, longitude: 112.5 },
+        //     { projectName: 'Project 2', address: 'Address A', website: 'https://example.com/2', latitude: 34.5, longitude: 112.5 },
+        //     { projectName: 'Project 3', address: 'Address B', website: 'https://example.com/3', latitude: 35.5, longitude: 113.5 },
+        //     { projectName: 'Project 4', address: 'Address C', website: 'https://example.com/4', latitude: 40.7, longitude: -74.0 },
+        //     { projectName: 'Project 5', address: 'Address C', website: 'https://example.com/5', latitude: 40.7, longitude: -74.0 },
+        //     // More data...
+        // ];
+        const data = projectsData
+
+        // Aggregate projects by address
+        const addressMap = {};
+        data.forEach(item => {
+            // const key = `${item.latitude},${item.longitude}`;
+            const key = `${item.address}`;
+            if (!addressMap[key]) {
+                addressMap[key] = { address: item.address, position: [item.latitude, item.longitude], projects: [], count: 0 };
+            }
+            addressMap[key].projects.push(item);
+            addressMap[key].count += 1;
+        });
+
+        // Prepare aggregated data for the map
+        const aggregatedData = Object.entries(addressMap).map(([key, value]) => {
+            const [latitude, longitude] = value.position;
+            return {
+                name: value.address,
+                value: [longitude, latitude, value.count], // include count for tooltip
+                projects: value.projects
+            };
+        });
+
         const myChart = echarts.init(document.getElementById('main'));
 
-        // 配置地图选项
+        // Configure the map options
         const option = {
             tooltip: {
                 trigger: 'item',
                 formatter: function (params) {
-                    const dataItem = data[params.dataIndex];
-                    return `
-                        <div>
-                            <strong>${dataItem.projectName}</strong><br>
-                            Address: ${dataItem.address}<br>
-                            <a href="${dataItem.website}" target="_blank">Click to open the webpage</a>
-                        </div>
-                    `;
+                    return `${params.name}<br/>Count: ${params.value[2]}`; // Show count
                 }
             },
             geo: {
-                map: 'world', // 使用世界地图
+                map: 'world',
                 roam: true,
-                zoom: 1,
                 label: {
                     show: false
                 },
@@ -59,27 +112,93 @@
             series: [{
                 type: 'scatter',
                 coordinateSystem: 'geo',
-                data: data.map(item => ({
-                    name: item.projectName,
-                    value: [item.longitude, item.latitude]
+                data: aggregatedData.map(item => ({
+                    name: item.name,
+                    value: item.value,
+                    label: {
+                        show: false,
+                        formatter: (a) => {
+                            return a.value[2]
+                        }, // Show the count
+                        position: 'inside' // Position the label above the point
+                    }
                 })),
-                symbolSize: 10,
+                symbol: 'image://./geoMap/logo.png',
+                symbolSize: item => item[2] * 10 + 10, // Adjust symbol size based on count
                 encode: {
-                    tooltip: 0 // 使用第一个字段作为 tooltip
+                    tooltip: 0
                 }
             }]
         };
 
-        // 使用刚指定的配置项和数据显示图表
         myChart.setOption(option);
 
-        // 点击事件
+        // Click event to display the relationship diagram
         myChart.on('click', function (params) {
             if (params.componentType === 'series') {
-                const dataItem = data[params.dataIndex];
-                window.open(dataItem.website, '_blank'); // 打开网址
+                const aggregatedItem = aggregatedData[params.dataIndex];
+
+                // Set address title
+                document.getElementById('addressTitle').innerText = aggregatedItem.name;
+
+                // Show relationship graph in modal
+                $('#relationshipModal').modal('show');
+                showRelationshipGraph(aggregatedItem);
             }
         });
+
+        function showRelationshipGraph(aggregatedItem) {
+            const relationshipGraph = echarts.init(document.getElementById('relationshipGraph'));
+
+            // Prepare graph data
+            // const nodes = [{ name: aggregatedItem.name, symbolize: true, symbolSize: 40, category: 0 }];
+            const nodes = [{ name: aggregatedItem.name, symbolize: true, symbolSize: 40, category: 0, label: { show: false} }];
+            const links = [];
+
+            aggregatedItem.projects.forEach(project => {
+                nodes.push({ name: project.projectName, url: project.website, symbolSize: 30, category: 1 });
+                links.push({ source: aggregatedItem.name, target: project.projectName });
+            });
+
+            const graphOption = {
+                tooltip: {},
+                animation: false,
+                series: [{
+                    type: 'graph',
+                    layout: 'force',
+                    data: nodes,
+                    links: links,
+                    categories: [
+                        { name: 'address' },
+                        { name: 'project' },
+                    ],
+                    focusNodeAdjacency: true,
+                    roam: true,
+                    edgeSymbol: ['circle', 'arrow'],
+                    edgeSymbolSize: [4, 10],
+                    force: {
+                        repulsion: 2000, // 增加斥力间隔
+                    },
+                    label: {
+                        show: true,
+                        position: 'inside', // Center the labels inside the nodes
+                        formatter: params => params.data.name // Show name only for simplicity
+                    },
+                    lineStyle: {
+                        color: 'source',
+                        // curveness: 0.3
+                    }
+                }]
+            };
+
+            relationshipGraph.setOption(graphOption);
+            
+            relationshipGraph.on('click', function (params) {
+                if (params.data.url) {
+                    window.open(params.data.url, '_blank'); // 在新标签页中打开链接
+                }
+            });
+        }
     </script>
 </body>
 </html>

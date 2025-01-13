@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ECharts Map Example</title>
+    <script src="./echarts.min.js"></script>
+    <script src="./geoMap/world.zh.js"></script>
+    <script src="./geoMap/projectsWebsites.js"></script>
+    <link href="./geoMap/bootstrap.min.css" rel="stylesheet" />
+    <script src="./geoMap/jquery-3.6.0.min.js"></script>
+    <script src="./geoMap/popper.min.js"></script>
+    <script src="./geoMap/bootstrap.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+        }
+
+        #mapContainer {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #c4e1ff;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mapContainer"></div>
+    <script>
+        function initMap(worldJson) {
+            const data = projectsData;
+
+            const addressMap = {};
+            const aggregatedData = data.map((item) => {
+                const address = item.address;
+                if (!addressMap[address]) addressMap[address] = 1;
+                else addressMap[address]++;
+
+                const offsetX = addressMap[address] > 1 ? ((Math.random() - 5) * 2) / 5 : 0;
+                const offsetY = addressMap[address] > 1 ? ((Math.random() + 0) * 2) / 5 : 0;
+
+                return {
+                    name: item.projectName,
+                    value: [item.longitude + offsetX, item.latitude + offsetY, addressMap[address]],
+                    type: item.type,
+                    website: item.website,
+                    address: item.isCenter ? "" : address,
+                    isCenter: item.type === "Headquarter" || !!item.isCenter,
+                    symbolSize: item.isCenter
+                        ? 9 // Size for center dots
+                        : item.type === "Headquarter"
+                            ? 6 // Size for headquarters
+                            : 6, // Default size for other points
+                    isNew: !!item.isNew,
+                    itemStyle: {
+                        color: "#333",
+                        borderColor: item.type === "Headquarter" ? "transparent " : (!!item.isCenter ? "#dbc649" : "transparent"),
+                        borderWidth: 4,
+                        opacity: 1,
+                    },
+                };
+            });
+
+            // 初始隐藏非 "Headquarter" 节点
+            const filteredData = aggregatedData.filter((point) => {
+                const isBioGenome = point.name.includes("Canadian BioGenome") || point.name.includes("African BioGenome");
+                return !point.isNew && (!isBioGenome || point.type === "Headquarter");
+            });
+
+            const center = filteredData.find((point) => point.isCenter);
+            const canadianProjectHeadquarter = filteredData.find(
+                (point) => point.name.includes("Canadian BioGenome") && point.type == "Headquarter"
+            );
+
+            const africanProjectHeadquarter = filteredData.find(
+                (point) => point.name.includes("African BioGenome") && point.type == "Headquarter"
+            );
+
+            const links = [];
+            const canadianLinks = [];
+            const africanLinks = [];
+
+            filteredData.forEach((point) => {
+                if (point.isCenter && point.type !== 'Headquarter') return;
+
+                // if (point.name.includes("Canadian BioGenome") && point.type !== "Headquarter") {
+                //     canadianLinks.push({
+                //         fromName: canadianProjectHeadquarter.name,
+                //         toName: point.name,
+                //         coords: [canadianProjectHeadquarter.value, point.value],
+                //         lineStyle: { normal: { curveness: point.value[0] >= canadianProjectHeadquarter.value[0] ? 0.3 : -0.3 } },
+                //     });
+                // } else if (point.name.includes("African BioGenome") && point.type !== "Headquarter") {
+                //     africanLinks.push({
+                //         fromName: africanProjectHeadquarter.name,
+                //         toName: point.name,
+                //         coords: [africanProjectHeadquarter.value, point.value],
+                //         lineStyle: { normal: { curveness: point.value[0] >= africanProjectHeadquarter.value[0] ? 0.3 : -0.3 } },
+                //     });
+                // } else {
+                //     links.push({
+                //         fromName: center.name,
+                //         toName: point.name,
+                //         coords: [center.value, point.value],
+                //         lineStyle: { normal: { curveness: point.value[0] >= center.value[0] ? 0.4 : -0.4 } },
+                //     });
+                // }
+                links.push({
+                    fromName: center.name,
+                    toName: point.name,
+                    coords: [center.value, point.value],
+                    lineStyle: { normal: { curveness: point.value[0] >= center.value[0] ? 0.4 : -0.4 } },
+                });
+            });
+
+            const myChart = echarts.init(document.getElementById("mapContainer"));
+            const option = {
+                tooltip: {
+                    trigger: "item",
+                    formatter: (params) => {
+                        if (params.seriesType === "scatter") {
+                            const item = filteredData[params.dataIndex];
+                            return `${item.name}<br/>${item.type || ""}`;
+                        }
+                        return null;
+                    },
+                },
+                geo: {
+                    map: "world",
+                    roam: true,
+                    label: { show: false },
+                    itemStyle: {
+                        normal: { areaColor: "#f3f3f3", borderColor: "#999" },
+                        emphasis: { areaColor: "#FFFF00" },
+                    },
+                },
+                series: [
+                    {
+                        type: "scatter",
+                        coordinateSystem: "geo",
+                        data: filteredData,
+                        symbolSize: 6,
+                    },
+                ],
+            };
+
+            echarts.registerMap('world', worldJson);
+
+            myChart.setOption(option);
+
+            myChart.on("mouseover", function (params) {
+                if (params.seriesType === "scatter") {
+                    const item = filteredData[params.dataIndex];
+
+                    // 显示同名节点
+                    // if (item.type === "Headquarter" && (item.name.includes("Canadian BioGenome") || item.name.includes("African BioGenome"))) {
+                    //     const sameNameNodes = aggregatedData.filter(
+                    //         (node) => node.name === item.name && node.type !== "Headquarter"
+                    //     );
+
+                    //     const updatedData = filteredData.concat(sameNameNodes);
+
+                    //     myChart.setOption({
+                    //         series: [
+                    //             {
+                    //                 type: "scatter",
+                    //                 coordinateSystem: "geo",
+                    //                 data: updatedData,
+                    //                 symbolSize: 6,
+                    //             },
+                    //         ],
+                    //     });
+                    // }
+
+                    // 显示连接线
+                    if (item.name.includes("Canadian BioGenome") && item.isCenter) {
+                        item.itemStyle.borderColor = "#dbc649"; // 恢复边框颜色
+                        const sameNameNodes = aggregatedData.filter(
+                            (node) => (node.name.includes("Canadian BioGenome") && node.type !== "Headquarter")
+                        );
+                        const updatedData = filteredData.concat(sameNameNodes);
+                        const canadianLinks = sameNameNodes.map(node => {
+
+                            return {
+                                fromName: item.name,
+                                toName: node.name,
+                                coords: [item.value, node.value],
+                                lineStyle: { normal: { curveness: node.value[0] >= item.value[0] ? 0.4 : -0.4 } },
+                            }
+                        })
+
+                        myChart.setOption({
+                            series: [
+                                {
+                                    type: "scatter",
+                                    coordinateSystem: "geo",
+                                    data: updatedData,
+                                    symbolSize: 6,
+                                },
+                                {
+                                    type: "lines",
+                                    z: 2,
+                                    lineStyle: { normal: { color: "#333", width: 1, opacity: 0.5, curveness: 0.3 } },
+                                    data: canadianLinks,
+                                },
+                            ],
+                        });
+                    } else if (item.name.includes("African BioGenome") && item.isCenter) {
+                        item.itemStyle.borderColor = "#dbc649"; // 恢复边框颜色
+                        const sameNameNodes = aggregatedData.filter(
+                            (node) => (node.name.includes("African BioGenome") && node.type !== "Headquarter")
+                        );
+                        const updatedData = filteredData.concat(sameNameNodes);
+                        const africanLinks = sameNameNodes.map(node => {
+
+                            return {
+                                fromName: item.name,
+                                toName: node.name,
+                                coords: [item.value, node.value],
+                                lineStyle: { normal: { curveness: node.value[0] >= item.value[0] ? 0.4 : -0.4 } },
+                            }
+                        })
+
+                        myChart.setOption({
+                            series: [
+                                {
+                                    type: "scatter",
+                                    coordinateSystem: "geo",
+                                    data: updatedData,
+                                    symbolSize: 6,
+                                },
+                                {
+                                    type: "lines",
+                                    z: 2,
+                                    lineStyle: { normal: { color: "#333", width: 1, opacity: 0.5, curveness: 0.3 } },
+                                    data: africanLinks,
+                                },
+                            ],
+                        });
+                    } else if (item.isCenter) {
+                        myChart.setOption({
+                            series: [
+                                {
+                                    type: "scatter",
+                                    coordinateSystem: "geo",
+                                    data: filteredData,
+                                    symbolSize: 6,
+                                },
+                                {
+                                    type: "lines",
+                                    z: 2,
+                                    lineStyle: { normal: { color: "#333", width: 1, opacity: 0.5, curveness: 0.4 } },
+                                    data: links,
+                                },
+                            ],
+                        });
+                    }
+                }
+            });
+
+            myChart.on("mouseout", function (params) {
+                if (params.seriesType === "scatter") {
+                    const item = filteredData[params.dataIndex];
+                    if (item.name.includes("Canadian BioGenome") || item.name.includes("African BioGenome")) {
+                        item.itemStyle.borderColor = "transparent"; // 恢复边框颜色
+                    }
+
+                    // 恢复初始隐藏状态
+                    myChart.setOption({
+                        series: [
+                            {
+                                type: "scatter",
+                                coordinateSystem: "geo",
+                                data: filteredData,
+                                symbolSize: 6,
+                            },
+                            {
+                                type: "lines",
+                                data: [],
+                            },
+                        ],
+                    });
+                }
+            });
+        }
+
+        initMap(worldJson);
+    </script>
+</body>
+
+</html>
