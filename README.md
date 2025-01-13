@@ -1,1 +1,1 @@
-the repository aims to keep track of files that are used to build EBP dashboard project. a few reports are selected to compose the temporary EBP dashboard webpage that are currently hosted on the github page.
+the repository aims to keep track of files that are used to build EBP dashboard project. a few reports are selected to compose the temporary EBP dashboard webpage that are currently hosted on the github page. each report comes with several different versions with various features.
