@@ -11,6 +11,6 @@ const pages = [
     { name: "EBP Progress_all taxa", file: "./source files/EBP_StackedRainbow_v2.html", description: 'animation display of progress at all taxa levels' },
     { name: "Affiliates Sequencing Progress", file: "./source files/Affiliates_Progress_sorted.html", description: 'progress of each EBP affiliate projects' },
     { name: "Progress_PhyloTree_order", file: "./source files/PhyloTree_EBP_order.html", description: 'phylogenomic tree of all orders with at least one species sequenced by EBP affiliates' },
-    { name: "EBP Affiliate Distribution", file: "./source files/projectsMap_v8.html", description: 'geographic and statistical distribution of EBP affiliates' }, 
-    { name: "EBP network of networks", file: "./source files/WireMaps_v2.html", description: 'wired map of EBP network and affiliate network' },
+    { name: "EBP Affiliate Map", file: "./source files/projectsMap_v4.html", description: 'geographic and statistical distribution of EBP affiliates' }, 
+    { name: "EBP Network Map", file: "./source files/WireMaps_v2.html", description: 'wired map of EBP network and affiliate network' },
 ];
