@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="./favicon.jpg">
     <title>Earth BioGenome Project</title>
+    <!-- Add Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -17,28 +19,44 @@
         h1 {
             text-align: center;
             color: #343a40;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             font-size: 2.5rem;
         }
         #content-container {
-            max-width: 700px;
+            max-width: 800px;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
+            gap: 30px;
+        }
+        .category {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .category-title {
+            color: #343a40;
+            margin: 0 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+            font-size: 1.5rem;
+        }
+        .links-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 15px;
         }
         .link {
-            display: block;
-            width: 100%;
+            display: flex;
+            align-items: center;
             background: #6c757d;
             color: white;
-            text-align: center;
-            padding: 15px;
             text-decoration: none;
-            font-size: 1.2rem;
+            padding: 15px;
             border-radius: 10px;
-            transition: background 0.3s, transform 0.2s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            gap: 12px;
         }
         .link:hover {
             background: #5a6268;
@@ -47,29 +65,86 @@
         .link:active {
             transform: translateY(1px);
         }
+        .link i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+        .link-content {
+            flex: 1;
+        }
+        .link-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .link-description {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
     <h1>EBP Dashboard</h1>
     
     <div id="content-container">
-        <!-- 动态加载内容 -->
+        <!-- Dynamic content will be loaded here -->
     </div>
 
     <script src="config.js"></script>
     <script>
         const container = document.getElementById('content-container');
 
-        pages.forEach((page, index) => {
-            const link = document.createElement('a');
-            link.classList.add('link');
-            link.href = page.file;  // 设置链接到页面文件
-            link.textContent = page.name;  // 设置链接的显示文本
-            link.target = '_blank';  // 设置链接在新标签中打开
-            link.title = page.description
+        pages.forEach(category => {
+            // Create category container
+            const categoryDiv = document.createElement('div');
+            categoryDiv.classList.add('category');
 
-            // 将链接添加到容器中
-            container.appendChild(link);
+            // Add category title
+            const titleH2 = document.createElement('h2');
+            titleH2.classList.add('category-title');
+            titleH2.textContent = category.category;
+            categoryDiv.appendChild(titleH2);
+
+            // Create links container
+            const linksContainer = document.createElement('div');
+            linksContainer.classList.add('links-container');
+
+            // Add links for this category
+            category.pages.forEach(page => {
+                const link = document.createElement('a');
+                link.classList.add('link');
+                link.href = page.file;
+                link.target = '_blank';
+                link.title = page.description;
+
+                // Add icon
+                const icon = document.createElement('i');
+                icon.className = `fas ${page.icon}`;
+                link.appendChild(icon);
+
+                // Add content container
+                const content = document.createElement('div');
+                content.classList.add('link-content');
+
+                // Add title
+                const title = document.createElement('div');
+                title.classList.add('link-title');
+                title.textContent = page.name;
+                content.appendChild(title);
+
+                // Add description
+                const description = document.createElement('div');
+                description.classList.add('link-description');
+                description.textContent = page.description;
+                content.appendChild(description);
+
+                link.appendChild(content);
+                linksContainer.appendChild(link);
+            });
+
+            categoryDiv.appendChild(linksContainer);
+            container.appendChild(categoryDiv);
         });
     </script>
 </body>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Affiliate Map</title>
     <script src="./echarts.min.js"></script>
-    <script src="./geoMap/world.js"></script>
+    <script src="./geoMap/world.zh.js"></script>
     <script src="./geoMap/projectsWebsites.js"></script>
     <!-- <script src="./geoMap/updated_projectsWebsites.js"></script> -->
     <link href="./geoMap/bootstrap.min.css" rel="stylesheet">
@@ -140,7 +140,7 @@
         // 添加项目总数
         // document.querySelector('#total').innerText = `${data.length} affiliated projects`;
         // 初始化地图
-        function initMap () {
+        function initMap (worldJson) {
             // Aggregate projects by address
             const addressMap = {};
             const aggregatedData = data.map(item => {
@@ -205,7 +205,7 @@
                         "Türkiye": "Turkey",
                         "Czech Republic": "Czech Rep.",
                         "Trinidad": "Trinidad and Tobago",
-                        "Côte d'Ivoire": "Côte d'Ivoire"
+                        "Côte d’Ivoire": "Côte d'Ivoire"
                     }
                     const { address } = project
                     if(!address) return
@@ -271,6 +271,7 @@
                     }]
                 };
 
+                echarts.registerMap('world', worldJson);
                 myChart.setOption(option);
 
                 // Click event to display the relationship diagram
@@ -552,7 +553,7 @@
             
         }
 
-        initMap()
+        initMap(worldJson)
         initBar()
 
         document.querySelectorAll('button').forEach(btn => {
