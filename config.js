@@ -51,7 +51,7 @@ const pages = [
     pages: [
       {
         name: "Global Distribution",
-        file: "./source files/projectsMap_v5.html",
+        file: "./source files/projectsMap_v6.html",
         description: "Geographic and statistical distribution of EBP affiliates",
         icon: "fa-globe"
       },

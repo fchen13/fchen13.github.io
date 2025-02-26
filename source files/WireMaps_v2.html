@@ -4,7 +4,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wired Map</title>
+    <meta name="copyright" content="© 2024 Earth BioGenome Project Dashboard. All rights reserved." />
+    <meta name="author" content="Fang Chen" />
+    <title>EBP Network Connections</title>
+    <script src="../config.js"></script>
     <script src="./echarts.min.js"></script>
     <script src="./geoMap/world.zh.js"></script>
     <script src="./geoMap/projectsWebsites.js"></script>
@@ -23,11 +26,27 @@
             overflow: hidden;
             background-color: #c4e1ff;
         }
+
+        /* Add footer styles */
+        #footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: rgba(248, 249, 250, 0.95);
+            color: #333;
+            text-align: center;
+            padding: 10px;
+            z-index: 9999;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 
 <body>
     <div id="mapContainer"></div>
+    <div id="footer">
+        <div id="copyright">© 2024 Earth BioGenome Project Dashboard. All rights reserved.</div>
+    </div>
     <script>
         function initMap(worldJson) {
             const data = projectsData;
@@ -287,6 +306,11 @@
         }
 
         initMap(worldJson);
+
+        // Add copyright notice
+        if (typeof copyright !== 'undefined') {
+            document.getElementById('copyright').textContent = copyright.notice;
+        }
     </script>
 </body>
 

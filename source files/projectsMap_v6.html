@@ -20,7 +20,7 @@
         }
         #mapContainer  {
             width: 100vw;
-            height: 90vh;
+            height: 100vh;
             overflow: hidden;
             background-color: #1b2a58;
         }
@@ -38,21 +38,9 @@
             box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
         }
 
-        #copyright {
-            color: #333;
-            font-size: 14px;
-        }
-        #barContainer {
-            padding-left: 20px;
-            width: 80vw;
-            height: 80vh;
-            margin: 60px auto;
-            overflow: hidden;
-        }
-
         #relationshipGraph {
             width: 766px;
-            height: 400px;  /* 设置为100%以占满弹窗 */
+            height: 400px;
         }
 
         #total {
@@ -62,50 +50,7 @@
             color: #000;
             font-size: 26px;
         }
-        #colors {
-            position: absolute;
-            right: 10px;
-            bottom: 10px;
-        }
-        .color-box {
-            width: 10px;
-            height: 10px;
-            display: inline-block;
-            margin: 4px;
-            border: 1px solid #ccc;
-        }
-        .color-name {
-            text-align: center;
-            margin-top: 5px;
-            font-size: 12px;
-        }
 
-        .btns {
-          position: absolute;
-          right: 20px;
-          top: 10px;
-          display: flex;
-          border-radius: 25px;
-          overflow: hidden;
-          height: 40px;
-          border: 1px solid #000;
-          z-index: 99999999;
-        }
-
-        .btns button {
-            display: inline-flex;
-            width: 80px;
-            justify-content: center;
-            align-items: center;
-          border: none;
-          cursor: pointer;
-          background-color: #fff;
-          outline: none;
-        }
-
-        .btns .selected {
-          background-color: #aaa;
-        }
         #projectsList {
             height: 500px;
             overflow: auto;
@@ -113,54 +58,16 @@
         #projectsList li {
             margin: 10px;
         }
-
     </style>
 </head>
 <body>
-    <div class="btns">
-        <button>Map</button>
-        <button>Statistic</button>
-    </div>
     <div id="mapContainer"></div>
-    <div id="barContainer"></div>
-    <!-- <div id="colors"></div> -->
-    <!-- Modal for displaying relationship graph -->
-    <div class="modal fade" id="relationshipModal" tabindex="-1" aria-labelledby="relationshipModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="relationshipModalLabel">Project Relationships</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span>&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <!-- <h4 id="addressTitle"></h4> -->
-                    <div id="projectsList"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- <div id="total">xxxxxx</div> -->
     <div id="footer">
-      <div id="copyright"></div>
+        <div id="copyright">© 2024 Earth BioGenome Project Dashboard. All rights reserved.</div>
     </div>
     <script>
-        // Sample data with some addresses being the same
-        // const data = [
-        //     { projectName: 'Project 1', address: 'Address A', website: 'https://example.com/1', latitude: 34.5, longitude: 112.5 },
-        //     { projectName: 'Project 2', address: 'Address A', website: 'https://example.com/2', latitude: 34.5, longitude: 112.5 },
-        //     { projectName: 'Project 3', address: 'Address B', website: 'https://example.com/3', latitude: 35.5, longitude: 113.5 },
-        //     { projectName: 'Project 4', address: 'Address C', website: 'https://example.com/4', latitude: 40.7, longitude: -74.0 },
-        //     { projectName: 'Project 5', address: 'Address C', website: 'https://example.com/5', latitude: 40.7, longitude: -74.0 },
-        //     // More data...
-        // ];
-        const data = projectsData
+        const data = projectsData;
         
-        // 添加项目总数
-        // document.querySelector('#total').innerText = `${data.length} affiliated projects`;
-        // 初始化地图
         function initMap (worldJson) {
             // Aggregate projects by address
             const addressMap = {};
@@ -478,137 +385,7 @@
             }
         }
 
-        function initBar() {
-            const countryProjects = {}
-            // const projectMap = Object.fromEntries(projectsData.map(project => ([project.projectName, project])))
-            let count = 0
-            projectsData.forEach(project => {
-                if(project.isNew || project.isCenter) return 
-                count++
-                const { address } = project
-                if(!address) return
-                const country = address.split(', ').at(-1)?.toLowerCase()
-                if(!countryProjects[country]) {
-                    countryProjects[country] = []
-                }
-                countryProjects[country].push(project)
-            })
-
-            const sortedArr = Object.entries(countryProjects).sort((projectA, projectB) => (projectB[1].length - projectA[1].length))
-            const keys = sortedArr.map(item => (item[0]))
-            const barData = sortedArr.map(item => (item[1].length))
-
-            var myChart = echarts.init(document.getElementById('barContainer'));
-            var option = {
-                title: {
-                    text: `Distribution of ${count} EBP Affiliated Projects by Country`,
-                    left: 'center' // Title居中
-                },
-                grid: {
-                    top: '12%',
-                    left: '1%',
-                    right: '10%',
-                    containLabel: true
-                },
-                tooltip: {},
-                xAxis: {
-                    type: 'category',
-                    name: 'Country',
-                    nameLocation: 'middle', // X轴标题居中
-                    nameTextStyle: { // 设置 X 轴标题字体样式
-                        fontSize: 14 // 修改字体大小
-                    },
-                    axisLabel: {
-                        rotate: -45
-                    },
-                    nameGap: 60, // 与底部的间距
-                    data: keys
-                },
-                yAxis: {
-                    type: 'value',
-                    name: 'Number  of  Projects',
-                    nameLocation: 'middle', // Y轴标题居中
-                    interval: 5, // 设置Y轴刻度以5为基本单位
-                    splitLine: { // 显示Y轴的坐标轴线
-                        show: true
-                    },
-                    axisLine: { // 显示Y轴的坐标轴线
-                        show: true
-                    },
-                    nameTextStyle: { // 设置 X 轴标题字体样式
-                        fontSize: 14 // 修改字体大小
-                    },
-                    nameRotate: 90, // Y轴标题纵向排列
-                    nameGap: 40 // 与左侧的间距
-                },
-                series: [{
-                    name: 'Country',
-                    type: 'bar',
-                    data: barData,
-                    itemStyle: {
-                        color: '#38aadd' // color code for statistic bars
-                    },
-                    barWidth: '50%'
-                }]
-            };
-
-            myChart.setOption(option);
-
-            // 点击事件
-            myChart.on('click', function (params) {
-                if (params.componentType === 'series') {
-                    const projects = countryProjects[params.name]
-                    document.getElementById('relationshipModalLabel').innerText = `${params.name}  (${projects.length})`
-                    const projectsContainer = document.getElementById('projectsList')
-                    const innerHtml = projects.map(project => {
-                        const { projectName, website } = project
-
-                        return  `<li><a href="${website}" title="${website}" target="_blank">${projectName}</a></li>`
-                    }).join('')
-                    projectsContainer.innerHTML = innerHtml
-
-                    // Show relationship graph in modal
-                    $('#relationshipModal').modal('show');
-                }
-            });
-            
-        }
-
         initMap(worldJson)
-        initBar()
-
-        document.querySelectorAll('button').forEach(btn => {
-          btn.onclick = e => {
-            type = e.target.innerHTML
-            
-            if(type !== 'Map' && type !== 'Statistic') return
-
-            document.querySelectorAll('button').forEach(btn => {
-              btn.className = ''
-            })
-            
-            
-
-            e.target.className = 'selected'
-
-            const map = document.getElementById('mapContainer')
-            const bar = document.getElementById('barContainer')
-
-            // 清楚之前的图表 
-            if(type == 'Map') {
-                map.style.display = 'block'
-                bar.style.display = 'none'
-            }
-            else {
-                map.style.display = 'none'
-                bar.style.display = 'block'
-            }
-          }
-        })
-        document.querySelector('button').click()
-
-        // Add copyright notice
-        document.getElementById('copyright').textContent = copyright.notice;
     </script>
 </body>
 </html>

@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Progress_PhyloTree_order</title>
+    <meta name="copyright" content="© 2024 Earth BioGenome Project Dashboard. All rights reserved." />
+    <meta name="author" content="Fang Chen" />
+    <title>EBP Phylogenomic Tree</title>
+    <script src="../config.js"></script>
     <script src="https://code.jquery.com/jquery.js"></script>
     <script src="./underscore-min.js"></script>
     <script src="./d3.v6.js"></script>
@@ -86,6 +89,19 @@
         .btns .selected {
           background-color: #aaa;
         }
+
+      /* Add footer styles */
+      #footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: rgba(248, 249, 250, 0.95);
+        color: #333;
+        text-align: center;
+        padding: 10px;
+        z-index: 9999;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+      }
     </style>
   </head>
   <body>
@@ -94,6 +110,9 @@
     <div class="btns">
       <button>Linear</button>
       <button class="selected">Radial</button>
+    </div>
+    <div id="footer">
+        <div id="copyright">© 2024 Earth BioGenome Project Dashboard. All rights reserved.</div>
     </div>
     <script>
       let treeData = {}
@@ -382,6 +401,10 @@
         // 转换为 Newick 格式
         const newickString = convertToNewick(treeData) + ';';
         return newickString
+      }
+
+      if (typeof copyright !== 'undefined') {
+        document.getElementById('copyright').textContent = copyright.notice;
       }
     </script>
   </body>

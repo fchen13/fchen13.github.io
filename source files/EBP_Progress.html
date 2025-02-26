@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="copyright" content="© 2024 Earth BioGenome Project Dashboard. All rights reserved." />
+    <meta name="author" content="Fang Chen" />
     <title>EBP Progress</title>
+    <script src="../config.js"></script>
     <script src="./echarts.min.js"></script>
     <script src="./utils.js"></script>
     <script src="./services.js"></script>
@@ -23,6 +26,19 @@
         height: 500px;
         margin: 10px 0;
         position: relative;
+      }
+
+      /* Footer styles */
+      #footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: rgba(248, 249, 250, 0.95);
+        color: #333;
+        text-align: center;
+        padding: 10px;
+        z-index: 9999;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
       }
 
       /* Container for centering and styling */
@@ -130,6 +146,10 @@
         <div id="speciesProgressContainer2" class="chart-container"></div>
         <div id="speciesProgressContainer3" class="chart-container"></div> -->
         <div id="speciesProgressContainer" class="chart-container"></div>
+    </div>
+
+    <div id="footer">
+        <div id="copyright">© 2024 Earth BioGenome Project Dashboard. All rights reserved.</div>
     </div>
 
     <script>
@@ -311,6 +331,16 @@
         select.classList.remove('active');
       }
     });
+
+    // Add copyright notice with fallback
+    try {
+      const copyrightElement = document.getElementById('copyright');
+      if (window.copyright && window.copyright.notice) {
+        copyrightElement.textContent = copyright.notice;
+      }
+    } catch (e) {
+      console.warn('Copyright configuration not loaded:', e);
+    }
     </script>
   </body>
 </html>

@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StackedRainbow</title>
+    <meta name="copyright" content="© 2024 Earth BioGenome Project Dashboard. All rights reserved." />
+    <meta name="author" content="Fang Chen" />
+    <title>EBP Taxonomic Progress</title>
+    <script src="../config.js"></script>
     <script src="./echarts.min.js"></script>
     <script src="./utils.js"></script>
     <script src="./services.js"></script>
@@ -287,11 +290,31 @@
         /* width: 30%; */
         /* transform: translateX(-50%); */
      }
+     /* Add footer styles */
+     #footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: rgba(248, 249, 250, 0.95);
+        color: #333;
+        text-align: center;
+        padding: 10px;
+        z-index: 9999;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+     }
     </style>
   </head>
   <body>
     <div id="chartContainer"></div>
     <!-- <div id="backgroundContainer"></div> -->
      <div id="legendContainer"></div>
+    <div id="footer">
+        <div id="copyright">© 2024 Earth BioGenome Project Dashboard. All rights reserved.</div>
+    </div>
+    <script>
+        if (typeof copyright !== 'undefined') {
+            document.getElementById('copyright').textContent = copyright.notice;
+        }
+    </script>
   </body>
 </html>
