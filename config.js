@@ -9,6 +9,13 @@
  * @property {string} icon - Font Awesome icon class (optional)
  */
 
+const copyright = {
+  notice: "© 2024 Earth BioGenome Project Dashboard. All rights reserved.",
+  holder: "Fang Chen",
+  year: "2024",
+  rights: "All content and visualizations in this dashboard are protected by copyright law. Any unauthorized use, reproduction, or distribution is prohibited."
+};
+
 const pages = [
   {
     category: "Assembly Progress",
