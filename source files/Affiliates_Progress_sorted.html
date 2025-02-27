@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="copyright" content="© 2024 Earth BioGenome Project Dashboard. All rights reserved." />
+    <meta name="copyright" content="Data source: Genomes on a Tree (GoaT). Used with permission." />
     <meta name="author" content="Fang Chen" />
     <title>EBP Affiliate Progress</title>
     <script src="../config.js"></script>
@@ -21,21 +21,7 @@
             /* min-width: 500px;    */
             margin: 20px auto;
         }
-        /* Add footer styles */
-        .footer {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          width: 100%;
-          background-color: rgba(248, 249, 250, 0.95);
-          padding: 10px 0;
-          text-align: center;
-          font-size: 0.9em;
-          color: #333;
-          border-top: 1px solid #ddd;
-          z-index: 9999;
-          box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-        }
+        /* Footer styles */
         #footer {
             position: fixed;
             bottom: 0;
@@ -54,12 +40,8 @@
    <div id="chartContainer2"></div>
    <div id="chartContainer3"></div>
 
-    <footer class="footer">
-      <div id="copyright">© 2024 Earth BioGenome Project Dashboard. All rights reserved.</div>
-    </footer>
-
     <div id="footer">
-        <div id="copyright">© 2024 Earth BioGenome Project Dashboard. All rights reserved.</div>
+        <div id="copyright">Data source: Genomes on a Tree (GoaT). Used with permission.</div>
     </div>
 
     <script>
@@ -343,20 +325,6 @@
         myChart.setOption(option);
       
         return myChart
-      }
-
-      // Add copyright notice with fallback
-      try {
-        const copyrightElement = document.getElementById('copyright');
-        if (window.copyright && window.copyright.notice) {
-          copyrightElement.textContent = copyright.notice;
-        }
-      } catch (e) {
-        console.warn('Copyright configuration not loaded:', e);
-      }
-
-      if (typeof copyright !== 'undefined') {
-          document.getElementById('copyright').textContent = copyright.notice;
       }
     </script>
   </body>

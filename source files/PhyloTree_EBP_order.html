@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="copyright" content="© 2024 Earth BioGenome Project Dashboard. All rights reserved." />
+    <meta name="copyright" content="Data source: Genomes on a Tree (GoaT). Used with permission." />
     <meta name="author" content="Fang Chen" />
     <title>EBP Phylogenomic Tree</title>
     <script src="../config.js"></script>
@@ -112,7 +112,7 @@
       <button class="selected">Radial</button>
     </div>
     <div id="footer">
-        <div id="copyright">© 2024 Earth BioGenome Project Dashboard. All rights reserved.</div>
+        <div id="copyright">Data source: Genomes on a Tree (GoaT). Used with permission.</div>
     </div>
     <script>
       let treeData = {}
@@ -397,14 +397,9 @@
         }
 
       function formatData(treeData) {
-
         // 转换为 Newick 格式
         const newickString = convertToNewick(treeData) + ';';
-        return newickString
-      }
-
-      if (typeof copyright !== 'undefined') {
-        document.getElementById('copyright').textContent = copyright.notice;
+        return newickString;
       }
     </script>
   </body>
