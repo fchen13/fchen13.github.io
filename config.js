@@ -10,9 +10,9 @@
  */
 
 const copyright = {
-  notice: "© 2024 Earth BioGenome Project Dashboard. All rights reserved.",
+  notice: "© 2025 Earth BioGenome Project",
   holder: "Fang Chen",
-  year: "2024",
+  year: "2025",
   rights: "All content and visualizations in this dashboard are protected by copyright law. Any unauthorized use, reproduction, or distribution is prohibited."
 };
 
