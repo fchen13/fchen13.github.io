@@ -247,7 +247,12 @@
               fontSize: 12,
               margin: 5, // Move labels closer to the axis
               formatter: function (value) {
-                return formatNumber(value)
+                if (containerId === 'chartContainer1') {
+                  return value.toLocaleString(); // Show complete numbers for count of species
+                } else if (containerId === 'chartContainer2' || containerId === 'chartContainer3') {
+                  return (value / 1e12).toFixed(1) + 'T'; // Convert to T format for genome size and assembly span
+                }
+                return formatNumber(value);
               }
             },
             splitLine: {
@@ -256,6 +261,10 @@
                 color: '#ccc'
               }
             },
+            interval: containerId === 'chartContainer1' ? 500 : 
+                      (containerId === 'chartContainer2' || containerId === 'chartContainer3') ? 0.5e12 : 'auto', // Set interval to 0.5T for genome size and assembly span
+            minInterval: containerId === 'chartContainer1' ? 500 : 
+                        (containerId === 'chartContainer2' || containerId === 'chartContainer3') ? 0.5e12 : 1, // Ensure minimum interval of 0.5T for genome size and assembly span
           },
           xAxis: {
             type: "category",
@@ -294,7 +303,10 @@
             formatter: function (params) {
               var res = params
                 .map(function (item) {
-                  return item.seriesName + ": " + formatNumber(item.value); // Show percentage only in specific containers
+                  if (containerId === 'chartContainer1') {
+                    return item.seriesName + ": " + item.value.toLocaleString();
+                  }
+                  return item.seriesName + ": " + formatNumber(item.value);
                 })
                 .join("<br/>");
 
@@ -313,11 +325,13 @@
 
                 var totalStr = "";
                 for (var category in categoryMap) {
-                  totalStr += "Total (" + category + "): " + formatNumber(categoryMap[category]) + "<br/>";
+                  if (containerId === 'chartContainer1') {
+                    totalStr += "Total (" + category + "): " + categoryMap[category].toLocaleString() + "<br/>";
+                  } else {
+                    totalStr += "Total (" + category + "): " + formatNumber(categoryMap[category]) + "<br/>";
+                  }
                 }
                 return res + "<br/>" + totalStr;
-
-              return res;
             },
           },
           series: data.series,
