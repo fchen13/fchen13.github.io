@@ -10,7 +10,7 @@
  */
 
 const copyright = {
-  notice: "© 2025 Earth BioGenome Project",
+  notice: "© 2025 The Earth BioGenome Project",
   holder: "Fang Chen",
   year: "2025",
   rights: "All content and visualizations in this dashboard are protected by copyright law. Any unauthorized use, reproduction, or distribution is prohibited."
@@ -22,7 +22,7 @@ const pages = [
     pages: [
       {
         name: "Progress Timeline", 
-        file: "./source files/EBP_Progress.html",
+        file: "./source files/EBP_Progress_v2.html",
         description: "Annual assembly progress at the family and species level",
         icon: "fa-chart-line"
       },
