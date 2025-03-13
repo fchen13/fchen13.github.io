@@ -10,7 +10,7 @@
  */
 
 const copyright = {
-  notice: "© 2025 The Earth BioGenome Project",
+  notice: "© 2025 THE EARTH BIOGENOME PROJECT",
   holder: "Fang Chen",
   year: "2025",
   rights: "All content and visualizations in this dashboard are protected by copyright law. Any unauthorized use, reproduction, or distribution is prohibited."
