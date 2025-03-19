@@ -52,11 +52,11 @@ const pages = [
       {
         name: "Global Distribution",
         file: "./source files/projectsMap_v6.html",
-        description: "Geographic and statistical distribution of EBP affiliates",
+        description: "Geographic distribution of EBP affiliates",
         icon: "fa-globe"
       },
       {
-        name: "Network Connections",
+        name: "Affiliate Network",
         file: "./source files/WireMaps_v2.html",
         description: "Wired map showing EBP and affiliate network connections",
         icon: "fa-network-wired" 

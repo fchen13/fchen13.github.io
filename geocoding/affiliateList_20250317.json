@@ -1,0 +1,560 @@
+[
+{
+"projectName": "1,000 Chilean Genomes (1000GCH)",
+"continent": "South America",
+"type": "Headquarters",
+"address": "Av Alameda Libertador Bernardo O'Higgins 340, Santiago, Chile",
+"website": "https://1000genomas.cl/",
+"latitude": -33.4413779252253,
+"longitude": -70.6405703032793
+},
+{
+"projectName": "10,000 bird genomes (B10k)",
+"continent": "Asia",
+"type": "Headquarters",
+"address": "Building 11, Beishan Industrial Zone, Yantian District, Shenzhen 518083, China",
+"website": "https://b10k.genomics.cn/",
+"latitude": 22.5918312795627,
+"longitude": 114.261089081046
+},
+{
+"projectName": "10,000 Plants (10KP)",
+"continent": "Asia",
+"type": "Headquarters",
+"address": "BGI Research, Shenzhen 518083, China",
+"website": "https://academic.oup.com/gigascience/article/7/3/giy013/4880447",
+"latitude": 22.7512392723508,
+"longitude": 114.396686696391
+},
+{
+"projectName": "5,000 Insect Genomes (i5k)",
+"continent": "North America",
+"type": "Headquarters",
+"address": "10301 Baltimore Avenue, Beltsville, MD 20705, United States",
+"website": "http://i5k.github.io/",
+"latitude": 39.045753,
+"longitude": -76.847318
+},
+{
+"projectName": "African BioGenome Project (AfricaBP)",
+"continent": "Africa",
+"type": "Headquarters",
+"address": "Jomo Kenyatta University of Agriculture and Technology, Juja Kwale, Rd, Juja, Kenya",
+"website": "http://africanbiogenome.org/",
+"latitude": -1.09100401486439,
+"longitude": 37.0118027267846
+},
+{
+"projectName": "Ag100Pest",
+"continent": "North America",
+"type": "Headquarters",
+"address": "1400 Independence Ave. SW Washington, DC 20250, United States",
+"website": "https://www.ars.usda.gov/news-events/news/research-news/2018/earth-biogenome-project-could-hold-solutions-for-agricultures-future/",
+"latitude": 38.886960590551,
+"longitude": -77.0294015895757
+},
+{
+"projectName": "Amphibian Genomics Consortium (AGC)",
+"continent": "Australia",
+"type": "Headquarters",
+"address": "The University of Melbourne Grattan Street, Parkville Victoria, 3010, Australia",
+"website": "https://mvs.unimelb.edu.au/amphibian-genomics-consortium",
+"latitude": -37.7982102296058,
+"longitude": 144.961006183392
+},
+{
+"projectName": "Aquatic Symbiosis Genomics Project (ASG)",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Wellcome Trust Genome Campus, Hinxton, Saffron Walden CB10 1RQ, United Kingdom",
+"website": "https://www.sanger.ac.uk/collaboration/aquatic-symbiosis-genomics-project/",
+"latitude": 52.0796451238228,
+"longitude": 0.184780873972139
+},
+{
+"projectName": "ATLASea",
+"continent": "North America",
+"type": "Headquarters",
+"address": "École normale supérieure 46, Rue d'Ulm 75005 Paris",
+"website": "http://www.atlasea.fr/en/",
+"latitude": 48.842107,
+"longitude": 2.343990
+},
+{
+"projectName": "Australian Amphibian and Reptile Genomics Initiative Collaboration (AusARG)",
+"continent": "Australia",
+"type": "Headquarters",
+"address": "University of Canberra, Bruce ACT 2617 Australia",
+"website": "https://www.canberra.edu.au/research/research-centres/research-centres-and-institutes/research-institute-for-ecology-and-evolution",
+"latitude": -35.2386,
+"longitude": 149.0631
+},
+{
+"projectName": "1,000 Bat Genomes (Bat1K)",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Pfotenhauerstraße 108, 01307 Dresden",
+"website": "https://bat1k.com/",
+"latitude": 51.0565960135475,
+"longitude": 13.7767650686559
+},
+{
+"projectName": "Beenome100 Project (BEENOME100)",
+"continent": "North America",
+"type": "Headquarters",
+"address": "306 Center Road Beltsville, MD 20705, United States",
+"website": "https://www.beenome100.org/",
+"latitude": 39.0258,
+"longitude": -76.9269
+},
+{
+"projectName": "Butterfly Genome Project",
+"continent": "Asia",
+"type": "Headquarters",
+"address": "E Jiaochang Rd, Wuhua District, Kunming, Yunnan, 650023, China",
+"website": "http://butterflygenome.org/",
+"latitude": 25.0742046150302,
+"longitude": 102.710641454124
+},
+{
+"projectName": "California Conservation Genomes Project (CCGP)",
+"continent": "North America",
+"type": "Headquarters",
+"address": "610 Charles E Young Drive South, Los Angeles, CA 90095, United States",
+"website": "https://www.ccgproject.org/",
+"latitude": 34.0972216681351,
+"longitude": -118.815749345584
+},
+{
+"projectName": "Canadian BioGenome Project (CanBP)",
+"continent": "North America",
+"type": "Headquarters",
+"address": "University of British Columbia, Vancouver, BC V6T 1Z4, Canada",
+"website": "https://earthbiogenome.ca/",
+"latitude": 49.260125680538,
+"longitude": -123.242998256668
+},
+{
+"projectName": "Canada 150 Sequencing Initiative (CanSeq150)",
+"continent": "North America",
+"type": "Headquarters",
+"address": "570 W 7th Ave, Vancouver, BC V5Z 4S6, Canada",
+"website": "http://www.cgen.ca/canseq150",
+"latitude": 49.260125680538,
+"longitude": -123.242998256668
+},
+{
+"projectName": "Cartilaginous Fish Genome Project (CFGP)",
+"continent": "Asia",
+"type": "Headquarters",
+"address": "127 West Youyi Road, Beilin District, Xi'an Shaanxi, 710072, China",
+"website": null,
+"latitude": 34.2412052735955,
+"longitude": 108.928872912091
+},
+{
+"projectName": "Catalan Initiative for the Earth BioGenome Project (CBP)",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Departament de Genètica, Microbiologia i Estadística. Avinguda Diagonal, 643. 08028 Barcelona, Spain",
+"website": "https://www.scb.cat/biogenoma/en/home/",
+"latitude": 41.3808991236495,
+"longitude": 2.17014177004785
+},
+{
+"projectName": "Cetaceans Genome Project (CGP)",
+"continent": "North America",
+"type": "Headquarters",
+"address": "8901 La Jolla Shores Dr., La Jolla, CA, 92037, United States",
+"website": null,
+"latitude": 38.8914508847672,
+"longitude": -77.0200468607402
+},
+{
+"projectName": "Crab Genome Project",
+"continent": "Asia",
+"type": "Headquarters",
+"address": "Yancheng, 224051, China",
+"website": null,
+"latitude": 39.2865459316367,
+"longitude": -76.6058867760655
+},
+{
+"projectName": "Darwin Tree of Life (DToL)",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Wellcome Trust Genome Campus, Hinxton, Saffron Walden CB10 1RQ, United Kingdom",
+"website": "https://www.darwintreeoflife.org/",
+"latitude": 52.0795000649971,
+"longitude": 0.184695043288939
+},
+{
+"projectName": "Deep-Ocean Genomes Project (DOG)",
+"continent": "North America",
+"type": "Headquarters",
+"address": "86 Water St, Falmouth, MA 02543, United States",
+"website": null,
+"latitude": 41.5244675626808,
+"longitude": -70.6709633452875
+},
+{
+"projectName": "Diversity Initiative for the Southern California Ocean (DISCO)",
+"continent": "North America",
+"type": "Headquarters",
+"address": "900 Exposition Blvd, Los Angeles, CA 90007, United States",
+"website": "https://research.nhm.org/disco/",
+"latitude": 34.01740738578,
+"longitude": -118.288689532093
+},
+{
+"projectName": "Dresden HQ Genomes Project",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "CRTD, TU Dresden, Fetscherstr. 105, 01307 Dresden, Germany",
+"website": null,
+"latitude": 51.0565960135475,
+"longitude": 13.7767650686559
+},
+{
+"projectName": "EBP Secretariat",
+"continent": "North America",
+"type": "Center",
+"address": "777E. University Dr. Tempe, AZ 85287, United States",
+"website": "https://www.earthbiogenome.org/",
+"latitude": 33.4214,
+"longitude": -111.9281
+},
+{
+"projectName": "EBP-Norway",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Problemveien 11, 0313 Oslo, Norway",
+"website": null,
+"latitude": 59.9406157780805,
+"longitude": 10.7215439556399
+},
+{
+"projectName": "Hong Kong EBP (EBPHK)",
+"continent": "Asia",
+"type": "Headquarters",
+"address": "Ma Liu Shui, Hong Kong",
+"website": "http://biodiversity.sls.cuhk.edu.hk/ebphk/",
+"latitude": 22.419783665852,
+"longitude": 114.206728409877
+},
+{
+"projectName": "Italian Endemics (ENDEMIXIT)",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Via Savonarola, 9, 44121 Ferrara FE, Italy",
+"website": "https://endemixit.com/",
+"latitude": 44.8335754398815,
+"longitude": 11.6263254702019
+},
+{
+"projectName": "Epizoic Diatom Genomes Project",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Building F1 11 Hoffman Street Potchefstroom 2531, Norway",
+"website": null,
+"latitude": 67.290362,
+"longitude": 14.564075
+},
+{
+"projectName": "Euglena International Network (EIN)",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Nottingham NG7 2RD, United Kingdom",
+"website": "https://euglenanetwork.wordpress.com/",
+"latitude": 52.9388840823385,
+"longitude": -1.19553812098056
+},
+{
+"projectName": "European Reference Genome Atlas (ERGA)",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Alfred-Kowalke-Straße 17, 10315 Berlin, Germany",
+"website": "https://www.erga-biodiversity.eu/",
+"latitude": 52.506110140837,
+"longitude": 13.5214660552365
+},
+{
+"projectName": "ERGA-BGE",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Naturalis Biodiversity Center, Darwinweg 2, 2333 CR Leiden, The Netherlands",
+"website": "https://biodiversitygenomics.eu/",
+"latitude": 52.1591666666667,
+"longitude": 5.75222222222222
+},
+{
+"projectName": "ERGA-PIL",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Alfred-Kowalke-Straße 17, 10315 Berlin, Germany",
+"website": "https://www.erga-biodiversity.eu/",
+"latitude": 52.506110140837,
+"longitude": 13.5214660552365
+},
+{
+"projectName": "ERGA-CH",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Alfred-Kowalke-Straße 17, 10315 Berlin, Germany",
+"website": "https://www.erga-biodiversity.eu/",
+"latitude": 52.506110140837,
+"longitude": 13.5214660552365
+},
+{
+"projectName": "ERGA-COM",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Alfred-Kowalke-Straße 17, 10315 Berlin, Germany",
+"website": "https://www.erga-biodiversity.eu/",
+"latitude": 52.506110140837,
+"longitude": 13.5214660552365
+},
+{
+"projectName": "Fish 10,000 Genomes (Fish10K)",
+"continent": "Asia",
+"type": "Headquarters",
+"address": "Guangdong Province, Shenzhen, Pingshan, 金沙路西200米 邮政编码: 518122, China",
+"website": "http://english.cas.cn/newsroom/research_news/life/201910/t20191008_219736.shtml",
+"latitude": 22.7503462738405,
+"longitude": 114.396477284745
+},
+{
+"projectName": "Genome 10K(G10K)",
+"continent": "North America",
+"type": "Headquarters",
+"address": "1156 High St, Santa Cruz, CA 95064, United States",
+"website": "https://genome10k.soe.ucsc.edu/",
+"latitude": 36.9996875962649,
+"longitude": -122.057616591381
+},
+{
+"projectName": "Genomics of the Brazilian Biodiversity (GBB)",
+"continent": "South America",
+"type": "Headquarters",
+"address": "Praia de Botafogo, Rio de Janeiro/RJ, Brazil, CEP: 22250-145",
+"website": "https://www.itv.org/en/genomics-of-the-brazilian-biodiversity-gbb/",
+"latitude": -1.4466457631436,
+"longitude": -48.4822375192399
+},
+{
+"projectName": "Global Genome Biodiversity Network (GGBN)",
+"continent": "North America",
+"type": "Headquarters",
+"address": "10th and Constitution Ave. NW Washington DC 20013, USA",
+"website": "http://data.ggbn.org/ggbn_portal/",
+"latitude": 38.8866350911631,
+"longitude": -77.0250830895758
+},
+{
+"projectName": "Global Ant Genome Alliance (GAGA)",
+"continent": "Asia",
+"type": "Headquarters",
+"address": "China National GeneBank. Address: Shenzhen 518120, China",
+"website": "http://antgenomics.dk/",
+"latitude": 22.5929743330096,
+"longitude": 114.475597809881
+},
+{
+"projectName": "Global Invertebrates Genome Alliance (GIGA)",
+"continent": "North America",
+"type": "Headquarters",
+"address": "8000 North Ocean Drive Dania Beach, FL 33004, United States",
+"website": "http://giga-cos.org/",
+"latitude": 26.090731,
+"longitude": -80.111549
+},
+{
+"projectName": "Illinois EBP Pilot (ILEBP)",
+"continent": "North America",
+"type": "Headquarters",
+"address": "1206 West Gregory Drive | MC-195 Urbana, IL 61801, United States",
+"website": null,
+"latitude": 40.1053111327455,
+"longitude": -88.2247621732453
+},
+{
+"projectName": "Lilioid Monocots Core Group Genome Project (LMGP)",
+"continent": "Asia",
+"type": "Headquarters",
+"address": "Shaanxi, Xi'An, Beilin, 友谊西路127号 邮政编码: 710060, China",
+"website": null,
+"latitude": 34.2416950960594,
+"longitude": 108.91149145442
+},
+{
+"projectName": "Senckenberg Translational Biodiversity Genomics (SGN-TBG)",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Am Jakobskirchhof 4, 99423 Weimar, Germany",
+"website": "https://tbg.senckenberg.de/",
+"latitude": 50.9835203315002,
+"longitude": 11.3273833839938
+},
+{
+"projectName": "Ocean Genomes (OG)",
+"continent": "Australia",
+"type": "Headquarters",
+"address": "171-173 Mounts Bay Rd, Perth WA 6000 Australia",
+"website": null,
+"latitude": -31.9805340353065,
+"longitude": 115.819773580779
+},
+{
+"projectName": "Open Green Genomes (OGG)",
+"continent": "North America",
+"type": "Headquarters",
+"address": "Department of Plant Biology, University of Georgia, Athens GA 30605, United States",
+"website": "https://jgi.doe.gov/csp-2018-leebens-mack-open-green-genomes-initiative/",
+"latitude": 33.9519346,
+"longitude": -77.0250830895758
+},
+{
+"projectName": "PhyloAlps",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "LECA, BP 53 Domaine Universitaire de Grenoble 2233 Rue de la Piscine 38041 Grenoble Cedex 9, France",
+"website": "http://phyloalps.org/",
+"latitude": 45.1937931440174,
+"longitude": 5.77716508556027
+},
+{
+"projectName": "Plant and Fungi Trees of Life (PAFTOL)",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Kew, Richmond, London, TW9 3AE, United Kingdom",
+"website": null,
+"latitude": 51.4855110552546,
+"longitude": -0.290697322579766
+},
+{
+"projectName": "Plant GARDEN",
+"continent": "Asia",
+"type": "Headquarters",
+"address": "2-6-8 Kazusa Kamatari, Kisarazu, Chiba, 2920818",
+"website": "https://plantgarden.jp/en/index",
+"latitude": 35.3299043082877,
+"longitude": 139.990672369802
+},
+{
+"projectName": "Polar Genomes Project (PGP)",
+"continent": "Asia",
+"type": "Headquarters",
+"address": "26 Songdomirae-ro, Yeonsu-gu, Incheon, South Korea",
+"website": null,
+"latitude": 37.3680463005293,
+"longitude": 126.646222252692
+},
+{
+"projectName": "Primate Genome Project (PRGP)",
+"continent": "Asia",
+"type": "Headquarters",
+"address": "866 Yuhangtang Rd, Xihu, Hangzhou, Zhejiang, 310027, China",
+"website": null,
+"latitude": 30.3131165469954,
+"longitude": 120.08672252437
+},
+{
+"projectName": "Project Psyche",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Wellcome Trust Genome Campus, Hinxton, Saffron Walden CB10 1RQ, United Kingdom",
+"website": "https://www.projectpsyche.org/",
+"latitude": 52.0811879930689,
+"longitude": 0.183890380633945
+},
+{
+"projectName": "Soil Invertebrate Genome Initiative (METAINVERT)",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Georg-Voigt-Str. 14-16, 60388 Frankfurt am Main, Germany",
+"website": null,
+"latitude": 50.1171516011758,
+"longitude": 8.65149548210233
+},
+{
+"projectName": "Genome Sequencing and Assembly of Chondrichthyans (SQUALOMIX)",
+"continent": "Asia",
+"type": "Headquarters",
+"address": "1111 Yata, Mishima, Shizuoka 411-8540, JAPAN",
+"website": "https://github.com/Squalomix/info/",
+"latitude": 35.1178210867781,
+"longitude": 138.938615112123
+},
+{
+"projectName": "Taiwan BioGenomes Project",
+"continent": "Asia",
+"type": "Headquarters",
+"address": "No. 128, Section 2, Academia Rd, Nangang District, Taipei City, Taiwan",
+"website": null,
+"latitude": 25.0423165399513,
+"longitude": 121.616195611794
+},
+{
+"projectName": "Threatened Species Initiative (TSI)",
+"continent": "Australia",
+"type": "Headquarters",
+"address": "Camperdown NSW 2050, Australia",
+"website": "https://threatenedspeciesinitiative.com/",
+"latitude": -33.8893520146476,
+"longitude": 151.176609459036
+},
+{
+"projectName": "Ungulates Genome Project",
+"continent": "Asia",
+"type": "Headquarters",
+"address": "Shaanxi, Xi'An, Beilin, 友谊西路127号 邮政编码: 710060, China",
+"website": null,
+"latitude": 34.2415797961091,
+"longitude": 108.911469996749
+},
+{
+"projectName": "University of California Consortium (CAL-EBP)",
+"continent": "North America",
+"type": "Headquarters",
+"address": "1115 11th St, Sacramento, CA 95814, United States",
+"website": null,
+"latitude": 38.5785614673696,
+"longitude": -121.492643403082
+},
+{
+"projectName": "Vertebrate Genomes Project (VGP)",
+"continent": "North America",
+"type": "Headquarters",
+"address": "1230 York Ave, New York, NY 10065, United States",
+"website": "https://vertebrategenomesproject.org/",
+"latitude": 40.762546086418,
+"longitude": -73.9561296183326
+},
+{
+"projectName": "Wise Ancestors (WA)",
+"continent": "North America",
+"type": "Headquarters",
+"address": "241 Kings Village Rd, Scotts Valley, CA 95066",
+"website": "http://www.wiseancestors.org",
+"latitude": 36.955401,
+"longitude": -122.058069
+},
+{
+"projectName": "Yggdrasil",
+"continent": "Europe",
+"type": "Headquarters",
+"address": "Øster Voldgade 7, 1350 København, Denmark",
+"website": null,
+"latitude": 55.6760968,
+"longitude": 12.5683371
+},
+{
+"projectName": "200 Mammals Project (ZOONOMIA)",
+"continent": "North America",
+"type": "Headquarters",
+"address": "Merkin Building 415 Main St. Cambridge, MA 02142, United States",
+"website": "https://www.broadinstitute.org/200-mammals-variant-data",
+"latitude": 42.3629661377069,
+"longitude": -71.0887906164154
+}
+]

@@ -13,11 +13,12 @@
     <style>
       .container {
         display: flex;
-        justify-content: space-between;  /* Reduce space between columns */
+        justify-content: center;  /* Changed from space-between to center */
         flex-wrap: wrap;
+        gap: 10px;  /* Added gap property to control spacing between columns */
       }
       .column {
-        width: 48%;  /* Adjusted column width */
+        width: 47%;  /* Slightly reduced from 48% to account for gap */
         box-sizing: border-box;
         padding: 0;
       }
@@ -134,18 +135,19 @@
     </div>
     <div class="container">
       <div class="column">
+        <!-- Species Progress -->
+        <!-- <div id="speciesProgressContainer1" class="chart-container"></div>
+        <div id="speciesProgressContainer2" class="chart-container"></div>
+        <div id="speciesProgressContainer3" class="chart-container"></div> -->
+        <div id="speciesProgressContainer" class="chart-container"></div>
+      </div>
+      <div class="column">
         <!-- Family Progress -->
         <!-- <div id="familyProgressContainer1" class="chart-container"></div>
         <div id="familyProgressContainer2" class="chart-container"></div>
         <div id="familyProgressContainer3" class="chart-container"></div> -->
         <div id="familyProgressContainer" class="chart-container"></div>
       </div>
-      <div class="column">
-        <!-- Species Progress -->
-        <!-- <div id="speciesProgressContainer1" class="chart-container"></div>
-        <div id="speciesProgressContainer2" class="chart-container"></div>
-        <div id="speciesProgressContainer3" class="chart-container"></div> -->
-        <div id="speciesProgressContainer" class="chart-container"></div>
     </div>
 
     <div id="footer">
@@ -160,7 +162,7 @@
       let speciesChart = null
       window.onload = function () {
         // Family Progress
-        const familyUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=min%28assembly_date%29%20AND%20bioproject%3DPRJNA533106&result=taxon&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&includeEstimates=true&rank=Family&xOpts=2006%2C%2C2%2C%2CAssembly%20date&caption=Cumulative%20number%20of%20eukaryotic%20families%20for%20which%20assemblies%20were%20generated%20by%20EBP%20affiliates%20over%20time&taxonomy=ncbi&queryId=sFA8htDEr0";
+        const familyUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=min%28assembly_date%29%20AND%20bioproject%3DPRJNA533106&result=taxon&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&includeEstimates=true&rank=Family&stacked=true&cumulative=true&xOpts=2006%2C2025%2C2%2C%2CAssembly%20date&caption=Cumulative%20number%20of%20eukaryotic%20families%20for%20which%20assemblies%20were%20generated%20by%20EBP%20affiliates%20over%20time&taxonomy=ncbi";
         getStackedBarData(familyUrl).then(({formatData, defaultData, percentData}) => {
           // initEchart(formatData, 'familyProgressContainer1', 'Count of Families (Cumulative)');
           // initEchart(defaultData, 'familyProgressContainer2', 'Count of Families (Actual)');
@@ -172,7 +174,7 @@
         });
 
         // Species Progress
-        const speciesUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=min%28assembly_date%29%20AND%20bioproject%3DPRJNA533106&rank=species&result=taxon&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&xOpts=2006%2C%2C2%2C%2CAssembly%20date&caption=Cumulative%20number%20of%20assemblies%20for%20eukaryotic%20species%20generated%20by%20EBP%20affiliates%20over%20time&taxonomy=ncbi&queryId=RoGT737W-3";
+        const speciesUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=min%28assembly_date%29%20AND%20bioproject%3DPRJNA533106&rank=species&result=taxon&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&stacked=true&cumulative=true&xOpts=2006%2C2025%2C2%2C%2CAssembly%20date&caption=Cumulative%20number%20of%20assemblies%20for%20eukaryotic%20species%20generated%20by%20EBP%20affiliates%20over%20time&taxonomy=ncbi";
         getStackedBarData(speciesUrl).then(({formatData, defaultData, percentData}) => {
           // initEchart(formatData, 'speciesProgressContainer1', 'Count of Species (Cumulative)');
           // initEchart(defaultData, 'speciesProgressContainer2', 'Count of Species (Actual)');
@@ -251,7 +253,7 @@
           },
           xAxis: {
             type: "category",
-            data: Array.from({length: 2024 - 2006 + 1}, (_, i) => 2006 + i), // Create an array of years from 2006 to 2024
+            data: Array.from({length: 2025 - 2006 + 1}, (_, i) => 2006 + i), // Create an array of years from 2006 to 2025
             axisLine: {
               show: true,
               lineStyle: {
@@ -263,6 +265,8 @@
               show: true,
               color: "#000",
               fontSize: 12,
+              interval: 2, // Show every other year to prevent crowding
+              rotate: 45,  // Rotate labels for better readability
             },
             splitLine: {
               show: false,

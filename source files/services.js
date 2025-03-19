@@ -1,6 +1,3 @@
-
-
-
 // get请求
 async function fetchData(url) {
     const response = await fetch(url); // 替换为你的 API URL
@@ -184,15 +181,22 @@ async function fetchData(url) {
   // 将数据格式化成 echarts 需要的格式
   function formatStackedBarData(data) {
     const histograms = data.report.report.histogram.histograms;
+    console.log('Raw data buckets:', histograms.buckets);
+    console.log('Raw data byCat:', histograms.byCat);
+    
     const tableName = data.report.report.yLabel+ ' ' + '(cumulative)'
     const category = histograms.buckets.map((item) =>
       new Date(item).getFullYear()
     );
-    category.pop()
+    console.log('Processed categories:', category);
+    
     const colors = ["#404387", "#22a884", "#ffff33", "#7ad151"];
     const series = [];
     let index = 0
     for (let name in histograms.byCat) {
+      const rawData = histograms.byCat[name];
+      console.log(`Raw data for ${name}:`, rawData);
+      
       const obj = {
         name,
         type: "bar",
@@ -203,11 +207,19 @@ async function fetchData(url) {
         itemStyle: {
             color: colors[index++],
           },
-          barGap: '1px', // 同一类目下系列之间的间隔
+          barGap: '1px',
           barCategoryGap: '1px',
       };
-      obj.data = calculateCumulativeSums(histograms.byCat[name]);
-      const total = obj.data.pop()
+      
+      // Calculate cumulative sums properly
+      obj.data = rawData.reduce((acc, curr, idx) => {
+        if (idx === 0) return [curr];
+        return [...acc, acc[idx - 1] + curr];
+      }, []);
+      
+      console.log(`Cumulative data for ${name}:`, obj.data);
+      
+      const total = obj.data[obj.data.length - 1]
       obj.description = formatNumber(total)
       series.push(obj);
     }
@@ -225,11 +237,11 @@ async function fetchData(url) {
     const category = histograms.buckets.map((item) =>
       new Date(item).getFullYear()
     );
-    category.pop()
     const colors = ["#404387", "#22a884", "#ffff33", "#7ad151"];
     const series = [];
     let index = 0
     for (let name in histograms.byCat) {
+      const rawData = histograms.byCat[name];
       const obj = {
         name,
         type: "bar",
@@ -244,7 +256,7 @@ async function fetchData(url) {
           barCategoryGap: '1px',
       };
       obj.data = histograms.byCat[name];
-      const total = calculateCumulativeSums(histograms.byCat[name]).pop()
+      const total = calculateCumulativeSums(histograms.byCat[name])[obj.data.length - 1]
       obj.description = formatNumber(total)
       series.push(obj);
     }
@@ -262,7 +274,6 @@ async function fetchData(url) {
     const category = histograms.buckets.map((item) =>
       new Date(item).getFullYear()
     );
-    category.pop()
     const colors = ["#404387", "#22a884", "#ffff33", "#7ad151"];
     const series = [];
     let index = 0
@@ -280,7 +291,6 @@ async function fetchData(url) {
           barGap: '1px', // 同一类目下系列之间的间隔
           barCategoryGap: '1px',
       };
-      // const sums = calculateCumulativeSums(histograms.byCat[name])
       obj.data = histograms.byCat[name].map((item, index) => {
         if(index === 0) return item > 0 ? 100 : 0
         const lastVal = histograms.byCat[name][index - 1]

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="copyright" content="© 2025 The Earth BioGenome Project" />
+    <meta name="author" content="Fang Chen" />
+    <title>EBP Network Connections</title>
+    <script src="../config.js"></script>
+    <script src="./echarts.min.js"></script>
+    <script src="./geoMap/world.zh.js"></script>
+    <!-- 替换为新的JS数据文件 -->
+    <script src="./geoMap/projectsData_20250319.js"></script>
+    <link href="./geoMap/bootstrap.min.css" rel="stylesheet" />
+    <script src="./geoMap/jquery-3.6.0.min.js"></script>
+    <script src="./geoMap/popper.min.js"></script>
+    <script src="./geoMap/bootstrap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+      }
+
+      #mapContainer {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background-color: #c4e1ff;
+      }
+
+      #footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: rgba(248, 249, 250, 0.95);
+        color: #333;
+        text-align: center;
+        padding: 10px;
+        z-index: 9999;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="mapContainer"></div>
+    <div id="footer">
+      <div id="copyright">© 2025 Earth BioGenome Project</div>
+    </div>
+    <script>
+      function initMap(worldJson) {
+        const data = projectsData; // 直接使用JS文件中定义的变量
+
+        const addressMap = {};
+        const aggregatedData = data.map((item) => {
+          const address = item.address;
+          item.name =
+            item.type === "Headquarters" ? item.projectName : item.institution;
+          addressMap[address] = (addressMap[address] || 0) + 1;
+
+          const offsetX =
+            addressMap[address] > 1 ? ((Math.random() - 0.5) * 2) / 5 : 0;
+          const offsetY =
+            addressMap[address] > 1 ? ((Math.random() - 0.5) * 2) / 5 : 0;
+
+          return {
+            name: item.projectName,
+            value: [
+              item.longitude + offsetX,
+              item.latitude + offsetY,
+              addressMap[address],
+            ],
+            type: item.type,
+            website: item.website,
+            isCenter: item.type === "Center",
+            symbolSize:
+              item.type === "Center" ? 9 : item.type === "Headquarters" ? 6 : 4,
+            itemStyle: {
+              color: "#333",
+              borderColor:
+                item.type === "Headquarters"
+                  ? "transparent"
+                  : item.type === "Center"
+                  ? "#dbc649"
+                  : "transparent",
+              borderWidth: 4,
+              opacity: 1,
+            },
+            rawData: item, // 保留原始数据引用
+          };
+        });
+
+        // 初始只显示总部和中心点
+        const filteredData = aggregatedData.filter(
+          (point) => point.type === "Headquarters" || point.type === "Center"
+        );
+
+        // 查找中心点
+        const center = aggregatedData.find((point) => point.type === "Center");
+
+        // 预生成所有连接线
+        const allLinks = aggregatedData
+          .filter((point) => point.type === "Headquarters")
+          .map((point) => ({
+            fromName: center.name,
+            toName: point.name,
+            coords: [center.value, point.value],
+            lineStyle: {
+              normal: {
+                curveness: point.value[0] >= center.value[0] ? 0.4 : -0.4,
+              },
+            },
+          }));
+
+        const myChart = echarts.init(document.getElementById("mapContainer"));
+        echarts.registerMap("world", worldJson);
+
+        const option = {
+          tooltip: {
+            trigger: "item",
+            formatter: (params) => {
+              if (params.seriesType === "scatter") {
+                const item = params.data;
+                return `${item.name}<br/>`;
+              }
+              return null;
+            },
+          },
+          geo: {
+            map: "world",
+            roam: true,
+            label: { show: false },
+            itemStyle: {
+              normal: { areaColor: "#f3f3f3", borderColor: "#999" },
+              emphasis: { areaColor: "#FFFF00" },
+            },
+          },
+          series: [
+            {
+              type: "scatter",
+              coordinateSystem: "geo",
+              data: filteredData,
+              symbolSize: function (val) {
+                return val[2] ? 6 : 4;
+              },
+            },
+          ],
+        };
+
+        myChart.setOption(option);
+
+        // 交互逻辑
+        myChart.on("mouseover", function (params) {
+          if (params.seriesType === "scatter") {
+            const item = params.data;
+
+            // 总部悬停显示关联站点
+            if (item.type === "Headquarters") {
+              const relatedSite = aggregatedData.filter(
+                (node) =>
+                  node.rawData.projectName.toLowerCase() === item.rawData.projectName.toLowerCase() &&
+                  node.type === "Site"
+              );
+              const data = filteredData.find((node) => node.name === item.name);
+              data.itemStyle.borderColor = "#dbc649";
+              const links = relatedSite.map((point) => ({
+                fromName: item.name,
+                toName: point.name,
+                coords: [item.value, point.value],
+                lineStyle: {
+                  normal: {
+                    curveness: point.value[0] >= item.value[0] ? 0.4 : -0.4,
+                  },
+                },
+              }));
+              myChart.setOption({
+                series: [
+                  {
+                    type: "scatter",
+                    data: [...filteredData, ...relatedSite],
+
+                    symbolSize: function (val) {
+                      return val.type === "Site"
+                        ? 4
+                        : val.type === "Headquarters"
+                        ? 6
+                        : 9;
+                    },
+                  },
+                  {
+                    type: "lines",
+                    data: links,
+                    lineStyle: {
+                      normal: {
+                        color: "#333",
+                        width: 1,
+                        opacity: 0.5,
+                        curveness: 0.4,
+                      },
+                    },
+                  },
+                ],
+              });
+            }
+
+            // 中心点悬停显示全局飞线
+            if (item.type === "Center") {
+              myChart.setOption({
+                series: [
+                  { type: "scatter", data: filteredData },
+                  {
+                    type: "lines",
+                    data: allLinks,
+                    lineStyle: {
+                      normal: {
+                        color: "#333",
+                        width: 1,
+                        opacity: 0.5,
+                        curveness: 0.4,
+                      },
+                    },
+                  },
+                ],
+              });
+            }
+          }
+        });
+
+        myChart.on("mouseout", function (params) {
+          if (params.seriesType === "scatter") {
+            const item = params.data;
+            if (item.type === "Headquarters") {
+              const data = filteredData.find((node) => node.name === item.name);
+              data.itemStyle.borderColor = "#transparent";
+              myChart.setOption({
+                series: [
+                  { type: "scatter", data: filteredData },
+                  { type: "lines", data: [] },
+                ],
+              });
+            }
+          }
+        });
+      }
+
+      // Initialize map
+      initMap(worldJson);
+
+      // 版权信息
+      if (typeof copyright !== "undefined") {
+        document.getElementById("copyright").textContent = copyright.notice;
+      }
+    </script>
+  </body>
+</html>
