@@ -18,7 +18,7 @@ const projectsData = [
     longitude: 114.261089081046
   },
   {
-    projectName: "10,000 Plants (10KP)",
+    projectName: "10,000 Plant Genomes (10KP)",
     continent: "Asia",
     type: "Headquarters",
     address: "BGI Research, Shenzhen 518083, China",
@@ -91,12 +91,13 @@ const projectsData = [
   },
   {
     projectName: "1,000 Bat Genomes (Bat1K)",
-    continent: "Europe",
+    institution: "Max-Planck-Institut für molekulare Zellbiologie und Genetik",
     type: "Headquarters",
+    activities: "Headquarters",
     address: "Pfotenhauerstraße 108, 01307 Dresden",
     website: "https://bat1k.com/",
-    latitude: 51.0565960135475,
-    longitude: 13.7767650686559
+    latitude: 51.0573329,
+    longitude: 13.7844945
   },
   {
     projectName: "Beenome100 Project (BEENOME100)",
@@ -2667,7 +2668,7 @@ const projectsData = [
     projectName: "10,000 Plant Genomes (10KP)",
     institution: "BGI Research Wuhan",
     type: "Site",
-    activities: "Headquarters",
+    activities: "Affiliate",
     address: "BGI Research, Wuhan 430074, China",
     latitude: 30.5311927,
     longitude: 114.3400858

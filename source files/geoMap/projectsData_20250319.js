@@ -9,7 +9,7 @@ const projectsData = [
     longitude: -70.6405703032793
   },
   {
-    projectName: "10,000 bird genomes (B10k)",
+    projectName: "10,000 Bird Genomes (B10k)",
     continent: "Asia",
     type: "Headquarters",
     address: "Building 11, Beishan Industrial Zone, Yantian District, Shenzhen 518083, China",
@@ -18,10 +18,10 @@ const projectsData = [
     longitude: 114.261089081046
   },
   {
-    projectName: "10,000 Plants (10KP)",
+    projectName: "10,000 Plant Genomes (10KP)",
     continent: "Asia",
     type: "Headquarters",
-    address: "BGI Research, Shenzhen 518083, China",
+    address: "BGI Center, No. 9 Yunhua Road, Yantian District, Shenzhen, Guangdong, 518083, China",
     website: "https://academic.oup.com/gigascience/article/7/3/giy013/4880447",
     latitude: 22.7512392723508,
     longitude: 114.396686696391
@@ -72,7 +72,7 @@ const projectsData = [
     longitude: 0.184780873972139
   },
   {
-    projectName: "ATLASea",
+    projectName: "An Atlas of Eukaryotic Marine Genomes (ATLASea)",
     continent: "North America",
     type: "Headquarters",
     address: "École normale supérieure 46, Rue d'Ulm 75005 Paris",
@@ -93,7 +93,7 @@ const projectsData = [
     projectName: "1,000 Bat Genomes (Bat1K)",
     continent: "Europe",
     type: "Headquarters",
-    address: "Pfotenhauerstraße 108, 01307 Dresden",
+    address: "Pfotenhauerstraße 108, 01307 Dresden, Germany",
     website: "https://bat1k.com/",
     latitude: 51.0565960135475,
     longitude: 13.7767650686559
@@ -206,15 +206,15 @@ const projectsData = [
     latitude: 34.01740738578,
     longitude: -118.288689532093
   },
-  {
-    projectName: "Dresden HQ Genomes Project",
-    continent: "Europe",
-    type: "Headquarters",
-    address: "CRTD, TU Dresden, Fetscherstr. 105, 01307 Dresden, Germany",
-    website: null,
-    latitude: 51.0565960135475,
-    longitude: 13.7767650686559
-  },
+  // {
+  //   projectName: "Dresden HQ Genomes Project",
+  //   continent: "Europe",
+  //   type: "Headquarters",
+  //   address: "CRTD, TU Dresden, Fetscherstr. 105, 01307 Dresden, Germany",
+  //   website: null,
+  //   latitude: 51.0565960135475,
+  //   longitude: 13.7767650686559
+  // },
   {
     projectName: "EBP Secretariat",
     continent: "North America",
@@ -314,15 +314,15 @@ const projectsData = [
     latitude: 52.506110140837,
     longitude: 13.5214660552365
   },
-  {
-    projectName: "Fish 10,000 Genomes (Fish10K)",
-    continent: "Asia",
-    type: "Headquarters",
-    address: "Guangdong Province, Shenzhen, Pingshan, 金沙路西200米 邮政编码: 518122, China",
-    website: "http://english.cas.cn/newsroom/research_news/life/201910/t20191008_219736.shtml",
-    latitude: 22.7503462738405,
-    longitude: 114.396477284745
-  },
+  // {
+  //   projectName: "Fish 10,000 Genomes (Fish10K)",
+  //   continent: "Asia",
+  //   type: "Headquarters",
+  //   address: "Guangdong Province, Shenzhen, Pingshan, 金沙路西200米 邮政编码: 518122, China",
+  //   website: "http://english.cas.cn/newsroom/research_news/life/201910/t20191008_219736.shtml",
+  //   latitude: 22.7503462738405,
+  //   longitude: 114.396477284745
+  // },
   {
     projectName: "Genome 10K(G10K)",
     continent: "North America",
@@ -2667,8 +2667,8 @@ const projectsData = [
     projectName: "10,000 Plant Genomes (10KP)",
     institution: "BGI Research Wuhan",
     type: "Site",
-    activities: "Headquarters",
-    address: "BGI Research, Wuhan 430074, China",
+    activities: "other",
+    address: "Building 24, Stage 3.1, BioLake Accelerator, No. 388, 2nd Gaoxin Road, East Lake High-Tech Development Zone, Wuhan, 430075, China",
     latitude: 30.5311927,
     longitude: 114.3400858
   },
@@ -2790,7 +2790,7 @@ const projectsData = [
     longitude: 98.10001
   },
   {
-    projectName: "1,000 Chilean Genomes",
+    projectName: "1,000 Chilean Genomes (1000GCH)",
     institution: "Universidad Andres Bello",
     type: "Site",
     activities: "Affiliate, Processing, DNA Sequencing (long reads), Bioinformatics (assembly), Bioinformatics (annotation), Bioinformatics (genome analysis)",
@@ -2799,7 +2799,7 @@ const projectsData = [
     longitude: -70.66698699999999
   },
   {
-    projectName: "1,000 Chilean Genomes",
+    projectName: "1,000 Chilean Genomes (1000GCH)",
     institution: "Universidad de O'Higgins",
     type: "Site",
     activities: "Affiliate, Processing, DNA Sequencing (long reads), Bioinformatics (assembly), Bioinformatics (annotation), Bioinformatics (genome analysis), Bioinformatics (databases and informatics support)",
@@ -2808,7 +2808,7 @@ const projectsData = [
     longitude: -70.7416439
   },
   {
-    projectName: "1,000 Chilean Genomes",
+    projectName: "1,000 Chilean Genomes (1000GCH)",
     institution: "Universidad de Chile",
     type: "Site",
     activities: "Affiliate, Processing, DNA Sequencing (long reads), DNA Sequencing (short reads), RNA Sequencing, Bioinformatics (assembly), Bioinformatics (annotation), Bioinformatics (genome analysis), Bioinformatics (databases and informatics support)",
@@ -2817,7 +2817,7 @@ const projectsData = [
     longitude: -70.732998
   },
   {
-    projectName: "1,000 Chilean Genomes",
+    projectName: "1,000 Chilean Genomes (1000GCH)",
     institution: "Universidad de Antofagasta",
     type: "Site",
     activities: "Affiliate, DNA Sequencing (long reads), Processing, Bioinformatics (assembly), Bioinformatics (annotation), Bioinformatics (genome analysis)",
@@ -2826,7 +2826,7 @@ const projectsData = [
     longitude: -70.4220148
   },
   {
-    projectName: "1,000 Chilean Genomes",
+    projectName: "1,000 Chilean Genomes (1000GCH)",
     institution: "Australomics",
     type: "Site",
     activities: "Affiliate, Processing, DNA Sequencing (long reads), DNA Sequencing (short reads), RNA Sequencing, Bioinformatics (assembly), Bioinformatics (annotation), Bioinformatics (genome analysis), Bioinformatics (databases and informatics support)",
@@ -2880,7 +2880,7 @@ const projectsData = [
     longitude: 108.9540936
   },
   {
-    projectName: "The Catalan Initiative for the Earth BioGenome Project (CBP)",
+    projectName: "Catalan Initiative for the Earth BioGenome Project (CBP)",
     institution: "Institut de Biologia Evolutiva",
     type: "Site",
     activities: "Headquarters",
@@ -2889,7 +2889,7 @@ const projectsData = [
     longitude: 2.1958498
   },
   {
-    projectName: "The Catalan Initiative for the Earth BioGenome Project (CBP)",
+    projectName: "Catalan Initiative for the Earth BioGenome Project (CBP)",
     institution: "CNAG",
     type: "Site",
     activities: "DNA Sequencing (long reads), Bioinformatics (assembly and annotation)",
@@ -2898,7 +2898,7 @@ const projectsData = [
     longitude: 2.1165617
   },
   {
-    projectName: "The Catalan Initiative for the Earth BioGenome Project (CBP)",
+    projectName: "Catalan Initiative for the Earth BioGenome Project (CBP)",
     institution: "Museu de Ciències Naturals de Barcelona",
     type: "Site",
     activities: "Affiliate, Biobanking",
@@ -2907,7 +2907,7 @@ const projectsData = [
     longitude: 2.1860152
   },
   {
-    projectName: "The Catalan Initiative for the Earth BioGenome Project (CBP)",
+    projectName: "Catalan Initiative for the Earth BioGenome Project (CBP)",
     institution: "Institut Botànic de Barcelona (CSIC)",
     type: "Site",
     activities: "Affiliate, Biobanking",
@@ -2916,7 +2916,7 @@ const projectsData = [
     longitude: 2.1603489
   },
   {
-    projectName: "The Catalan Initiative for the Earth BioGenome Project (CBP)",
+    projectName: "Catalan Initiative for the Earth BioGenome Project (CBP)",
     institution: "Andorra Recerca+Innovació",
     type: "Site",
     activities: "Affiliate",
@@ -2925,7 +2925,7 @@ const projectsData = [
     longitude: 1.5213598
   },
   {
-    projectName: "The Catalan Initiative for the Earth BioGenome Project (CBP)",
+    projectName: "Catalan Initiative for the Earth BioGenome Project (CBP)",
     institution: "Institut d'Estudis Catalans & Institució Catalana d'Història Natural",
     type: "Site",
     activities: "Affiliate",
@@ -2934,7 +2934,7 @@ const projectsData = [
     longitude: 2.1692108
   },
   {
-    projectName: "The Catalan Initiative for the Earth BioGenome Project (CBP)",
+    projectName: "Catalan Initiative for the Earth BioGenome Project (CBP)",
     institution: "Centre Balear de Biodiversitat",
     type: "Site",
     activities: "Affiliate, Processing, DNA Sequencing (short reads)",
@@ -2943,7 +2943,7 @@ const projectsData = [
     longitude: 2.6325747
   },
   {
-    projectName: "The Catalan Initiative for the Earth BioGenome Project (CBP)",
+    projectName: "Catalan Initiative for the Earth BioGenome Project (CBP)",
     institution: "Centre de Regulació Genòmica (CRG)",
     type: "Site",
     activities: "Affiliate, Bioinformatics (assembly and annotation)",
@@ -2952,7 +2952,7 @@ const projectsData = [
     longitude: 2.1944581
   },
   {
-    projectName: "The Catalan Initiative for the Earth BioGenome Project (CBP)",
+    projectName: "Catalan Initiative for the Earth BioGenome Project (CBP)",
     institution: "Observatoire Océanologique de Banyuls s/mer",
     type: "Site",
     activities: "Affiliate",

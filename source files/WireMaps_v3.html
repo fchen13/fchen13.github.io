@@ -48,7 +48,10 @@
     </div>
     <script>
       function initMap(worldJson) {
-        const data = projectsData; // 直接使用JS文件中定义的变量
+        const data = projectsData;
+
+        // Debug logging for headquarters
+        console.log("Headquarters projects:", data.filter(item => item.type === "Headquarters").map(item => item.projectName));
 
         const addressMap = {};
         const aggregatedData = data.map((item) => {
@@ -62,7 +65,7 @@
           const offsetY =
             addressMap[address] > 1 ? ((Math.random() - 0.5) * 2) / 5 : 0;
 
-          return {
+          const point = {
             name: item.projectName,
             value: [
               item.longitude + offsetX,
@@ -87,14 +90,23 @@
             },
             rawData: item, // 保留原始数据引用
           };
+          
+          // Debug logging for each point
+          if (item.type === "Headquarters") {
+            console.log("Processing headquarters:", item.projectName, point);
+          }
+          
+          return point;
         });
 
-        // 初始只显示总部和中心点
+        // Filter to show only headquarters and center points
         const filteredData = aggregatedData.filter(
           (point) => point.type === "Headquarters" || point.type === "Center"
         );
 
-        // 查找中心点
+        console.log("Filtered data:", filteredData.map(item => item.name));
+
+        // Find center point
         const center = aggregatedData.find((point) => point.type === "Center");
 
         // 预生成所有连接线
@@ -140,8 +152,14 @@
               coordinateSystem: "geo",
               data: filteredData,
               symbolSize: function (val) {
-                return val[2] ? 6 : 4;
+                const point = val[2] ? filteredData.find(p => p.value[0] === val[0] && p.value[1] === val[1]) : null;
+                return point && point.type === "Headquarters" ? 6 : point && point.type === "Center" ? 9 : 4;
               },
+              itemStyle: {
+                normal: {
+                  color: "#333",
+                }
+              }
             },
           ],
         };
