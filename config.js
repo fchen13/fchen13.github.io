@@ -21,28 +21,40 @@ const pages = [
     category: "Assembly Progress",
     pages: [
       {
-        name: "Progress Timeline", 
-        file: "./source files/EBP_Progress_v2.html",
+        name: "Progress Over the Years", 
+        file: "./source files/EBP_Progress_v3.html",
         description: "Annual assembly progress at the family and species level",
         icon: "fa-chart-line"
       },
       {
-        name: "Taxonomic Progress",
-        file: "./source files/EBP_StackedRainbow_v2.html", 
+        name: "Progress at all Taxonomic Levels",
+        file: "./source files/EBP_StackedRainbow_v3.html", 
         description: "Animation display of assembly progress at main taxonomic ranks",
         icon: "fa-dna"
       },
       {
-        name: "Phylogenomic Tree",
+        name: "Phylogenomic Display of Progress at Order Level",
         file: "./source files/PhyloTree_EBP_order.html",
-        description: "Phylogenomic tree of orders with sequenced species",
+        description: "Phylogenomic tree of orders with at least one species sequenced by EBP",
         icon: "fa-tree"
+      },
+      {
+        name: "Progress by Phylum Groups",
+        file: "./source files/EBP_Progress_by_Phylum.html",
+        description: "Number of eukaryotic species sequenced by EBP grouped by phylum",
+        icon: "fa-chart-bar"
       },
       {
         name: "Affiliate Progress",
         file: "./source files/Affiliates_Progress_sorted.html",
         description: "Assembly progress across EBP affiliate projects",
         icon: "fa-project-diagram"
+      },
+      {
+        name: "EBP Contribution to Assemblies Meeting EBP Metrics",
+        file: "./source files/progress_EBPmetrics.html",
+        description: "EBP's contribution to assemblies meeting EBP quality metrics at species, genus, and family levels",
+        icon: "fa-chart-pie"
       }
     ]
   },

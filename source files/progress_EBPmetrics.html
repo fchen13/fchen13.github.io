@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="copyright" content="Data source: Genomes on a Tree (GoaT). Used with permission." />
+    <meta name="author" content="Fang Chen" />
+    <title>EBP Contribution to Assemblies Meeting EBP Metrics</title>
+    <script src="../config.js"></script>
+    <script src="./echarts.min.js"></script>
+    <script src="./utils.js"></script>
+    <script src="./services.js"></script>
+    <script>
+      // Initialize chart
+      function initEchart(data, annimationDelay) {
+        console.log('Initializing chart with data:', data);
+        const chartDom = document.getElementById("chartContainer");
+        const myChart = echarts.init(chartDom);
+        const option = {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            },
+            formatter: function(params) {
+              const total = params[1].data.value + params[0].data.value;
+              const ebp = params[0].data.value;
+              const percentage = ((ebp / total) * 100).toFixed(1);
+              return `<b>${params[0].name}</b><br/>` +
+                     `Total counts: ${total}<br/>` +
+                     `EBP contribution: ${ebp}<br/>` +
+                     `Percentage: ${percentage}%`;
+            }
+          },
+          legend: {
+            data: ['EBP Contribution', 'Total with Assemblies Meeting Metrics'],
+            top: 20
+          },
+          grid: {
+            left: '10%',    
+            right: '10%',   
+            bottom: '10%',  // Reverted to original
+            top: '15%',     
+            containLabel: true
+          },
+          xAxis: {
+            type: 'value',
+            axisLabel: {
+              formatter: '{value}',
+              margin: 15
+            }
+          },
+          yAxis: {
+            type: 'category',
+            data: ['Family', 'Genus', 'Species'],
+            axisLine: { show: true },
+            axisTick: { show: true },
+            axisLabel: {
+              fontSize: 14,
+              fontWeight: 'bold',
+              margin: 16
+            }
+          },
+          series: data
+        };
+
+        myChart.setOption(option);
+      }
+
+      function getGraphicOption(type, data) {
+        if(type == 'text') {
+          return {
+              type: 'text',
+              z: 100,
+              left: 0,
+              top: 0,
+              style: {
+                text: `${data.text}`,
+                textAlign: 'center',
+                textVerticalAlign: 'middle',
+                fontSize: 10,
+                fill: data.color
+              }
+          }
+        } else if(type == 'rect') {
+          return {
+            type: "rect",
+            left: 0,
+            top: 0,
+            shape: {
+              width: 16,
+              height: 10,
+              r: 3,
+            },
+            style: {
+              fill: data.color,
+              stroke: null,
+            },
+            silent: true,
+          }
+        }
+      }
+
+      function initLegendChart(legends) {
+        // Empty function as we're not showing statistics for now
+      }
+
+      window.onload = function () {
+        console.log('Window loaded, starting data fetch...');
+        
+        // Define URLs for Total with Assemblies Meeting Metrics
+        const totalUrls = [
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20tax_rank%28family%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=contig_n50&excludeMissing%5B1%5D=scaffold_n50&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20tax_rank%28genus%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=contig_n50&excludeMissing%5B1%5D=scaffold_n50&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20tax_rank%28species%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=contig_n50&excludeMissing%5B1%5D=scaffold_n50&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0'
+        ];
+
+        // Define URLs for EBP contributions
+        const ebpUrls = [
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20bioproject%3DPRJNA533106%20AND%20tax_rank%28family%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20bioproject%3DPRJNA533106%20AND%20tax_rank%28genus%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20bioproject%3DPRJNA533106%20AND%20tax_rank%28species%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0'
+        ];
+
+        const annimationDelay = 2000; //ms
+
+        // Fetch and process data
+        Promise.all([
+          Promise.all(totalUrls.map(url => fetch(url).then(res => res.json()))),
+          Promise.all(ebpUrls.map(url => fetch(url).then(res => res.json())))
+        ])
+        .then(([totalResults, ebpResults]) => {
+          console.log('Total Results:', totalResults);
+          console.log('EBP Results:', ebpResults);
+          
+          const ebpData = [];
+          const totalData = [];
+          const ranks = ['Family', 'Genus', 'Species'];
+          
+          ranks.forEach((rank, index) => {
+            // Get total count from aggregations
+            const total = totalResults[index].status.hits;
+            const ebp = ebpResults[index].status.hits;
+            
+            ebpData.push({
+              value: ebp,
+              itemStyle: { color: '#4ECDC4' }
+            });
+            
+            totalData.push({
+              value: total - ebp,  // Show only the non-EBP portion
+              itemStyle: { color: '#E8E8E8' }
+            });
+          });
+
+          const stackedData = [
+            {
+              name: 'EBP Contribution',
+              type: 'bar',
+              stack: 'total',
+              itemStyle: {
+                color: '#4ECDC4'  // Turquoise for EBP contribution
+              },
+              label: {
+                show: true,
+                position: 'inside',
+                formatter: function(params) {
+                  return params.value;
+                }
+              },
+              data: ebpData
+            },
+            {
+              name: 'Total with Assemblies Meeting Metrics',
+              type: 'bar',
+              stack: 'total',
+              itemStyle: {
+                color: '#E8E8E8'  // Light gray for total
+              },
+              label: {
+                show: true,
+                position: 'inside',
+                formatter: function(params) {
+                  const ebpValue = ebpData[params.dataIndex].value;
+                  const total = params.value + ebpValue;
+                  return total;
+                }
+              },
+              data: totalData
+            }
+          ];
+
+          return { stackedData, legends: [] };
+        })
+        .then(({ stackedData, legends }) => {
+          // Draw charts
+          initEchart(stackedData, annimationDelay);
+          initLegendChart(legends);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      };
+    </script>
+    <style>
+      #chartContainer {
+        width: 100%;
+        height: 500px;  /* Increased height further */
+        padding: 20px;  /* Added padding around the chart */
+      }
+      #legendContainer {
+        display: none;
+      }
+      #footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: rgba(248, 249, 250, 0.95);
+        color: #333;
+        text-align: center;
+        padding: 10px;
+        z-index: 9999;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chartContainer"></div>
+    <div id="legendContainer"></div>
+    <div id="footer">
+        <div id="copyright">Data source: Genomes on a Tree (GoaT). Used with permission.</div>
+    </div>
+  </body>
+</html> 
