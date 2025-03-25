@@ -45,19 +45,24 @@
           },
           xAxis: {
             type: 'value',
+            axisLine: { show: true },
             axisLabel: {
               formatter: '{value}',
               margin: 15
             },
             splitLine: {
               show: false
+            },
+            axisTick: {
+              show: true,
+              alignWithLabel: true
             }
           },
           yAxis: {
             type: 'category',
             data: ['Family', 'Genus', 'Species'],
             axisLine: { show: true },
-            axisTick: { show: true },
+            axisTick: { show: false },
             axisLabel: {
               fontSize: 14,
               fontWeight: 'bold',
@@ -168,7 +173,9 @@
                 show: true,
                 position: 'inside',
                 formatter: function(params) {
-                  return params.value;
+                  const total = params.value + totalData[params.dataIndex].value;
+                  const percentage = ((params.value / total) * 100).toFixed(1);
+                  return `${params.value} (${percentage}%)`;
                 }
               },
               data: ebpData
