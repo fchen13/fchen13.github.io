@@ -22,31 +22,31 @@ const pages = [
     pages: [
       {
         name: "Progress Over the Years", 
-        file: "./source files/EBP_Progress_v3.html",
+        file: "./source files/progress_Family_Species_v2.html",
         description: "Annual assembly progress at the family and species level",
         icon: "fa-chart-line"
       },
       {
         name: "Progress at all Taxonomic Levels",
-        file: "./source files/EBP_StackedRainbow_v3.html", 
+        file: "./source files/StackedRainbow_v3.html", 
         description: "Animation display of assembly progress at main taxonomic ranks",
         icon: "fa-dna"
       },
       {
         name: "Phylogenomic Display of Progress at Order Level",
-        file: "./source files/PhyloTree_EBP_order.html",
+        file: "./source files/PhyloTree_order.html",
         description: "Phylogenomic tree of orders with at least one species sequenced by EBP",
         icon: "fa-tree"
       },
       {
         name: "Progress by Phylum Groups",
-        file: "./source files/EBP_Progress_by_Phylum.html",
+        file: "./source files/progress_Phylum.html",
         description: "Number of eukaryotic species sequenced by EBP grouped by phylum",
         icon: "fa-chart-bar"
       },
       {
         name: "Affiliate Progress",
-        file: "./source files/Affiliates_Progress_sorted.html",
+        file: "./source files/affiliates_progress_sorted.html",
         description: "Assembly progress across EBP affiliate projects",
         icon: "fa-project-diagram"
       },

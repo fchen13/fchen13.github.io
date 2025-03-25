@@ -33,7 +33,7 @@
             }
           },
           legend: {
-            data: ['EBP Contribution', 'Total with Assemblies Meeting Metrics'],
+            data: ['EBP Contribution', 'Total Counts with Assemblies Meeting EBP Metrics'],
             top: 20
           },
           grid: {
@@ -108,7 +108,7 @@
       window.onload = function () {
         console.log('Window loaded, starting data fetch...');
         
-        // Define URLs for Total with Assemblies Meeting Metrics
+        // Define URLs for Total Counts with Assemblies Meeting EBP Metrics
         const totalUrls = [
           'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20tax_rank%28family%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=contig_n50&excludeMissing%5B1%5D=scaffold_n50&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
           'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20tax_rank%28genus%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=contig_n50&excludeMissing%5B1%5D=scaffold_n50&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
@@ -144,12 +144,12 @@
             
             ebpData.push({
               value: ebp,
-              itemStyle: { color: '#4ECDC4' }
+              itemStyle: { color: '#2a788e' }
             });
             
             totalData.push({
               value: total - ebp,  // Show only the non-EBP portion
-              itemStyle: { color: '#E8E8E8' }
+              itemStyle: { color: '#55b4c6' }
             });
           });
 
@@ -159,7 +159,7 @@
               type: 'bar',
               stack: 'total',
               itemStyle: {
-                color: '#4ECDC4'  // Turquoise for EBP contribution
+                color: '#2a788e'  // Turquoise for EBP contribution
               },
               label: {
                 show: true,
@@ -171,11 +171,11 @@
               data: ebpData
             },
             {
-              name: 'Total with Assemblies Meeting Metrics',
+              name: 'Total Counts with Assemblies Meeting EBP Metrics',
               type: 'bar',
               stack: 'total',
               itemStyle: {
-                color: '#E8E8E8'  // Light gray for total
+                color: '#55b4c6'  // Light gray for total
               },
               label: {
                 show: true,
