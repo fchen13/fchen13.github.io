@@ -90,7 +90,12 @@
           background-color: #aaa;
         }
 
-      /* Add footer styles */
+      /* Add container padding to prevent footer overlap */
+      .container {
+        padding-bottom: 30px;
+      }
+
+      /* Footer styles */
       #footer {
         position: fixed;
         bottom: 0;
@@ -98,18 +103,21 @@
         background-color: rgba(248, 249, 250, 0.95);
         color: #333;
         text-align: center;
-        padding: 10px;
+        padding: 5px;
         z-index: 9999;
         box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        font-size: 14px;
       }
     </style>
   </head>
   <body>
-    <div id="tree_container"></div>
-    <div id="tooltip"></div>
-    <div class="btns">
-      <button>Linear</button>
-      <button class="selected">Radial</button>
+    <div class="container">
+      <div id="tree_container"></div>
+      <div id="tooltip"></div>
+      <div class="btns">
+        <button>Linear</button>
+        <button class="selected">Radial</button>
+      </div>
     </div>
     <div id="footer">
         <div id="copyright">Data source: Genomes on a Tree (GoaT). Used with permission.</div>

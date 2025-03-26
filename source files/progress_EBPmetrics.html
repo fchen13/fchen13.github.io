@@ -34,7 +34,11 @@
           },
           legend: {
             data: ['EBP Contribution', 'Total Counts with Assemblies Meeting EBP Metrics'],
-            top: 20
+            top: 20,
+            textStyle: {
+              fontSize: 14,
+              fontWeight: 'bold',
+            }
           },
           grid: {
             left: '10%',    
@@ -214,13 +218,20 @@
     </script>
     <style>
       #chartContainer {
-        width: 100%;
+        width: 80%;
         height: 500px;  /* Increased height further */
         padding: 20px;  /* Added padding around the chart */
+        margin: 20px auto;
       }
       #legendContainer {
         display: none;
       }
+      /* Add container padding to prevent footer overlap */
+      .container {
+        padding-bottom: 30px;
+      }
+
+      /* Footer styles */
       #footer {
         position: fixed;
         bottom: 0;
@@ -228,15 +239,18 @@
         background-color: rgba(248, 249, 250, 0.95);
         color: #333;
         text-align: center;
-        padding: 10px;
+        padding: 5px;
         z-index: 9999;
         box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        font-size: 14px;  /* Changed from 12px */
       }
     </style>
   </head>
   <body>
-    <div id="chartContainer"></div>
-    <div id="legendContainer"></div>
+    <div class="container">
+      <div id="chartContainer"></div>
+      <div id="legendContainer"></div>
+    </div>
     <div id="footer">
         <div id="copyright">Data source: Genomes on a Tree (GoaT). Used with permission.</div>
     </div>

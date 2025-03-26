@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="copyright" content="Data source: Genomes on a Tree (GoaT). Used with permission." />
+    <meta name="author" content="Fang Chen" />
     <title>Progress_StackedRainbow</title>
     <script src="./echarts.min.js"></script>
     <script src="./utils.js"></script>
@@ -268,7 +270,7 @@
 
           const url1 = 'https://goat.genomehubs.org/api/v2/report?report=arc&x=assembly_span%20AND%20bioproject%3DPRJNA533106&rank=phylum%2Cclass%2Corder%2Cfamily%2Cgenus%2Cspecies&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&caption=%2A%2AEBP%20Umbrella%2A%2A%20-%20EBP%20taxa%20with%20assemblies%20out%20of%20all%20Eukaryotic%20taxa%20in%20INSDC&taxonomy=ncbi&result=taxon&queryId=8EWp2aVcZB'
           const url2 = 'https://goat.genomehubs.org/api/v2/report?report=arc&x=assembly_span&rank=phylum%2Cclass%2Corder%2Cfamily%2Cgenus%2Cspecies&includeEstimates=true&excludeAncestral%5B0%5D=assembly_span&excludeMissing%5B0%5D=assembly_span&caption=%2A%2AAll%20INSDC%20taxa%2A%2A%20-%20Taxa%20with%20assemblies%20out%20of%20all%20Eukaryotic%20taxa%20in%20INSDC&taxonomy=ncbi&result=taxon&queryId=R8LGXM94GW'
-          const annimationDelay = 2000 //ms
+          const annimationDelay = 3000 //ms
           formatStackedUmbrellaData(url1, url2, annimationDelay).then(({
             stackedData, legends
           }) => {
@@ -288,6 +290,14 @@
       };
     </script>
     <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
       #chartContainer {
         width: 100%;
         height: 363px;
@@ -310,11 +320,37 @@
         /* width: 30%; */
         /* transform: translateX(-50%); */
      }
+     /* Add container padding to prevent footer overlap */
+     .container {
+        padding-bottom: 30px;
+        width: 100%;
+        max-width: 1200px;
+        margin: 50px auto 0;
+     }
+
+     /* Footer styles */
+     #footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: rgba(248, 249, 250, 0.95);
+        color: #333;
+        text-align: center;
+        padding: 5px;
+        z-index: 9999;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        font-size: 14px;
+     }
     </style>
   </head>
   <body>
-    <div id="chartContainer"></div>
-    <!-- <div id="backgroundContainer"></div> -->
-     <div id="legendContainer"></div>
+    <div class="container">
+      <div id="chartContainer"></div>
+      <!-- <div id="backgroundContainer"></div> -->
+       <div id="legendContainer"></div>
+    </div>
+    <div id="footer">
+        <div id="copyright">Data source: Genomes on a Tree (GoaT). Used with permission.</div>
+    </div>
   </body>
 </html>

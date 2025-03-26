@@ -16,10 +16,16 @@
     <script src="./geoMap/popper.min.js"></script>
     <script src="./geoMap/bootstrap.min.js"></script>
     <style>
-      * {
-        margin: 0;
+    * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
       }
-
+      body {
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+      }        
       #mapContainer {
         width: 100vw;
         height: 100vh;
@@ -27,6 +33,15 @@
         background-color: #c4e1ff;
       }
 
+      /* Add container padding to prevent footer overlap */
+      .container {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* Footer styles */
       #footer {
         position: fixed;
         bottom: 0;
@@ -34,15 +49,18 @@
         background-color: rgba(248, 249, 250, 0.95);
         color: #333;
         text-align: center;
-        padding: 10px;
+        padding: 5px;
         z-index: 9999;
-        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        font-size: 14px;
       }
     </style>
   </head>
 
   <body>
-    <div id="mapContainer"></div>
+    <div class="container">
+      <div id="mapContainer"></div>
+    </div>
     <div id="footer">
       <div id="copyright">© 2025 Earth BioGenome Project</div>
     </div>

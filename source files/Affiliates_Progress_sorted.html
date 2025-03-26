@@ -16,10 +16,14 @@
         #chartContainer2,
         #chartContainer3
           {
-            height: 60vh;
-            width: 60%;
+            height: 80vh;
+            width: 70%;
             /* min-width: 500px;    */
             margin: 20px auto;
+        }
+        /* Add container padding to prevent footer overlap */
+        .container {
+          padding-bottom: 30px;
         }
         /* Footer styles */
         #footer {
@@ -29,19 +33,22 @@
             background-color: rgba(248, 249, 250, 0.95);
             color: #333;
             text-align: center;
-            padding: 10px;
+            padding: 5px;
             z-index: 9999;
             box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+            font-size: 14px;
         }
     </style>
   </head>
   <body>
+    <div class="container">
    <div id="chartContainer1"></div>
    <div id="chartContainer2"></div>
    <div id="chartContainer3"></div>
 
     <div id="footer">
         <div id="copyright">Data source: Genomes on a Tree (GoaT). Used with permission.</div>
+    </div>
     </div>
 
     <script>
