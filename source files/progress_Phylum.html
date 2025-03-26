@@ -17,9 +17,9 @@
         padding: 20px;
       }
       .chart-container {
-        width: 90%;
-        height: 600px;
-        margin: 20px auto;
+        width: 60%;
+        height: 550px;
+        margin: 0px auto 40px auto;
         position: relative;
       }
 
@@ -124,8 +124,8 @@
               itemStyle: {
                 color: '#6d3f9b'  // Using a web-friendly blue color
               },
-              barWidth: '99%',  // Make bars wider to remove gaps
-              barGap: '0%'      // Remove gap between bars
+              barWidth: '95%',  // Make bars wider to remove gaps
+              barGap: '-100%'      // Remove gap between bars
             }]
           };
           
@@ -170,9 +170,9 @@
 
         const option = {
           title: {
-            text: 'Number of eukaryotic species sequenced by phylum groups',
+            text: 'Number of sequenced species by phylum groups',
             left: 'center',
-            top: 20,
+            top: 15,
             textStyle: {
               fontSize: 16,
               fontWeight: 'bold',
@@ -182,7 +182,7 @@
           graphic: {
             elements: [{
               type: 'text',
-              left: '80%',
+              left: '78%',
               top: 80,
               style: {
                 text: `Total Species: ${formatNumber(totalSpecies)}`,
@@ -218,7 +218,7 @@
             }
           },
           grid: {
-            left: '3%',
+            left: '8%',
             right: '4%',
             bottom: '15%',
             top: '15%',
@@ -242,11 +242,11 @@
             type: 'value',
             name: 'Count of Species',
             nameLocation: 'middle',
-            nameGap: 40,
+            nameGap: 50,
             nameTextStyle: {
               fontWeight: 'bold',
               color: '#333',
-              fontSize: 16
+              fontSize: 14
             },
             axisLabel: {
               fontSize: 12,
