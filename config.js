@@ -69,7 +69,7 @@ const pages = [
       },
       {
         name: "Affiliate Network",
-        file: "./source files/WireMaps_v3.html",
+        file: "./source files/WireMaps_v4.html",
         description: "Wired map showing EBP and affiliate network connections",
         icon: "fa-network-wired" 
       }
