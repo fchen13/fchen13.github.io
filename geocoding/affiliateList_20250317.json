@@ -281,7 +281,7 @@
 {
 "projectName": "ERGA-BGE",
 "continent": "Europe",
-"type": "Headquarters",
+"type": "Site",
 "address": "Naturalis Biodiversity Center, Darwinweg 2, 2333 CR Leiden, The Netherlands",
 "website": "https://biodiversitygenomics.eu/",
 "latitude": 52.1591666666667,
@@ -290,7 +290,7 @@
 {
 "projectName": "ERGA-PIL",
 "continent": "Europe",
-"type": "Headquarters",
+"type": "Site",
 "address": "Alfred-Kowalke-Straße 17, 10315 Berlin, Germany",
 "website": "https://www.erga-biodiversity.eu/",
 "latitude": 52.506110140837,
@@ -299,7 +299,7 @@
 {
 "projectName": "ERGA-CH",
 "continent": "Europe",
-"type": "Headquarters",
+"type": "Site",
 "address": "Alfred-Kowalke-Straße 17, 10315 Berlin, Germany",
 "website": "https://www.erga-biodiversity.eu/",
 "latitude": 52.506110140837,
@@ -308,7 +308,7 @@
 {
 "projectName": "ERGA-COM",
 "continent": "Europe",
-"type": "Headquarters",
+"type": "Site",
 "address": "Alfred-Kowalke-Straße 17, 10315 Berlin, Germany",
 "website": "https://www.erga-biodiversity.eu/",
 "latitude": 52.506110140837,

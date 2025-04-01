@@ -1,12 +1,16 @@
 import json
 from datetime import datetime
+import os
+
+# Get the directory where the script is located
+script_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Read the first JSON file
-with open('geocoding/affiliateList_20250317.json', 'r', encoding='utf-8') as f:
+with open(os.path.join(script_dir, 'affiliateList_20250317.json'), 'r', encoding='utf-8') as f:
     data1 = json.load(f)
 
 # Read the second JSON file
-with open('geocoding/affiliate_network_list_20250319.json', 'r', encoding='utf-8') as f:
+with open(os.path.join(script_dir, 'affiliate_network_list_20250319.json'), 'r', encoding='utf-8') as f:
     data2 = json.load(f)
 
 # Print initial statistics
@@ -39,7 +43,7 @@ print(f"Total number of entries in merged output: {len(merged_data)}")
 current_date = datetime.now().strftime('%Y%m%d')
 
 # Write the merged data to JSON file with timestamp
-json_output_filename = f'geocoding/EBPnetwork_{current_date}.json'
+json_output_filename = os.path.join(script_dir, f'EBPnetwork_{current_date}.json')
 with open(json_output_filename, 'w', encoding='utf-8') as f:
     json.dump(merged_data, f, indent=2, ensure_ascii=False)
 
@@ -78,7 +82,7 @@ for i, entry in enumerate(merged_data):
 js_lines.append('];')
 
 # Write the JavaScript file with timestamp
-js_output_filename = f'geocoding/projectsData_{current_date}.js'
+js_output_filename = os.path.join(script_dir, f'EBPnetwork_{current_date}.js')
 with open(js_output_filename, 'w', encoding='utf-8') as f:
     f.write('\n'.join(js_lines))
 
