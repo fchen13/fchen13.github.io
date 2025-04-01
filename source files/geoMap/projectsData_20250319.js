@@ -129,20 +129,20 @@ const projectsData = [
     projectName: "Canadian BioGenome Project (CanBP)",
     continent: "North America",
     type: "Headquarters",
-    address: "University of British Columbia, Vancouver, BC V6T 1Z4, Canada",
+    address: "675 W 10th Ave, Vancouver, BC V5Z 0B4, Canada",
     website: "https://earthbiogenome.ca/",
-    latitude: 49.260125680538,
-    longitude: -123.242998256668
+    latitude: 49.262442,
+    longitude: -123.119353
   },
-  // {
-  //   projectName: "Canada 150 Sequencing Initiative (CanSeq150)",
-  //   continent: "North America",
-  //   type: "Headquarters",
-  //   address: "570 W 7th Ave, Vancouver, BC V5Z 4S6, Canada",
-  //   website: "http://www.cgen.ca/canseq150",
-  //   latitude: 49.260125680538,
-  //   longitude: -123.242998256668
-  // },
+  {
+    projectName: "Canada 150 Sequencing Initiative (CanSeq150)",
+    continent: "North America",
+    type: "Headquarters",
+    address: "570 W 7th Ave, Vancouver, BC V5Z 4S6, Canada",
+    website: "http://www.cgen.ca/canseq150",
+    latitude: 49.2630,
+    longitude: -123.1162
+  },
   {
     projectName: "Cartilaginous Fish Genome Project (CFGP)",
     continent: "Asia",
@@ -278,7 +278,7 @@ const projectsData = [
     latitude: 52.506110140837,
     longitude: 13.5214660552365
   },
-  {
+  /* {
     projectName: "ERGA-BGE",
     continent: "Europe",
     type: "Headquarters",
@@ -313,16 +313,16 @@ const projectsData = [
     website: "https://www.erga-biodiversity.eu/",
     latitude: 52.506110140837,
     longitude: 13.5214660552365
+  },*/
+  {
+    projectName: "Fish 10,000 Genomes (Fish10K)",
+    continent: "Asia",
+    type: "Headquarters",
+    address: "Guangdong Province, Shenzhen, Pingshan, 金沙路西200米 邮政编码: 518122, China",
+    website: "http://english.cas.cn/newsroom/research_news/life/201910/t20191008_219736.shtml",
+    latitude: 22.7503462738405,
+    longitude: 114.396477284745
   },
-  // {
-  //   projectName: "Fish 10,000 Genomes (Fish10K)",
-  //   continent: "Asia",
-  //   type: "Headquarters",
-  //   address: "Guangdong Province, Shenzhen, Pingshan, 金沙路西200米 邮政编码: 518122, China",
-  //   website: "http://english.cas.cn/newsroom/research_news/life/201910/t20191008_219736.shtml",
-  //   latitude: 22.7503462738405,
-  //   longitude: 114.396477284745
-  // },
   {
     projectName: "Genome 10K(G10K)",
     continent: "North America",
