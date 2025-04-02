@@ -1,5 +1,14 @@
 const projectsData = [
   {
+    projectName: "1,000 Bat Genomes (Bat1K)",
+    continent: "Europe",
+    type: "Headquarters",
+    address: "Pfotenhauerstraße 108, 01307 Dresden",
+    website: "https://bat1k.com/",
+    latitude: 51.0565960135475,
+    longitude: 13.7767650686559
+  },
+  {
     projectName: "1,000 Chilean Genomes",
     continent: "South America",
     type: "Headquarters",
@@ -88,15 +97,6 @@ const projectsData = [
     website: "https://www.canberra.edu.au/research/research-centres/research-centres-and-institutes/research-institute-for-ecology-and-evolution",
     latitude: -35.2386,
     longitude: 149.0631
-  },
-  {
-    projectName: "1,000 Bat Genomes (Bat1K)",
-    continent: "Europe",
-    type: "Headquarters",
-    address: "Pfotenhauerstraße 108, 01307 Dresden",
-    website: "https://bat1k.com/",
-    latitude: 51.0565960135475,
-    longitude: 13.7767650686559
   },
   {
     projectName: "Beenome100 Project (BEENOME100)",
