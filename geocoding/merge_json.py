@@ -1,3 +1,7 @@
+# this script is used to merge affiliateList json file and affiliate_network_list json file
+# and output a new json file with the merged data that includes all EBP network data points
+# the 20250401 version of data for both affiliateList and affiliate_network_list are thoroughly examined and validated against the EBP website and the master network list created by Maja
+
 import json
 from datetime import datetime
 import os
@@ -6,11 +10,11 @@ import os
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Read the first JSON file
-with open(os.path.join(script_dir, 'affiliateList_20250317.json'), 'r', encoding='utf-8') as f:
+with open(os.path.join(script_dir, 'affiliateList_20250401.json'), 'r', encoding='utf-8') as f:
     data1 = json.load(f)
 
 # Read the second JSON file
-with open(os.path.join(script_dir, 'affiliate_network_list_20250319.json'), 'r', encoding='utf-8') as f:
+with open(os.path.join(script_dir, 'affiliate_network_list_20250401.json'), 'r', encoding='utf-8') as f:
     data2 = json.load(f)
 
 # Print initial statistics
@@ -43,9 +47,9 @@ print(f"Total number of entries in merged output: {len(merged_data)}")
 current_date = datetime.now().strftime('%Y%m%d')
 
 # Write the merged data to JSON file with timestamp
-json_output_filename = os.path.join(script_dir, f'EBPnetwork_{current_date}.json')
-with open(json_output_filename, 'w', encoding='utf-8') as f:
-    json.dump(merged_data, f, indent=2, ensure_ascii=False)
+# json_output_filename = os.path.join(script_dir, f'EBPnetwork_{current_date}.json')
+# with open(json_output_filename, 'w', encoding='utf-8') as f:
+#     json.dump(merged_data, f, indent=2, ensure_ascii=False)
 
 # Function to format JavaScript object with proper indentation
 def format_js_value(value):

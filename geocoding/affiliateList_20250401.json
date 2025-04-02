@@ -1,6 +1,6 @@
 [
 {
-"projectName": "1,000 Chilean Genomes (1000GCH)",
+"projectName": "1,000 Chilean Genomes",
 "continent": "South America",
 "type": "Headquarters",
 "address": "Av Alameda Libertador Bernardo O'Higgins 340, Santiago, Chile",
@@ -18,7 +18,7 @@
 "longitude": 114.261089081046
 },
 {
-"projectName": "10,000 Plants (10KP)",
+"projectName": "10,000 Plant Genomes (10KP)",
 "continent": "Asia",
 "type": "Headquarters",
 "address": "BGI Research, Shenzhen 518083, China",
@@ -72,7 +72,7 @@
 "longitude": 0.184780873972139
 },
 {
-"projectName": "ATLASea",
+"projectName": "An Atlas of Eukaryotic Marine Genomes (ATLASea)",
 "continent": "North America",
 "type": "Headquarters",
 "address": "École normale supérieure 46, Rue d'Ulm 75005 Paris",
@@ -108,6 +108,15 @@
 "longitude": -76.9269
 },
 {
+"projectName": "BRIDGE Colombia",
+"continent": "South America",
+"type": "Headquarters",
+"address": "La Candelaria, Bogota, Cundinamarca, Colombia",
+"website": "https://www.bridgecolombia.org/",
+"latitude": 4.6097305,
+"longitude": -74.081749
+},
+{
 "projectName": "Butterfly Genome Project",
 "continent": "Asia",
 "type": "Headquarters",
@@ -131,8 +140,8 @@
 "type": "Headquarters",
 "address": "675 W 10th Ave, Vancouver, BC V5Z 0B4, Canada",
 "website": "https://earthbiogenome.ca/",
-"latitude": 49.262442,
-"longitude": -123.119353
+"latitude": 49.260125680538,
+"longitude": -123.242998256668
 },
 {
 "projectName": "Canada 150 Sequencing Initiative (CanSeq150)",
@@ -165,7 +174,7 @@
 "projectName": "Cetaceans Genomes Project (CGP)",
 "continent": "North America",
 "type": "Headquarters",
-"address": "8901 La Jolla Shores Dr., La Jolla, CA, 92037, USA",
+"address": "8901 La Jolla Shores Dr., La Jolla, CA, 92037, United States",
 "website": null,
 "latitude": 32.8661,
 "longitude": -117.2508738
@@ -291,10 +300,10 @@
 "projectName": "Genome 10K(G10K)",
 "continent": "North America",
 "type": "Headquarters",
-"address": "1156 High St, Santa Cruz, CA 95064, United States",
+"address": "1230 York Avenue, New York, NY, 10065",
 "website": "https://genome10k.soe.ucsc.edu/",
-"latitude": 36.9996875962649,
-"longitude": -122.057616591381
+"latitude": 40.762546086418,
+"longitude": -73.9561296183326
 },
 {
 "projectName": "Genomics of the Brazilian Biodiversity (GBB)",
@@ -504,7 +513,7 @@
 "longitude": -122.058069
 },
 {
-"projectName": "Yggdrasil",
+"projectName": "Yggdrasil(YGG)",
 "continent": "Europe",
 "type": "Headquarters",
 "address": "Øster Voldgade 7, 1350 København, Denmark",
