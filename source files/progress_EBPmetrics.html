@@ -23,17 +23,19 @@
               type: 'shadow'
             },
             formatter: function(params) {
-              const total = params[1].data.value + params[0].data.value;
-              const ebp = params[0].data.value;
-              const percentage = ((ebp / total) * 100).toFixed(1);
+              const ebp = params[0].value;
+              const nonEbp = params[1].value;
+              const total = ebp + nonEbp;
+              const ebpPercentage = ((ebp / total) * 100).toFixed(1);
+              const nonEbpPercentage = ((nonEbp / total) * 100).toFixed(1);
               return `<b>${params[0].name}</b><br/>` +
                      `Total counts: ${total}<br/>` +
-                     `EBP contribution: ${ebp}<br/>` +
-                     `Percentage: ${percentage}%`;
+                     `EBP contribution: ${ebp} (${ebpPercentage}%)<br/>` +
+                     `Non-EBP contribution: ${nonEbp} (${nonEbpPercentage}%)`;
             }
           },
           legend: {
-            data: ['EBP Contribution', 'Total Counts with Assemblies Meeting EBP Metrics'],
+            data: ['EBP Contribution', 'Non-EBP Contribution'],
             top: 20,
             textStyle: {
               fontSize: 14,
@@ -43,16 +45,24 @@
           grid: {
             left: '10%',    
             right: '10%',   
-            bottom: '10%',  // Reverted to original
+            bottom: '10%',
             top: '15%',     
             containLabel: true
           },
           xAxis: {
             type: 'value',
+            name: 'Total Counts with Assemblies Meeting EBP Metrics',
+            nameLocation: 'middle',
+            nameGap: 40,
+            nameTextStyle: {
+              fontSize: 16,
+              fontWeight: 'bold'
+            },
             axisLine: { show: true },
             axisLabel: {
               formatter: '{value}',
-              margin: 15
+              margin: 10,
+              fontSize: 14,
             },
             splitLine: {
               show: false
@@ -146,67 +156,89 @@
           console.log('EBP Results:', ebpResults);
           
           const ebpData = [];
-          const totalData = [];
+          const nonEbpData = [];
           const ranks = ['Family', 'Genus', 'Species'];
           
           ranks.forEach((rank, index) => {
-            // Get total count from aggregations
+            // Get total count and EBP count
             const total = totalResults[index].status.hits;
             const ebp = ebpResults[index].status.hits;
+            const nonEbp = total - ebp;  // Calculate non-EBP count
             
-            ebpData.push({
-              value: ebp,
-              itemStyle: { color: '#2a788e' }
-            });
+            console.log(`Rank: ${rank}, Total: ${total}, EBP: ${ebp}, Non-EBP: ${nonEbp}`);
             
-            totalData.push({
-              value: total - ebp,  // Show only the non-EBP portion
-              itemStyle: { color: '#55b4c6' }
-            });
+            ebpData.push(ebp);
+            nonEbpData.push(nonEbp);
           });
 
-          const stackedData = [
+          const series = [
             {
               name: 'EBP Contribution',
               type: 'bar',
               stack: 'total',
               itemStyle: {
-                color: '#2a788e'  // Turquoise for EBP contribution
+                color: '#2a788e'
               },
               label: {
                 show: true,
                 position: 'inside',
                 formatter: function(params) {
-                  const total = params.value + totalData[params.dataIndex].value;
+                  const total = params.value + nonEbpData[params.dataIndex];
                   const percentage = ((params.value / total) * 100).toFixed(1);
-                  return `${params.value} (${percentage}%)`;
+                  return `{a|${params.value}}\n{b|(${percentage}%)}`;
+                },
+                rich: {
+                  a: {
+                    fontSize: 14,
+                    lineHeight: 17,
+                    fontWeight: 'bold'
+                  },
+                  b: {
+                    fontSize: 14,
+                    lineHeight: 17,
+                    fontWeight: 'bold'
+                  }
                 }
               },
               data: ebpData
             },
             {
-              name: 'Total Counts with Assemblies Meeting EBP Metrics',
+              name: 'Non-EBP Contribution',
               type: 'bar',
               stack: 'total',
               itemStyle: {
-                color: '#55b4c6'  // Light gray for total
+                color: '#55b4c6'
               },
               label: {
                 show: true,
                 position: 'inside',
                 formatter: function(params) {
-                  const ebpValue = ebpData[params.dataIndex].value;
-                  const total = params.value + ebpValue;
-                  return total;
+                  const total = params.value + ebpData[params.dataIndex];
+                  const percentage = ((params.value / total) * 100).toFixed(1);
+                  return `{a|${params.value}}\n{b|(${percentage}%)}`;
+                },
+                rich: {
+                  a: {
+                    fontSize: 14,
+                    lineHeight: 17,
+                    fontWeight: 'bold'
+                  },
+                  b: {
+                    fontSize: 14,
+                    lineHeight: 17,
+                    fontWeight: 'bold'
+                  }
                 }
               },
-              data: totalData
+              data: nonEbpData
             }
           ];
 
-          return { stackedData, legends: [] };
+          console.log('Series data:', series);
+          return { stackedData: series, legends: [] };
         })
         .then(({ stackedData, legends }) => {
+          console.log('Initializing chart with data:', stackedData);
           // Draw charts
           initEchart(stackedData, annimationDelay);
           initLegendChart(legends);
