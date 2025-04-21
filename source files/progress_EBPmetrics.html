@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="copyright" content="Data source: Genomes on a Tree (GoaT). Used with permission." />
+    <meta name="author" content="Fang Chen" />
+    <title>EBP Contribution to Assemblies Meeting EBP Metrics</title>
+    <script src="../config.js"></script>
+    <script src="./echarts.min.js"></script>
+    <script src="./utils.js"></script>
+    <script src="./services.js"></script>
+    <script>
+      // Initialize chart
+      function initEchart(data, annimationDelay) {
+        console.log('Initializing chart with data:', data);
+        const chartDom = document.getElementById("chartContainer");
+        const myChart = echarts.init(chartDom);
+        const option = {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            },
+            formatter: function(params) {
+              const ebp = params[0].value;
+              const nonEbp = params[1].value;
+              const total = ebp + nonEbp;
+              const ebpPercentage = ((ebp / total) * 100).toFixed(1);
+              const nonEbpPercentage = ((nonEbp / total) * 100).toFixed(1);
+              return `<b>${params[0].name}</b><br/>` +
+                     `Total counts: ${total}<br/>` +
+                     `EBP contribution: ${ebp} (${ebpPercentage}%)<br/>` +
+                     `Non-EBP contribution: ${nonEbp} (${nonEbpPercentage}%)`;
+            }
+          },
+          legend: {
+            data: ['EBP Contribution', 'Non-EBP Contribution'],
+            top: 20,
+            textStyle: {
+              fontSize: 14,
+              fontWeight: 'bold',
+            }
+          },
+          grid: {
+            left: '10%',    
+            right: '10%',   
+            bottom: '10%',
+            top: '15%',     
+            containLabel: true
+          },
+          xAxis: {
+            type: 'value',
+            name: 'Total Counts with Assemblies Meeting EBP Metrics',
+            nameLocation: 'middle',
+            nameGap: 50,
+            nameTextStyle: {
+              fontSize: 16,
+              fontWeight: 'bold'
+            },
+            axisLine: { show: true },
+            axisLabel: {
+              formatter: '{value}',
+              margin: 10,
+              fontSize: 14,
+            },
+            splitLine: {
+              show: false
+            },
+            axisTick: {
+              show: true,
+              alignWithLabel: true
+            }
+          },
+          yAxis: {
+            type: 'category',
+            data: ['Family', 'Genus', 'Species'],
+            axisLine: { show: true },
+            axisTick: { show: false },
+            axisLabel: {
+              fontSize: 14,
+              fontWeight: 'bold',
+              margin: 16
+            }
+          },
+          series: data
+        };
+
+        myChart.setOption(option);
+      }
+
+      function getGraphicOption(type, data) {
+        if(type == 'text') {
+          return {
+              type: 'text',
+              z: 100,
+              left: 0,
+              top: 0,
+              style: {
+                text: `${data.text}`,
+                textAlign: 'center',
+                textVerticalAlign: 'middle',
+                fontSize: 10,
+                fill: data.color
+              }
+          }
+        } else if(type == 'rect') {
+          return {
+            type: "rect",
+            left: 0,
+            top: 0,
+            shape: {
+              width: 16,
+              height: 10,
+              r: 3,
+            },
+            style: {
+              fill: data.color,
+              stroke: null,
+            },
+            silent: true,
+          }
+        }
+      }
+
+      function initLegendChart(legends) {
+        // Empty function as we're not showing statistics for now
+      }
+
+      window.onload = function () {
+        console.log('Window loaded, starting data fetch...');
+        
+        // Define URLs for Total Counts with Assemblies Meeting EBP Metrics
+        const totalUrls = [
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20tax_rank%28family%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=contig_n50&excludeMissing%5B1%5D=scaffold_n50&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20tax_rank%28genus%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=contig_n50&excludeMissing%5B1%5D=scaffold_n50&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20tax_rank%28species%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=contig_n50&excludeMissing%5B1%5D=scaffold_n50&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0'
+        ];
+
+        // Define URLs for EBP contributions
+        const ebpUrls = [
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20bioproject%3DPRJNA533106%20AND%20tax_rank%28family%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20bioproject%3DPRJNA533106%20AND%20tax_rank%28genus%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20bioproject%3DPRJNA533106%20AND%20tax_rank%28species%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0'
+        ];
+
+        const annimationDelay = 2000; //ms
+
+        // Fetch and process data
+        Promise.all([
+          Promise.all(totalUrls.map(url => fetch(url).then(res => res.json()))),
+          Promise.all(ebpUrls.map(url => fetch(url).then(res => res.json())))
+        ])
+        .then(([totalResults, ebpResults]) => {
+          console.log('Total Results:', totalResults);
+          console.log('EBP Results:', ebpResults);
+          
+          const ebpData = [];
+          const nonEbpData = [];
+          const ranks = ['Family', 'Genus', 'Species'];
+          
+          ranks.forEach((rank, index) => {
+            // Get total count and EBP count
+            const total = totalResults[index].status.hits;
+            const ebp = ebpResults[index].status.hits;
+            const nonEbp = total - ebp;  // Calculate non-EBP count
+            
+            console.log(`Rank: ${rank}, Total: ${total}, EBP: ${ebp}, Non-EBP: ${nonEbp}`);
+            
+            ebpData.push(ebp);
+            nonEbpData.push(nonEbp);
+          });
+
+          const series = [
+            {
+              name: 'EBP Contribution',
+              type: 'bar',
+              stack: 'total',
+              itemStyle: {
+                color: '#2a788e'
+              },
+              label: {
+                show: true,
+                position: 'inside',
+                align: 'center',
+                verticalAlign: 'middle',
+                formatter: function(params) {
+                  const total = params.value + nonEbpData[params.dataIndex];
+                  const percentage = ((params.value / total) * 100).toFixed(1);
+                  return `{a|${params.value}}\n{b|(${percentage}%)}`;
+                },
+                rich: {
+                  a: {
+                    fontSize: 14,
+                    lineHeight: 18,
+                    fontWeight: 'bold',
+                    align: 'center'
+                  },
+                  b: {
+                    fontSize: 14,
+                    lineHeight: 18,
+                    fontWeight: 'bold',
+                    align: 'center'
+                  }
+                }
+              },
+              data: ebpData
+            },
+            {
+              name: 'Non-EBP Contribution',
+              type: 'bar',
+              stack: 'total',
+              itemStyle: {
+                color: '#55b4c6'
+              },
+              label: {
+                show: true,
+                position: 'inside',
+                align: 'center',
+                verticalAlign: 'middle',
+                formatter: function(params) {
+                  const total = params.value + ebpData[params.dataIndex];
+                  const percentage = ((params.value / total) * 100).toFixed(1);
+                  return `{a|${params.value}}\n{b|(${percentage}%)}`;
+                },
+                rich: {
+                  a: {
+                    fontSize: 14,
+                    lineHeight: 18,
+                    fontWeight: 'bold',
+                    align: 'center'
+                  },
+                  b: {
+                    fontSize: 14,
+                    lineHeight: 18,
+                    fontWeight: 'bold',
+                    align: 'center'
+                  }
+                }
+              },
+              data: nonEbpData
+            }
+          ];
+
+          console.log('Series data:', series);
+          return { stackedData: series, legends: [] };
+        })
+        .then(({ stackedData, legends }) => {
+          console.log('Initializing chart with data:', stackedData);
+          // Draw charts
+          initEchart(stackedData, annimationDelay);
+          initLegendChart(legends);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      };
+    </script>
+    <style>
+      #chartContainer {
+        width: 80%;
+        height: 500px;  /* Increased height further */
+        padding: 20px;  /* Added padding around the chart */
+        margin: 20px auto;
+      }
+      #legendContainer {
+        display: none;
+      }
+      /* Add container padding to prevent footer overlap */
+      .container {
+        padding-bottom: 30px;
+      }
+
+      /* Footer styles */
+      #footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: rgba(248, 249, 250, 0.95);
+        color: #333;
+        text-align: center;
+        padding: 5px;
+        z-index: 9999;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        font-size: 14px;  /* Changed from 12px */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div id="chartContainer"></div>
+      <div id="legendContainer"></div>
+    </div>
+    <div id="footer">
+        <div id="copyright">Data source: Genomes on a Tree (GoaT). Used with permission.</div>
+    </div>
+  </body>
+</html> 

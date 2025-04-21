@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document_v1</title>
+    <script src="./echarts.min.js"></script>
+    <script src="./utils.js"></script>
+    <script src="./services.js"></script>
+    <script>
+      // 数据地址
+      const url =
+        "https://goat.genomehubs.org/api/v2/report?report=arc&x=assembly_span%20AND%20bioproject%3DPRJNA533106&rank=phylum%2Cclass%2Corder%2Cfamily%2Cgenus%2Cspecies&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&caption=%2A%2AEBP%20Umbrella%2A%2A%20-%20EBP%20taxa%20with%20assemblies%20out%20of%20all%20Eukaryotic%20taxa%20in%20INSDC&taxonomy=ncbi&result=taxon&queryId=HvJvG3Tffp";
+      
+      // 初始化图表
+        function initEchart(data) {
+        const chartDom = document.getElementById("chartContainer");
+        const myChart = echarts.init(chartDom);
+        const option = {
+          polar: {
+            radius: [30, "160%"],
+            center: ["50%", "99.9%"],
+          },
+          angleAxis: {
+            min: 0,
+            max: 120,
+            startAngle: 180,
+            endAngle: 0,
+            show: false,
+          },
+          radiusAxis: {
+            type: "category",
+            data: ["phylum", "class", "order", "family", "genus", "species"],
+            show: false,
+          },
+          legend: {show: false, selectedMode: false, position: "top", top: 80, left: "center"},
+          tooltip: {
+            formatter: function(params) {
+              return params.data.description;
+            },
+            textStyle: { // 设置 tooltip 文本样式
+                color: 'rgba(0, 0, 0, 0.85)', // 文本颜色
+                fontFamily: 'sans-serif', // 字体族
+                fontSize: 12, // 字体大小
+                fontWeight: 'normal', // 字体粗细
+                // 还可以设置其他文本样式，如 lineHeight、backgroundColor、borderColor 等
+            }
+          },
+
+          // graphic: {
+          //   type: "group",
+          //   left: "670", // 假设图例在右侧，这里将自定义文本放在图例旁边
+          //   top: "50", // 垂直居中
+          //   children: data.map((item, index) => {
+          //     return {
+          //       type: "group",
+          //       left: index * 110, // 距离父容器左侧的位置
+          //       top: "50",
+          //       children: [
+          //         // Series 1 的颜色块
+          //         {
+          //           type: "rect",
+          //           shape: {
+          //             width: 10, // 颜色块宽度
+          //             height: 30, // 颜色块高度
+          //           },
+          //           style: {
+          //             fill: item.itemStyle.color, // Series 1 的颜色，与 series 配置中的颜色对应
+          //             stroke: null, // 不显示边框
+          //           },
+          //           silent: true, // 不响应鼠标事件
+          //         },
+          //         // Series 1 的文本
+          //         {
+          //           type: "text",
+          //           left: "15", // 距离颜色块右侧的位置
+          //           style: {
+          //             text: `${item.name}`, // 自定义文本内容
+          //             fill: "black", // 文本颜色
+          //             textAlign: "left", // 文本对齐方式
+          //           },
+          //         },
+          //         {
+          //           type: "text",
+          //           left: "15", // 距离颜色块右侧的位置
+          //           top: "20",
+          //           style: {
+          //             text: `${item.description}`, // 自定义文本内容
+          //             fill: "black", // 文本颜色
+          //             textAlign: "left", // 文本对齐方式
+          //           },
+          //         },
+          //       ],
+          //     };
+          //   }),
+          // },
+          series: data,
+        };
+        myChart.setOption(option);
+      }
+
+      function initLegendChart(legends) {
+        const chartDom = document.getElementById("legendContainer");
+        const myChart = echarts.init(chartDom);
+        const option = {
+            graphic: legends.reverse().map((item, index) => ({
+                type: 'group',
+                // left: 'center',
+                top: 'center',
+                left: 100 * index + chartDom.clientWidth / 2 - legends.length * 100 / 2 + 20,
+                // left: 0,
+                bounding: 'all',
+                children: [
+                {
+                    type: 'text',
+                    z: 100,
+                    left: index * 100, // Adjust text positioning
+                    top: 0,
+                    style: {
+                    text: `${item.name}`,
+                    textAlign: 'left',
+                    textVerticalAlign: 'middle',
+                    fontSize: 12,
+                    fill: item.color
+                    }
+                },
+                {
+                    type: "rect",
+                    left: index * 100 , // Adjust text positioning
+                    top: 20,
+                    shape: {
+                      width: 18, // 颜色块宽度
+                      height: 10, // 颜色块高度
+                      r: 3, // 圆角
+                    },
+                    style: {
+                      fill: item.data[0].color, // Series 1 的颜色，与 series 配置中的颜色对应
+                      stroke: null, // 不显示边框
+                    },
+                    silent: true, // 不响应鼠标事件
+                  },
+                  {
+                    type: 'text',
+                    z: 100,
+                    left: index * 100 + 25, // Adjust text positioning
+                    top: 20,
+                    style: {
+                    text: `${item.data[0].num}`,
+                    textAlign: 'center',
+                    textVerticalAlign: 'middle',
+                    fontSize: 12,
+                    fill: item.data[0].color
+                    }
+                },
+                  {
+                    type: "rect",
+                    left: index * 100 , // Adjust text positioning
+                    top: 40,
+                    shape: {
+                      width: 18, // 颜色块宽度
+                      height: 10, // 颜色块高度
+                      r: 3, // 圆角
+                    },
+                    style: {
+                      fill: item.data[1].color, // Series 1 的颜色，与 series 配置中的颜色对应
+                      stroke: null, // 不显示边框
+                    },
+                    silent: true, // 不响应鼠标事件
+                  },
+                  {
+                    type: 'text',
+                    z: 100,
+                    left: index * 100 + 25, // Adjust text positioning
+                    top: 40,
+                    style: {
+                    text: `${item.data[1].num}`,
+                    textAlign: 'center',
+                    textVerticalAlign: 'middle',
+                    fontSize: 12,
+                    fill: item.data[1].color
+                    }
+                },
+                {
+                    type: 'text',
+                    z: 100,
+                    left: index * 100, // Adjust text positioning
+                    top: 60,
+                    style: {
+                    text: `${(item.contrast * 100).toFixed(1)}%`,
+                    textAlign: 'left',
+                    textVerticalAlign: 'middle',
+                    fontSize: 12,
+                    fill: item.color
+                    }
+                },
+                ]
+            })),
+            series: [
+                // 你的图表数据系列
+            ]
+            };
+            myChart.setOption(option);
+      }
+    //   function initBackgroundChart(data) {
+    //     const chartDom = document.getElementById("backgroundContainer");
+    //     const myChart = echarts.init(chartDom);
+    //     const option = {
+    //       polar: {
+    //         radius: [30, "140%"],
+    //         center: ["50%", "100%"],
+    //       },
+    //       angleAxis: {
+    //         min: 0,
+    //         max: 100,
+    //         startAngle: 180,
+    //         endAngle: 0,
+    //         show: false,
+    //       },
+    //       radiusAxis: {
+    //         type: "category",
+    //         data: ["phylum", "class", "order", "family", "genus", "species"],
+    //         show: false,
+    //       },
+    //       legend: {show: false},
+    //       tooltip: {
+    //         formatter: function(params) {
+    //           console.log(params)
+    //           return params.seriesName + " : " + params.data.description;
+    //         },
+    //         textStyle: { // 设置 tooltip 文本样式
+    //             color: 'rgba(0, 0, 0, 0.85)', // 文本颜色
+    //             fontFamily: 'sans-serif', // 字体族
+    //             fontSize: 12, // 字体大小
+    //             fontWeight: 'normal', // 字体粗细
+    //             // 还可以设置其他文本样式，如 lineHeight、backgroundColor、borderColor 等
+    //         }
+    //       },
+    //       series: data.map(item => ({...item, backgroundStyle: {
+    //               color: 'rgba(0,0,0,0)'
+    //           }, data: item.data.map(d => ({value: 100, description: d.description})), label: {
+    //               show: true,
+    //               position: 'middle',
+    //               formatter: `${item.data[0].value}%`,
+    //               textStyle: {
+    //                   color: '#fff'
+    //               }
+    //           }, itemStyle: {
+    //               color: 'rgba(0,0,0,0)',
+    //           }}))
+    //     };
+    //     myChart.setOption(option);
+    //   }
+      window.onload = function () {
+        // 请求数据
+
+          const url1 = 'https://goat.genomehubs.org/api/v2/report?report=arc&x=assembly_span%20AND%20bioproject%3DPRJNA533106&rank=phylum%2Cclass%2Corder%2Cfamily%2Cgenus%2Cspecies&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&caption=%2A%2AEBP%20Umbrella%2A%2A%20-%20EBP%20taxa%20with%20assemblies%20out%20of%20all%20Eukaryotic%20taxa%20in%20INSDC&taxonomy=ncbi&result=taxon&queryId=qQsAI9CWEl'
+          const url2 = 'https://goat.genomehubs.org/api/v2/report?report=arc&x=assembly_span&rank=phylum%2Cclass%2Corder%2Cfamily%2Cgenus%2Cspecies&includeEstimates=true&excludeAncestral%5B0%5D=assembly_span&excludeMissing%5B0%5D=assembly_span&caption=%2A%2AAll%20INSDC%20taxa%2A%2A%20-%20Taxa%20with%20assemblies%20out%20of%20all%20Eukaryotic%20taxa%20in%20INSDC&taxonomy=ncbi&result=taxon&queryId=vO9zgh1_QH'
+          formatStackedUmbrellaData(url1, url2).then(({
+            stackedData, legends
+          }) => {
+            console.log(stackedData, legends)
+            // 绘制图表
+            initEchart(stackedData)
+            initLegendChart(legends)
+          })
+      };
+    </script>
+    <style>
+      #chartContainer {
+        width: 100%;
+        height: 363px;
+        /* position: absolute;
+        top: 0;  */
+      }
+      /* #backgroundContainer {
+        width: 100%;
+        height: 363px;
+        position: absolute;
+        top: 0;
+        z-index: 1;
+      } */
+     #legendContainer {
+        height: 120px;
+        /* position: relative; */
+        /* left: 50%; */
+        /* width: 30%; */
+        /* transform: translateX(-50%); */
+     }
+    </style>
+  </head>
+  <body>
+    <div id="chartContainer"></div>
+    <!-- <div id="backgroundContainer"></div> -->
+     <div id="legendContainer"></div>
+  </body>
+</html>

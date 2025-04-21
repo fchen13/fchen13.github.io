@@ -1,0 +1,51 @@
+# Geocoding
+geocoding/
+
+# Geocoding data and sensitive files
+geocoding/*.csv
+geocoding/*.xlsx
+geocoding/*.tsv
+geocoding/*.json
+geocoding/*.env
+geocoding/*.pkl
+geocoding/*.pickle
+geocoding/*.db
+geocoding/*.sqlite
+geocoding/*.log
+geocoding/~$*.xlsx
+geocoding/~$*.xls
+
+# Environment variables
+.env
+*.csv
+*.xlsx
+*.tsv
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environment
+.venv/
+venv/
+env/
+ENV/
+
+# IDE settings
+.vscode/
+.idea/
+
+# Output files
+*.csv
+*.xlsx
+*.tsv
