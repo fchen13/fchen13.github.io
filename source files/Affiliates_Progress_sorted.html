@@ -192,26 +192,34 @@
           arr.push(list)
         }
 
+        // Sort based on total sum of all values
         arr.sort((a, b) => {
-          let sum1 = a[1] + a[2] + a[3] + a[4]
-          let sum2 = b[1] + b[2] + b[3] + b[4]
+          let sum1 = 0;
+          let sum2 = 0;
+          // Start from index 1 since index 0 is the category name
+          for(let i = 1; i < a.length; i++) {
+            sum1 += a[i] || 0;
+            sum2 += b[i] || 0;
+          }
+          return sum2 - sum1;
+        });
 
-          return sum2 - sum1
-        })
+        // Reconstruct the data arrays after sorting
+        const sortedCategories = [];
+        const sortedData = data.series.map(() => []);
 
         arr.forEach((item, index) => {
-          // const category = item[0]
-          const data1 = item[1]
-          const data2 = item[2]
-          const data3 = item[3]
-          const data4 = item[4]
-          // data.categories[index] = category
-          data.series[0].data[index] = data1
-          data.series[1].data[index] = data2
-          data.series[2].data[index] = data3
-          data.series[3].data[index] = data4
-        })
-        console.log(data, arr)
+          sortedCategories.push(item[0]);
+          for(let j = 0; j < data.series.length; j++) {
+            sortedData[j].push(item[j + 1]);
+          }
+        });
+
+        // Update the original data structure
+        data.categories = sortedCategories;
+        data.series.forEach((series, index) => {
+          series.data = sortedData[index];
+        });
 
         const option = {
           legend: {
