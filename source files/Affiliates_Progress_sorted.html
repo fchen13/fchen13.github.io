@@ -318,35 +318,17 @@
             formatter: function (params) {
               var res = params
                 .map(function (item) {
-                  if (containerId === 'chartContainer1') {
-                    return item.seriesName + ": " + item.value.toLocaleString();
-                  }
                   return item.seriesName + ": " + formatNumber(item.value);
                 })
                 .join("<br/>");
 
               // For total calculation
-              var categoryMap = {};
-                params.forEach(function (item) {
-                  var category = item.name;
-                  var value = item.value;
+              var total = 0;
+              params.forEach(function (item) {
+                total += item.value || 0;
+              });
 
-                  if (!categoryMap[category]) {
-                    categoryMap[category] = 0;
-                  }
-
-                  categoryMap[category] += value;
-                });
-
-                var totalStr = "";
-                for (var category in categoryMap) {
-                  if (containerId === 'chartContainer1') {
-                    totalStr += "Total (" + category + "): " + categoryMap[category].toLocaleString() + "<br/>";
-                  } else {
-                    totalStr += "Total (" + category + "): " + formatNumber(categoryMap[category]) + "<br/>";
-                  }
-                }
-                return res + "<br/>" + totalStr;
+              return res + "<br/>Total: " + formatNumber(total);
             },
           },
           series: data.series,
