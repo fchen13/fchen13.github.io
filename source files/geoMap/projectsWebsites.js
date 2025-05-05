@@ -544,7 +544,7 @@ const projectsData = [
     continent: "North America",
     address: "Delaware Mail Stop Genomics, 2300 Delaware Ave, Santa Cruz, CA 95060",
     website:
-      "https://urldefense.com/v3/__http://www.wiseancestors.org__;!!IKRxdwAv5BmarQ!exbSyINIvOQTGqw9cOPQu8krsO_dXOrWXm86XJ6LORTXp3Kt2htjxXnEFMQvGDJTNOLQI1msLydDEwlw6r5SQEgbYl0$",
+      "https://www.wiseancestors.org/",
     latitude: 36.955401,
     longitude: -122.058069,
   },
