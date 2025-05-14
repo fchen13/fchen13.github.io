@@ -21,7 +21,7 @@ const projectsMap = {
     "erga-ch": "PRJEB49197",
     "erga-com": "PRJEB66264",
     "erga-pil": "PRJEB47820",
-    "erga": "PRJEB43510",
+    //"erga": "PRJEB43510",
     "eurofish": "PRJNA393850",
     "gaga": "",
     "gbb": "PRJNA1180976",
