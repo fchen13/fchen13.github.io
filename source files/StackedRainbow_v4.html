@@ -270,11 +270,11 @@
         // Display order: phyla (top) to species (bottom)
         const displayOrder = ['phylum', 'class', 'order', 'family', 'genus', 'species'];
         const pluralLabels = {
-          'phylum': 'phyla',
-          'class': 'classes',
-          'order': 'orders',
-          'family': 'families',
-          'genus': 'genera',
+          'phylum': 'phylum',
+          'class': 'class',
+          'order': 'order',
+          'family': 'family',
+          'genus': 'genus',
           'species': 'species'
         };
         const displayLegends = displayOrder.map(level => legends.find(l => l.name === level)).filter(Boolean);
