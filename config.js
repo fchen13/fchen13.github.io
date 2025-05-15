@@ -28,7 +28,7 @@ const pages = [
       },
       {
         name: "Progress at all Taxonomic Levels",
-        file: "./source files/StackedRainbow_v3.html", 
+        file: "./source files/StackedRainbow_v4.html", 
         description: "Animation display of assembly progress at main taxonomic ranks",
         icon: "fa-dna"
       },

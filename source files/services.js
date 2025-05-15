@@ -35,7 +35,10 @@ async function fetchData(url) {
       return {
               name: item.rank,
               type: 'bar',
-              data: [{value: Math.floor(item.arc * 1000 + 0.5) / 10, description: `${formatNumber(item.x)}/${formatNumber(item.y)}`}],
+              data: [{
+                value: Math.floor(item.arc * 1000 + 0.5) / 10,
+                description: `${Number(item.x).toLocaleString('en-US')}/${Number(item.y).toLocaleString('en-US')}`
+              }],
               total: item.y,
               num: item.x,
               coordinateSystem: 'polar',
@@ -142,8 +145,8 @@ async function fetchData(url) {
             name: EBPUmbrellaData[i].name,
             color: EBPColors[i],
             data: [
-              {name: 'EBP', num: formatNumber(EBPUmbrellaData[i].num), color: EBPColors[i]},
-              {name: 'INSDC', num: formatNumber(INSDCUmbrellaData[i].num), color: INSDCColors[i]},
+              {name: 'EBP', num: EBPUmbrellaData[i].num, color: EBPColors[i]},
+              {name: 'INSDC', num: INSDCUmbrellaData[i].num, color: INSDCColors[i]},
             ],
             contrast: EBPUmbrellaData[i].num / INSDCUmbrellaData[i].num,
             total: formatNumber(EBPUmbrellaData[i].total)
