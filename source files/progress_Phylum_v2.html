@@ -14,6 +14,7 @@
       .container {
         display: flex;
         justify-content: center;
+        align-items: center;
         padding: 20px;
         padding-bottom: 30px;
       }
@@ -44,11 +45,33 @@
         margin: 20px;
         display: none;
       }
+
+      #phylumInfoBox {
+        width: 220px;
+        margin-right: 0px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        font-size: 18px;
+        margin-top: -80px;
+      }
+      #phylumInfoBox .total-species {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 14px;
+      }
+      #phylumInfoBox .breakdown {
+        font-size: 16px;
+        color: #666;
+        white-space: pre-line;
+      }
     </style>
   </head>
   <body>
     <div id="error-message"></div>
     <div class="container">
+      <div id="phylumInfoBox"></div>
       <div id="phylumProgressContainer" class="chart-container"></div>
     </div>
 
@@ -123,10 +146,8 @@
             
             // Sort the data by count in descending order, but keep "Other" at the end
             const sortedIndices = values.map((_, i) => i).sort((a, b) => {
-              // If either index is for "Other", place it at the end
               if (categories[a] === 'Other') return 1;
               if (categories[b] === 'Other') return -1;
-              // Otherwise sort by value
               return values[b] - values[a];
             });
             const sortedCategories = sortedIndices.map(i => categories[i]);
@@ -139,17 +160,35 @@
               originalIndex: sortedIndices[idx]
             })));
             
+            // Define a color palette (adjust as needed for your number of bars)
+            const colorPalette = [
+              '#4B1979', // deep purple
+              '#3B3B98', // blue
+              '#218cbe', // blue-green
+              '#38ada9', // teal
+              '#b8e994', // light green
+              '#f6e58d', // yellow
+              '#ffbe76', // orange
+              '#e17055', // red-orange
+              '#6ab04c', // green
+              '#f9ca24', // yellow
+              '#8e44ad'  // purple for 'Other'
+            ];
+
+            // Map each value to an object with its color
+            const coloredData = sortedValues.map((value, idx) => ({
+              value,
+              itemStyle: { color: colorPalette[idx % colorPalette.length] }
+            }));
+
             const chartData = {
               categories: sortedCategories,
               series: [{
                 name: 'Species Count',
                 type: 'bar',
-                data: sortedValues,
-                itemStyle: {
-                  color: '#6d3f9b'  // Using a web-friendly blue color
-                },
-                barWidth: '95%',  // Make bars wider to remove gaps
-                barGap: '-100%'      // Remove gap between bars
+                data: coloredData,
+                barWidth: '95%',
+                barGap: '-100%'
               }]
             };
             
@@ -159,6 +198,25 @@
             console.log('Processed chart data:', chartData);
             console.log('Categories:', sortedCategories);
             console.log('Values:', sortedValues);
+            
+            // Format number with commas
+            const formatNumber = (num) => {
+              if (num === undefined || num === null) return '0';
+              return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            };
+
+            const breakdownText = sortedCategories.map((category, index) => {
+              const value = sortedValues[index];
+              if (value === undefined || value === null) return `${category}: 0`;
+              return `${category}: ${formatNumber(value)}`;
+            }).join('<br>');
+
+            const infoBox = document.getElementById('phylumInfoBox');
+            infoBox.innerHTML = `
+              <div class="total-species">Total Species: ${formatNumber(totalSpecies)}</div>
+              <div class="breakdown">${breakdownText}</div>
+            `;
+            
             phylumChart = initEchart(chartData, 'phylumProgressContainer', totalSpecies, sortedCategories, sortedValues);
           });
         }).catch(error => {
@@ -167,6 +225,9 @@
           errorMessage.textContent = `Error loading data: ${error.message}`;
           errorMessage.style.display = 'block';
         });
+        setTimeout(function() {
+          window.scrollTo(0, 0);
+        }, 100);
       };
 
       function initEchart(data, containerId, totalSpecies, categories, values) {
@@ -177,12 +238,6 @@
         
         const myChart = echarts.init(chartDom);
 
-        // Format number with commas and handle undefined/null values
-        const formatNumber = (num) => {
-          if (num === undefined || num === null) return '0';
-          return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        };
-
         // Create breakdown text with error checking
         const breakdownText = categories.map((category, index) => {
           const value = values[index];
@@ -192,37 +247,14 @@
 
         const option = {
           title: {
-            text: 'Number of sequenced species by phylum groups',
+            text: 'Number of eukaryotic species sequenced by EBP by phylum',
             left: 'center',
-            top: 15,
+            top: 5,
             textStyle: {
-              fontSize: 16,
+              fontSize: 20,
               fontWeight: 'bold',
               color: '#333'
             }
-          },
-          graphic: {
-            elements: [{
-              type: 'text',
-              left: '78%',
-              top: 80,
-              style: {
-                text: `Total Species: ${formatNumber(totalSpecies)}`,
-                fontSize: 14,
-                fontWeight: 'bold',
-                fill: '#333'
-              }
-            }, {
-              type: 'text',
-              left: '80%',
-              top: 100,
-              style: {
-                text: breakdownText,
-                fontSize: 12,
-                fill: '#666',
-                lineHeight: 20
-              }
-            }]
           },
           tooltip: {
             trigger: 'axis',
@@ -230,7 +262,12 @@
               type: 'shadow'
             },
             formatter: function(params) {
-              return `${params[0].name}: ${params[0].value} species`;
+              // Use the same formatNumber function as elsewhere
+              function formatNumber(num) {
+                if (num === undefined || num === null) return '0';
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+              }
+              return `${params[0].name}: ${formatNumber(params[0].value)} species`;
             },
             backgroundColor: 'rgba(255, 255, 255, 0.9)',
             borderColor: '#ccc',
@@ -262,7 +299,7 @@
           },
           yAxis: {
             type: 'value',
-            name: 'Count of Species',
+            name: 'Count of species',
             nameLocation: 'middle',
             nameGap: 50,
             nameTextStyle: {

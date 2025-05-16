@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="copyright" content="Data source: Genomes on a Tree (GoaT). Used with permission." />
+    <!-- <meta name="copyright" content="Data source: Genomes on a Tree (GoaT). Used with permission." /> -->
     <meta name="author" content="Fang Chen" />
     <title>EBP Progress</title>
     <script src="../config.js"></script>
@@ -13,15 +13,12 @@
     <style>
       .page-title {
         text-align: center;
-        font-size: 16px;
         font-weight: bold;
-        margin: 0px 0;  /* Reduced top and bottom margin */
+        margin: 10px 0 0px 0 !important;  /* 20px top, 0 right, 0 bottom, 0 left */
         color: #333;
-        font-family: 'Segoe UI', Arial, sans-serif;
         letter-spacing: 1px;
         padding: 0 0px;
-        position: relative;
-        top: 0;
+        font-size: 20px;
       }
       .container {
         display: flex;
@@ -29,7 +26,7 @@
         flex-wrap: wrap;
         gap: 10px;  /* Added gap property to control spacing between columns */
         padding-bottom: 30px;  /* Added padding to prevent footer overlap */
-        margin-top: 20px;  /* Added top margin to move charts down */
+        margin-top: 25px;  /* Added top margin to move charts down */
       }
       .column {
         width: 47%;  /* Slightly reduced from 48% to account for gap */
@@ -184,7 +181,7 @@
       let speciesChart = null
       window.onload = function () {
         // Family Progress
-        const familyUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=min%28assembly_date%29%20AND%20bioproject%3DPRJNA533106&result=taxon&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&stacked=true&cumulative=true&includeEstimates=true&rank=Family&xOpts=2006%2C%2C2%2C%2CAssembly%20date&caption=Cumulative%20number%20of%20eukaryotic%20families%20for%20which%20assemblies%20were%20generated%20by%20EBP%20affiliates%20over%20time&taxonomy=ncbi";
+        const familyUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=min%28assembly_date%29%20AND%20bioproject%3DPRJNA533106&result=taxon&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&stacked=true&cumulative=true&includeEstimates=true&rank=Family&xOpts=2002%2C%2C1%2C%2CAssembly%20date&caption=Cumulative%20number%20of%20eukaryotic%20families%20for%20which%20assemblies%20were%20generated%20by%20EBP%20affiliates%20over%20time&taxonomy=ncbi";
         getStackedBarData(familyUrl).then(({formatData, defaultData, percentData}) => {
           // initEchart(formatData, 'familyProgressContainer1', 'Count of families (Cumulative)');
           // initEchart(defaultData, 'familyProgressContainer2', 'Count of families (Actual)');
@@ -196,7 +193,7 @@
         });
 
         // Species Progress
-        const speciesUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=min%28assembly_date%29%20AND%20bioproject%3DPRJNA533106&rank=species&result=taxon&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&stacked=true&cumulative=true&xOpts=2006%2C%2C2%2C%2CAssembly%20date&caption=Cumulative%20number%20of%20assemblies%20for%20eukaryotic%20species%20generated%20by%20EBP%20affiliates%20over%20time&taxonomy=ncbi";
+        const speciesUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=min%28assembly_date%29%20AND%20bioproject%3DPRJNA533106%20AND%20tax_rank%28species%29&rank=species&result=taxon&cat=assembly_level%5B4%5D%3Dchromosome%2Cscaffold%2Ccontig%2Ccomplete%20genome&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&stacked=true&cumulative=true&xOpts=2002%2C%2C2%2C%2CAssembly%20date&caption=Cumulative%20number%20of%20assemblies%20for%20eukaryotic%20species%20generated%20by%20EBP%20affiliates%20over%20time&taxonomy=ncbi";
         getStackedBarData(speciesUrl).then(({formatData, defaultData, percentData}) => {
           // initEchart(formatData, 'speciesProgressContainer1', 'Count of species (Cumulative)');
           // initEchart(defaultData, 'speciesProgressContainer2', 'Count of species (Actual)');
@@ -275,7 +272,9 @@
           },
           xAxis: {
             type: "category",
-            data: Array.from({length: 2025 - 2006 + 1}, (_, i) => 2006 + i), // Create an array of years from 2006 to 2025
+            data: containerId === 'familyProgressContainer'
+              ? Array.from({length: 2025 - 2004 + 1}, (_, i) => 2004 + i) // Family: 2004-2025
+              : Array.from({length: 2025 - 2002 + 1}, (_, i) => 2002 + i), // Species: 2002-2025
             axisLine: {
               show: true,
               lineStyle: {
@@ -300,13 +299,6 @@
           tooltip: {
             trigger: "axis",
             formatter: function (params) {
-              var res = params
-                .map(function (item) {
-                  console.log(item)
-                  return item.seriesName + ": " + item.value + (activeType.includes('YoY Growth') ? '%' : ''); // Show percentage only in specific containers
-                })
-                .join("<br/>");
-
               // For total calculation
               if (!activeType.includes('YoY Growth')) {
                 var categoryMap = {};
@@ -323,10 +315,23 @@
 
                 var totalStr = "";
                 for (var category in categoryMap) {
-                  totalStr += "Total (" + category + "): " + categoryMap[category] + "<br/>";
+                  totalStr += "Total (" + category + "): " + categoryMap[category].toLocaleString() + "<br/>";
                 }
-                return res + "<br/>" + totalStr;
+
+                var res = params
+                  .map(function (item) {
+                    return item.seriesName + ": " + item.value.toLocaleString();
+                  })
+                  .join("<br/>");
+
+                return totalStr + res;
               }
+
+              var res = params
+                .map(function (item) {
+                  return item.seriesName + ": " + item.value.toLocaleString() + (activeType.includes('YoY Growth') ? '%' : '');
+                })
+                .join("<br/>");
 
               return res;
             },
@@ -370,6 +375,18 @@
     } catch (e) {
       console.warn('Copyright configuration not loaded:', e);
     }
+
+    function fillMissingBins(rawData, totalBins) {
+      const filled = new Array(totalBins).fill(0);
+      for (let i = 0; i < rawData.length; i++) {
+        filled[i] = rawData[i];
+      }
+      return filled;
+    }
+
+    // In your data processing:
+    const totalBins = category.length;
+    const filledData = fillMissingBins(rawData, totalBins);
     </script>
   </body>
 </html>

@@ -17,6 +17,15 @@
         const chartDom = document.getElementById("chartContainer");
         const myChart = echarts.init(chartDom);
         const option = {
+          title: {
+            text: 'Total counts with assemblies meeting EBP-standard metrics',
+            left: 'center',
+            top: 0,
+            textStyle: {
+              fontSize: 20,
+              fontWeight: 'bold'
+            }
+          },
           tooltip: {
             trigger: 'axis',
             axisPointer: {
@@ -36,7 +45,7 @@
           },
           legend: {
             data: ['EBP Contribution', 'Non-EBP Contribution'],
-            top: 20,
+            top: 60,
             textStyle: {
               fontSize: 14,
               fontWeight: 'bold',
@@ -46,18 +55,11 @@
             left: '10%',    
             right: '10%',   
             bottom: '10%',
-            top: '15%',     
+            top: '20%',     
             containLabel: true
           },
           xAxis: {
             type: 'value',
-            name: 'Total Counts with Assemblies Meeting EBP Metrics',
-            nameLocation: 'middle',
-            nameGap: 50,
-            nameTextStyle: {
-              fontSize: 16,
-              fontWeight: 'bold'
-            },
             axisLine: { show: true },
             axisLabel: {
               formatter: '{value}',
@@ -260,8 +262,8 @@
       #chartContainer {
         width: 80%;
         height: 500px;  /* Increased height further */
-        padding: 20px;  /* Added padding around the chart */
-        margin: 20px auto;
+        padding: 0px;  /* Added padding around the chart */
+        margin: 40px auto;
       }
       #legendContainer {
         display: none;

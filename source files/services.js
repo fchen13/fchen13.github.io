@@ -181,6 +181,19 @@ async function fetchData(url) {
     
   }
 
+  function generateBinLabels(buckets) {
+    const years = buckets.map(d => new Date(d).getFullYear());
+    const labels = [];
+    for (let i = 0; i < years.length; i++) {
+      if (i < years.length - 1) {
+        labels.push(`${years[i]}-${years[i + 1] - 1}`);
+      } else {
+        labels.push(`${years[i]}`);
+      }
+    }
+    return labels;
+  }
+
   // 将数据格式化成 echarts 需要的格式
   function formatStackedBarData(data) {
     const histograms = data.report.report.histogram.histograms;
@@ -188,9 +201,8 @@ async function fetchData(url) {
     console.log('Raw data byCat:', histograms.byCat);
     
     const tableName = data.report.report.yLabel+ ' ' + '(cumulative)'
-    const category = histograms.buckets.map((item) =>
-      new Date(item).getFullYear()
-    );
+    // Generate two-year bin labels
+    const category = generateBinLabels(histograms.buckets);
     console.log('Processed categories:', category);
     
     const colors = ["#404387", "#22a884", "#ffff33", "#7ad151"];
@@ -199,6 +211,9 @@ async function fetchData(url) {
     for (let name in histograms.byCat) {
       const rawData = histograms.byCat[name];
       console.log(`Raw data for ${name}:`, rawData);
+      
+      const totalBins = category.length; // category is the array of bin labels
+      const filledData = fillMissingBins(rawData, totalBins);
       
       const obj = {
         name,
@@ -215,7 +230,7 @@ async function fetchData(url) {
       };
       
       // Calculate cumulative sums properly
-      obj.data = rawData.reduce((acc, curr, idx) => {
+      obj.data = filledData.reduce((acc, curr, idx) => {
         if (idx === 0) return [curr];
         return [...acc, acc[idx - 1] + curr];
       }, []);
@@ -237,14 +252,15 @@ async function fetchData(url) {
   function getDefaultStackedBarData(data) {
     const histograms = data.report.report.histogram.histograms;
     const tableName = data.report.report.yLabel + ' ' + '(actual)'
-    const category = histograms.buckets.map((item) =>
-      new Date(item).getFullYear()
-    );
+    // Generate two-year bin labels
+    const category = generateBinLabels(histograms.buckets);
     const colors = ["#404387", "#22a884", "#ffff33", "#7ad151"];
     const series = [];
     let index = 0
     for (let name in histograms.byCat) {
       const rawData = histograms.byCat[name];
+      const totalBins = category.length; // category is the array of bin labels
+      const filledData = fillMissingBins(rawData, totalBins);
       const obj = {
         name,
         type: "bar",
@@ -258,8 +274,8 @@ async function fetchData(url) {
           barGap: '1px', // 同一类目下系列之间的间隔
           barCategoryGap: '1px',
       };
-      obj.data = histograms.byCat[name];
-      const total = calculateCumulativeSums(histograms.byCat[name])[obj.data.length - 1]
+      obj.data = filledData;
+      const total = calculateCumulativeSums(filledData)[obj.data.length - 1]
       obj.description = formatNumber(total)
       series.push(obj);
     }
@@ -274,13 +290,15 @@ async function fetchData(url) {
   function getPercentStackedBarData(data) {
     const histograms = data.report.report.histogram.histograms;
     const tableName = data.report.report.yLabel + ' ' + '(YoY growth)'
-    const category = histograms.buckets.map((item) =>
-      new Date(item).getFullYear()
-    );
+    // Generate two-year bin labels
+    const category = generateBinLabels(histograms.buckets);
     const colors = ["#404387", "#22a884", "#ffff33", "#7ad151"];
     const series = [];
     let index = 0
     for (let name in histograms.byCat) {
+      const rawData = histograms.byCat[name];
+      const totalBins = category.length; // category is the array of bin labels
+      const filledData = fillMissingBins(rawData, totalBins);
       const obj = {
         name,
         type: "bar",
@@ -294,9 +312,9 @@ async function fetchData(url) {
           barGap: '1px', // 同一类目下系列之间的间隔
           barCategoryGap: '1px',
       };
-      obj.data = histograms.byCat[name].map((item, index) => {
+      obj.data = filledData.map((item, index) => {
         if(index === 0) return item > 0 ? 100 : 0
-        const lastVal = histograms.byCat[name][index - 1]
+        const lastVal = filledData[index - 1]
         if(lastVal === 0) return item > 0 ? 100 : 0
 
         return ((item - lastVal) / lastVal * 100).toFixed(2)
@@ -311,4 +329,14 @@ async function fetchData(url) {
       series,
       tableName
     }
+  }
+
+  function fillMissingBins(rawData, totalBins) {
+    // rawData: array of counts per bin (may be shorter than totalBins)
+    // totalBins: total number of bins (e.g., 2025-2002+1)
+    const filled = new Array(totalBins).fill(0);
+    for (let i = 0; i < rawData.length; i++) {
+      filled[i] = rawData[i];
+    }
+    return filled;
   }
