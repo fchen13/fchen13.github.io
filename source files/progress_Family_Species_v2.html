@@ -14,29 +14,40 @@
       .page-title {
         text-align: center;
         font-weight: bold;
-        margin: 10px 0 0px 0 !important;  /* 20px top, 0 right, 0 bottom, 0 left */
+        margin: 5vh 0 0 0 !important;
         color: #333;
         letter-spacing: 1px;
-        padding: 0 0px;
-        font-size: 20px;
+        padding: 0;
+        font-size: 1.6vw;
+        min-font-size: 18px;
       }
       .container {
         display: flex;
-        justify-content: center;  /* Changed from space-between to center */
+        justify-content: center;
         flex-wrap: wrap;
-        gap: 10px;  /* Added gap property to control spacing between columns */
-        padding-bottom: 30px;  /* Added padding to prevent footer overlap */
-        margin-top: 25px;  /* Added top margin to move charts down */
+        gap: 0vw;
+        padding-bottom: 1vh;
+        margin-top: 10vh;
+        width: 100vw;
+        max-width: 100vw;
+        box-sizing: border-box;
       }
       .column {
-        width: 47%;  /* Slightly reduced from 48% to account for gap */
+        flex: 1 1 400px; /* Grow, shrink, min width */
+        min-width: 320px;
+        max-width: 700px;
         box-sizing: border-box;
         padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
       }
       .chart-container {
         width: 100%;
-        height: 450px;
-        margin: 0px auto 10px auto;
+        aspect-ratio: 16/9;
+        min-height: 300px;
+        max-height: 70vh;
+        margin: 0 auto 2vh auto;
         position: relative;
       }
 
@@ -44,14 +55,15 @@
       #footer {
         position: fixed;
         bottom: 0;
-        width: 100%;
+        width: 100vw;
         background-color: rgba(248, 249, 250, 0.95);
         color: #333;
         text-align: center;
-        padding: 5px;
+        padding: 0.5vh 0;
         z-index: 9999;
         box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-        font-size: 14px;
+        font-size: 1.1vw;
+        min-font-size: 12px;
         font-family: Arial, sans-serif;
       }
 
@@ -60,7 +72,7 @@
         display: flex;
         justify-content: right;
         align-items: center;
-        margin: -20px 10px 0 0;  /* Changed from -30px to -20px to move it down */
+        margin: 0px 10px 0 0;  /* Changed from -30px to -20px to move it down */
         position: relative;
         z-index: 1;  /* Ensure it stays above other elements */
       }
@@ -137,6 +149,29 @@
       /* Show options on click */
       .custom-select.active .options-container {
         display: block;
+      }
+
+      @media (max-width: 900px) {
+        .container {
+          flex-direction: column;
+          gap: 2vh;
+        }
+        .column {
+          max-width: 100vw;
+        }
+        .page-title {
+          font-size: 4vw;
+        }
+      }
+
+      @media (min-width: 2000px) {
+        .chart-container {
+          max-width: 1200px;
+          max-height: 60vh;
+        }
+        .page-title {
+          font-size: 1.5vw;
+        }
       }
     </style>
   </head>
@@ -387,6 +422,11 @@
     // In your data processing:
     const totalBins = category.length;
     const filledData = fillMissingBins(rawData, totalBins);
+
+    window.addEventListener('resize', function() {
+      if (familyChart) familyChart.resize();
+      if (speciesChart) speciesChart.resize();
+    });
     </script>
   </body>
 </html>

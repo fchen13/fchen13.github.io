@@ -50,53 +50,6 @@
             }
           },
 
-          // graphic: {
-          //   type: "group",
-          //   left: "670", // 假设图例在右侧，这里将自定义文本放在图例旁边
-          //   top: "50", // 垂直居中
-          //   children: data.map((item, index) => {
-          //     return {
-          //       type: "group",
-          //       left: index * 110, // 距离父容器左侧的位置
-          //       top: "50",
-          //       children: [
-          //         // Series 1 的颜色块
-          //         {
-          //           type: "rect",
-          //           shape: {
-          //             width: 10, // 颜色块宽度
-          //             height: 30, // 颜色块高度
-          //           },
-          //           style: {
-          //             fill: item.itemStyle.color, // Series 1 的颜色，与 series 配置中的颜色对应
-          //             stroke: null, // 不显示边框
-          //           },
-          //           silent: true, // 不响应鼠标事件
-          //         },
-          //         // Series 1 的文本
-          //         {
-          //           type: "text",
-          //           left: "15", // 距离颜色块右侧的位置
-          //           style: {
-          //             text: `${item.name}`, // 自定义文本内容
-          //             fill: "black", // 文本颜色
-          //             textAlign: "left", // 文本对齐方式
-          //           },
-          //         },
-          //         {
-          //           type: "text",
-          //           left: "15", // 距离颜色块右侧的位置
-          //           top: "20",
-          //           style: {
-          //             text: `${item.description}`, // 自定义文本内容
-          //             fill: "black", // 文本颜色
-          //             textAlign: "left", // 文本对齐方式
-          //           },
-          //         },
-          //       ],
-          //     };
-          //   }),
-          // },
           series: [],
         };
        setTimeout(() => {
@@ -330,44 +283,95 @@
       body {
         margin: 0;
         min-height: 100vh;
+        width: 100vw;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background: #fff;
+      }
+      .container {
+        width: 100vw;
+        max-width: 1600px;
+        margin: 0 auto;
+        padding-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
       #chartContainer {
-        width: 100%;
-        height: 363px;
-        /* position: absolute;
-        top: 0;  */
+        width: 90vw;
+        max-width: 1400px;
+        height: 60vh;
+        min-height: 350px;
+        max-height: 900px;
+        margin-top: 52px;
       }
-      /* #backgroundContainer {
-        width: 100%;
-        height: 363px;
-        position: absolute;
-        top: 0;
-        z-index: 1;
-      } */
-     #legendContainer {
+      #legendContainer {
+        width: 90vw;
+        max-width: 1400px;
         height: 120px;
         position: relative;
-        /* top: -20px; */
-        /* position: relative; */
-        /* left: 50%; */
-        /* width: 30%; */
-        /* transform: translateX(-50%); */
-     }
-     /* Add container padding to prevent footer overlap */
-     .container {
-        padding-bottom: 10px;
+      }
+      .chart-title {
+        text-align: center;
+        font-size: 1.6vw;
+        font-weight: 700;
+        color: #333;
+        margin: 15px auto 12px auto;
+        max-width: 90vw;
+        line-height: 1.4;
         width: 100%;
-        max-width: 1200px;
-        margin: -340px auto 0;
-     }
-
-     /* Footer styles */
-     #footer {
+        display: block;
+      }
+      #taxaPanel {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        padding: 10px 12px;
+        z-index: 1000;
+        min-width: 120px;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 12px;
+        max-width: 170px;
+      }
+      .taxa-panel-inner {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .taxa-row {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        font-size: 1em;
+      }
+      .taxa-value {
+        font-weight: bold;
+        min-width: 36px;
+        text-align: right;
+        font-size: 1em;
+      }
+      .taxa-value.ebp {
+        color: #222;
+      }
+      .taxa-value.insdc {
+        color: #222;
+      }
+      .taxa-label {
+        color: #444;
+        font-size: 1em;
+        min-width: 60px;
+        text-align: left;
+        margin-left: 0;
+        text-transform: lowercase;
+      }
+      /* Footer styles */
+      #footer {
         position: fixed;
         bottom: 0;
         width: 100%;
@@ -378,74 +382,15 @@
         z-index: 9999;
         box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
         font-size: 14px;
-     }
-
-     #taxaPanel {
-       position: fixed;
-       top: 16px;
-       left: 16px;
-       background: #fff;
-       border-radius: 8px;
-       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-       padding: 10px 12px;
-       z-index: 1000;
-       min-width: 120px;
-       font-family: 'Segoe UI', Arial, sans-serif;
-       font-size: 12px;
-       max-width: 170px;
-     }
-     .taxa-panel-inner {
-       display: flex;
-       flex-direction: column;
-       gap: 4px;
-     }
-     .taxa-row {
-       display: flex;
-       align-items: baseline;
-       gap: 6px;
-       font-size: 1em;
-     }
-     .taxa-value {
-       font-weight: bold;
-       min-width: 36px;
-       text-align: right;
-       font-size: 1em;
-     }
-     .taxa-value.ebp {
-       color: #222;
-     }
-     .taxa-value.insdc {
-       color: #222;
-     }
-     .taxa-label {
-       color: #444;
-       font-size: 1em;
-       min-width: 60px;
-       text-align: left;
-       margin-left: 0;
-       text-transform: lowercase;
-     }
-     
-     /* Chart title */
-     .chart-title {
-        text-align: center;
-        font-size: 20px;
-        font-weight: 700;
-        color: #333;
-        margin: -550px auto 40px;  
-        max-width: 90%;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        line-height: 1.4;
-     }
+      }
     </style>
   </head>
   <body>
     <div class="container">
+      <div class="chart-title">Eukaryotic assemblies in INSDC and those submitted under EBP </div>
       <div id="chartContainer"></div>
-      <!-- <div id="backgroundContainer"></div> -->
-       <div id="legendContainer"></div>
-       <div id="taxaPanel"></div>
-       <div class="chart-title">Eukaryotic assemblies in INSDC and those submitted under EBP </div>
+      <div id="legendContainer"></div>
+      <div id="taxaPanel"></div>
     </div>
     <div id="footer">
         <div id="copyright">Data source: Genomes on a Tree (GoaT). Used with permission.</div>
