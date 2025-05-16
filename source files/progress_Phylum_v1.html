@@ -77,14 +77,14 @@
           // Process each phylum group
           data.report.report.histogram.cats.forEach((item) => {
             console.log('Processing item:', item);
-            // Normalize the label to handle case sensitivity
-            const normalizedLabel = item.label === 'other' ? 'Other' : item.label;
+            // Normalize the label to handle case sensitivity and '+'
+            const normalizedLabel = (item.label.toLowerCase() === 'other' || item.label === '+') ? 'Other' : item.label;
             categories.push(normalizedLabel);
             
-            // Special handling for "other" category
+            // Special handling for "other" and '+' category
             let count;
-            if (item.label === 'other') {
-              count = 64; // Set the correct value for "other" category
+            if (item.label.toLowerCase() === 'other' || item.label === '+') {
+              count = typeof item.doc_count === 'string' ? parseInt(item.doc_count, 10) : item.doc_count;
             } else {
               // Ensure we're working with numbers and handle any potential string values
               count = typeof item.doc_count === 'string' ? parseInt(item.doc_count, 10) : item.doc_count;
@@ -132,7 +132,7 @@
           };
           
           // Calculate total species count
-          const totalSpecies = 3541; // Total from manual calculation
+          const totalSpecies = sortedValues.reduce((sum, count) => sum + count, 0);
           
           console.log('Raw values:', values);
           console.log('Sorted values:', sortedValues);

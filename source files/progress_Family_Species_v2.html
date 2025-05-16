@@ -11,12 +11,25 @@
     <script src="./utils.js"></script>
     <script src="./services.js"></script>
     <style>
+      .page-title {
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        margin: 0px 0;  /* Reduced top and bottom margin */
+        color: #333;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        letter-spacing: 1px;
+        padding: 0 0px;
+        position: relative;
+        top: 0;
+      }
       .container {
         display: flex;
         justify-content: center;  /* Changed from space-between to center */
         flex-wrap: wrap;
         gap: 10px;  /* Added gap property to control spacing between columns */
         padding-bottom: 30px;  /* Added padding to prevent footer overlap */
+        margin-top: 20px;  /* Added top margin to move charts down */
       }
       .column {
         width: 47%;  /* Slightly reduced from 48% to account for gap */
@@ -41,90 +54,97 @@
         padding: 5px;
         z-index: 9999;
         box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-        font-size: 14px;  /* Changed from 12px */
+        font-size: 14px;
+        font-family: Arial, sans-serif;
       }
 
       /* Container for centering and styling */
-    .select-container {
-      display: flex;
-      justify-content: right;
-      align-items: center;
-      /* height: 100vh; */
-      /* background-color: #f5f5f5; */
-      margin: 10px;
-    }
+      .select-container {
+        display: flex;
+        justify-content: right;
+        align-items: center;
+        margin: -20px 10px 0 0;  /* Changed from -30px to -20px to move it down */
+        position: relative;
+        z-index: 1;  /* Ensure it stays above other elements */
+      }
 
-    /* Custom select style */
-    .custom-select {
-      position: relative;
-      display: inline-block;
-      width: 200px;
-    }
+      /* Custom select style */
+      .custom-select {
+        position: relative;
+        display: inline-block;
+        width: 200px;
+      }
 
-    .select-box {
-      appearance: none;
-      background-color: #ffffff;
-      border: 2px solid #cccccc;
-      border-radius: 8px;
-      padding: 10px 20px;
-      font-size: 16px;
-      color: #333333;
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-      width: 100%;
-      box-sizing: border-box;
-    }
+      .select-box {
+        appearance: none;
+        background-color: #ffffff;
+        border: 2px solid #cccccc;
+        border-radius: 8px;
+        padding: 5px 20px;  /* Reduced vertical padding from 10px to 5px */
+        font-size: 16px;
+        color: #333333;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        width: 100%;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+        height: 32px;  /* Added fixed height */
+        line-height: 20px;  /* Added line height for vertical centering */
+      }
 
-    .select-box::after {
-      content: '▼';
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 12px;
-      color: #888888;
-    }
+      .select-box::after {
+        content: '▼';
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 12px;
+        color: #888888;
+      }
 
-    .select-box:hover,
-    .select-box:focus {
-      border-color: #666666;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
+      .select-box:hover,
+      .select-box:focus {
+        border-color: #666666;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
 
-    /* Dropdown list */
-    .options-container {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      width: 100%;
-      background-color: #ffffff;
-      border: 2px solid #cccccc;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      display: none;
-      z-index: 999;
-    }
+      /* Dropdown list */
+      .options-container {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: #ffffff;
+        border: 2px solid #cccccc;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: none;
+        z-index: 999;
+      }
 
-    .option {
-      padding: 10px 20px;
-      font-size: 16px;
-      color: #333333;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
+      .option {
+        padding: 5px 20px;  /* Reduced padding to match select box */
+        font-size: 16px;
+        color: #333333;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        font-family: Arial, sans-serif;
+        line-height: 20px;  /* Added line height for consistency */
+      }
 
-    .option:hover {
-      background-color: #f0f0f0;
-    }
+      .option:hover {
+        background-color: #f0f0f0;
+      }
 
-    /* Show options on click */
-    .custom-select.active .options-container {
-      display: block;
-    }
+      /* Show options on click */
+      .custom-select.active .options-container {
+        display: block;
+      }
     </style>
   </head>
   <body>
+    <h1 class="page-title">Progress of EBP over years</h1>
     <div class="select-container">
       <div class="custom-select">
         <div class="select-box">Cumulative</div>
@@ -166,25 +186,25 @@
         // Family Progress
         const familyUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=min%28assembly_date%29%20AND%20bioproject%3DPRJNA533106&result=taxon&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&stacked=true&cumulative=true&includeEstimates=true&rank=Family&xOpts=2006%2C%2C2%2C%2CAssembly%20date&caption=Cumulative%20number%20of%20eukaryotic%20families%20for%20which%20assemblies%20were%20generated%20by%20EBP%20affiliates%20over%20time&taxonomy=ncbi";
         getStackedBarData(familyUrl).then(({formatData, defaultData, percentData}) => {
-          // initEchart(formatData, 'familyProgressContainer1', 'Count of Families (Cumulative)');
-          // initEchart(defaultData, 'familyProgressContainer2', 'Count of Families (Actual)');
-          // initEchart(percentData, 'familyProgressContainer3', 'Count of Families (YoY Growth)');
+          // initEchart(formatData, 'familyProgressContainer1', 'Count of families (Cumulative)');
+          // initEchart(defaultData, 'familyProgressContainer2', 'Count of families (Actual)');
+          // initEchart(percentData, 'familyProgressContainer3', 'Count of families (YoY Growth)');
           familyDataMap['Cumulative'] = formatData
           familyDataMap['Actual'] = defaultData
           familyDataMap['YoY Growth'] = percentData
-          familyChart = initEchart(familyDataMap[activeType], 'familyProgressContainer', `Count of Families (${activeType})`);
+          familyChart = initEchart(familyDataMap[activeType], 'familyProgressContainer', `Count of families (${activeType})`);
         });
 
         // Species Progress
         const speciesUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=min%28assembly_date%29%20AND%20bioproject%3DPRJNA533106&rank=species&result=taxon&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&stacked=true&cumulative=true&xOpts=2006%2C%2C2%2C%2CAssembly%20date&caption=Cumulative%20number%20of%20assemblies%20for%20eukaryotic%20species%20generated%20by%20EBP%20affiliates%20over%20time&taxonomy=ncbi";
         getStackedBarData(speciesUrl).then(({formatData, defaultData, percentData}) => {
-          // initEchart(formatData, 'speciesProgressContainer1', 'Count of Species (Cumulative)');
-          // initEchart(defaultData, 'speciesProgressContainer2', 'Count of Species (Actual)');
-          // initEchart(percentData, 'speciesProgressContainer3', 'Count of Species (YoY Growth)');
+          // initEchart(formatData, 'speciesProgressContainer1', 'Count of species (Cumulative)');
+          // initEchart(defaultData, 'speciesProgressContainer2', 'Count of species (Actual)');
+          // initEchart(percentData, 'speciesProgressContainer3', 'Count of species (YoY Growth)');
           speciesDataMap['Cumulative'] = formatData
           speciesDataMap['Actual'] = defaultData
           speciesDataMap['YoY Growth'] = percentData
-          speciesChart = initEchart(speciesDataMap[activeType], 'speciesProgressContainer', `Count of Species (${activeType})`);
+          speciesChart = initEchart(speciesDataMap[activeType], 'speciesProgressContainer', `Count of species (${activeType})`);
         });
       };
 
@@ -192,8 +212,8 @@
         if(activeType === type) return;
         const familyOption = familyChart.getOption();
         const speciesOption = speciesChart.getOption();
-        familyOption.yAxis[0].name = `Count of Families (${type})`;
-        speciesOption.yAxis[0].name = `Count of Species (${type})`;
+        familyOption.yAxis[0].name = `Count of families (${type})`;
+        speciesOption.yAxis[0].name = `Count of species (${type})`;
         familyOption.series = familyDataMap[type].series
         speciesOption.series = speciesDataMap[type].series
         familyChart.setOption(familyOption);
