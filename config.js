@@ -30,7 +30,7 @@ const pages = [
         name: "Progress at all Taxonomic Levels",
         file: "./source files/StackedRainbow_v4.html", 
         description: "Animation display of assembly progress at main taxonomic ranks",
-        icon: "fa-dna"
+        icon: "fa-rainbow"
       },
       {
         name: "Phylogenomic Display of Progress at Order Level",
@@ -42,19 +42,19 @@ const pages = [
         name: "Progress by Phylum Groups",
         file: "./source files/progress_Phylum_v2.html",
         description: "Number of eukaryotic species sequenced by EBP grouped by phylum",
-        icon: "fa-chart-bar"
+        icon: "fa-chart-column"
       },
       {
         name: "Affiliate Progress",
         file: "./source files/Affiliates_Progress_sorted.html",
         description: "Assembly progress across EBP affiliate projects",
-        icon: "fa-project-diagram"
+        icon: "fa-chart-column"
       },
       {
         name: "EBP Contribution to Assemblies Meeting EBP Metrics",
         file: "./source files/progress_EBPmetrics.html",
         description: "EBP's contribution to assemblies meeting EBP quality metrics at species, genus, and family levels",
-        icon: "fa-chart-pie"
+        icon: "fa-chart-bar"
       }
     ]
   },
