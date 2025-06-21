@@ -55,95 +55,70 @@
         let chartInstance1 = null
         let chartInstance2 = null
         let chartInstance3 = null
-        const genomes = {
-          'chromosome': [],
-          'complete genome': [],
-          'contig': [],
-          'scaffold': []
-        }
-        const assemblies = {
-          'chromosome': [],
-          'complete genome': [],
-          'contig': [],
-          'scaffold': []
-        }
+
       window.onload = function () {
         const finalReportUrl = 'https://goat.genomehubs.org/api/v2/report?report=histogram&x=tax_tree%282759%29%20AND%20long_list%20AND%20bioproject%3DPRJNA533106&rank=species&includeEstimates=false&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&xOpts=%2C%2C55%2C%2CEBP%20Affiliate&caption=Assemblies%20available%20on%20INSDC%20for%20target%20species%20across%20EBP-affiliated%20projects.%20Note%20that%20umbrella%20projects%20will%20inherit%20counts%20from%20their%20sub-projects%20and%20that%20overlapping%20targets%20sequenced%20by%20at%20least%20one%20EBP%20affiliate%20will%20appear%20as%20complete%20in%20all%20projects%20targeting%20that%20taxon&taxonomy=ncbi&result=taxon&queryId=vLCkKyxY2S'
         fetchData(finalReportUrl).then(res => {
           const categories = res.report.report.histogram.histograms.buckets.filter(item => (!!item))
-          const requests = []
-          const sumsRequests = []
+          const searchRequests = []
           const validCategories = []
-          const projectIds = []
+          
           categories.forEach(projectName => {
             const projectId = projectsMap[projectName]
             if(projectId) {
-                  const url = `https://goat.genomehubs.org/api/v2/report?report=histogram&x=bioproject%3D${projectId}&rank=species&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&xOpts=${projectId}%2C%2C1%2C%2C&caption=Assembly%20level%20of%20AG100PEST%20genomes&taxonomy=ncbi&result=taxon&queryId=2_ayC5oMSb`
+                  const searchUrl = `https://goat.genomehubs.org/api/v2/search?query=bioproject%3D${projectId}%20AND%20tax_rank%28species%29&result=taxon&includeEstimates=true&taxonomy=ncbi&size=9900&offset=0&fields=genome_size%2Cassembly_level%2Cassembly_span`
                   validCategories.push(projectName)
-                  projectIds.push(projectId)
-                  requests.push(fetchData(url))
+                  searchRequests.push(fetchData(searchUrl))
                 }
               })
-              const byCats = {
-                'chromosome': [],
-                'complete genome': [],
-                'contig': [],
-                'scaffold': []
-              }
-              const cats = []
-              Promise.all(requests).then(results => {
-                results.forEach((res, index) => {
-                  if(!res.report.report.histogram.histograms) return
-                  const byCat = res.report.report.histogram.histograms.byCat
-                  Object.keys(byCat).forEach(key => {
-                    byCats[key].push(byCat[key][0])
-                  })
-                  cats.push(validCategories[index])
-                  const projectId = projectIds[index]
-                  const sumUrl = `https://goat.genomehubs.org/api/v2/search?query=assembly_date%20AND%20bioproject%3D${projectId}%20AND%20tax_rank%28species%29%20AND%20genome_size&result=taxon&includeEstimates=true&taxonomy=ncbi&size=9900&offset=1&fields=genome_size%2Cassembly_date%2Cassembly_level%2Cassembly_span%2Cchromosome_number%2Chaploid_number&names=&ranks=&sortBy=assembly_date&report=histogram&sortOrder=asc`
-                  sumsRequests.push(fetchData(sumUrl))
-                })
+              
+              const speciesCounts = { 'chromosome': [], 'complete genome': [], 'contig': [], 'scaffold': [] }
+              const genomes = { 'chromosome': [], 'complete genome': [], 'contig': [], 'scaffold': [] }
+              const assemblies = { 'chromosome': [], 'complete genome': [], 'contig': [], 'scaffold': [] }
+
+              Promise.all(searchRequests).then(results => {
+                results.forEach((projectResult, index) => {
+                  // Initialize counts and sums for this project to 0
+                  Object.keys(speciesCounts).forEach(key => speciesCounts[key][index] = 0);
+                  Object.keys(genomes).forEach(key => genomes[key][index] = 0);
+                  Object.keys(assemblies).forEach(key => assemblies[key][index] = 0);
+
+                  if (projectResult.results) {
+                      projectResult.results.forEach(item => {
+                        const { genome_size, assembly_span, assembly_level } = item.result.fields;
+                        if (assembly_level && assembly_level.value) {
+                          const level = assembly_level.value.toLowerCase();
+                          const genome = genome_size ? genome_size.value : 0;
+                          const assembly = assembly_span ? assembly_span.value : 0;
+                          
+                          if (speciesCounts.hasOwnProperty(level)) {
+                            speciesCounts[level][index]++;
+                            genomes[level][index] += genome;
+                            assemblies[level][index] += assembly;
+                          }
+                        }
+                      });
+                  }
+                });
+                
                 const myData1 = {
                     report: {
                         report: {
                             yLabel: "Count of species",
                             histogram: {
                                 histograms: {
-                                    byCat: byCats,
+                                    byCat: speciesCounts,
                                     buckets: []
                                 }
                             }
                         }
                     }
                 }
-                const { series } = getDefaultStackedBarData(myData1)
-                const title = 'Count of species'
-                chartInstance1 = initEchart({series, categories: cats}, 'chartContainer1', title)
-                // window.onresize = chartInstance1.resize
+                const { series: series1 } = getDefaultStackedBarData(myData1)
+                const title1 = 'Count of species'
+                chartInstance1 = initEchart({series: series1, categories: validCategories}, 'chartContainer1', title1)
 
-                
-                Promise.all(sumsRequests).then((result) => {
-                  
-                  result.forEach((pro, index) => {
-                    // if(pro.results.length <= 0) return
-                    genomes['chromosome'][index] = 0
-                    genomes['complete genome'][index] = 0
-                    genomes['contig'][index] = 0
-                    genomes['scaffold'][index] = 0
-                    assemblies['chromosome'][index] = 0
-                    assemblies['complete genome'][index] = 0
-                    assemblies['contig'][index] = 0
-                    assemblies['scaffold'][index] = 0
-                    pro.results.forEach(item => {
-                      const {genome_size, assembly_span, assembly_level} = item.result.fields
-                      const level = assembly_level.value.toLowerCase()
-                      const genome = genome_size.value
-                      const assembly = assembly_span.value
-                      genomes[level][index] += genome
-                      assemblies[level][index] += assembly
-                    })
-                  })
-                  const myData2 = {
+                const myData2 = {
                     report: {
                         report: {
                             yLabel: "Sum of genome_size",
@@ -169,11 +144,9 @@
                         }
                     }
                 }
-                  chartInstance2 = initEchart({series: getDefaultStackedBarData(myData2).series, categories: cats}, 'chartContainer2', 'Sum of genome_size')
-                  chartInstance3 = initEchart({series: getDefaultStackedBarData(myData3).series, categories: cats}, 'chartContainer3', 'Sum of assembly_span')
-                })
+                  chartInstance2 = initEchart({series: getDefaultStackedBarData(myData2).series, categories: validCategories}, 'chartContainer2', 'Sum of genome_size')
+                  chartInstance3 = initEchart({series: getDefaultStackedBarData(myData3).series, categories: validCategories}, 'chartContainer3', 'Sum of assembly_span')
             })
-            
         })
       };
 
@@ -318,7 +291,7 @@
             formatter: function (params) {
               var res = params
                 .map(function (item) {
-                  return item.seriesName + ": " + formatNumber(item.value);
+                  return item.seriesName + ": " + (item.value || 0).toLocaleString();
                 })
                 .join("<br/>");
 
@@ -328,7 +301,7 @@
                 total += item.value || 0;
               });
 
-              return res + "<br/>Total: " + formatNumber(total);
+              return res + "<br/>Total: " + total.toLocaleString();
             },
           },
           series: data.series,
