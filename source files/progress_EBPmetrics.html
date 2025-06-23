@@ -18,9 +18,9 @@
         const myChart = echarts.init(chartDom);
         const option = {
           title: {
-            text: 'Total counts with assemblies meeting EBP-standard metrics',
+            text: 'Percentage of assemblies meeting EBP-standard metrics',
             left: 'center',
-            top: 0,
+            top: -5,
             textStyle: {
               fontSize: 20,
               fontWeight: 'bold'
@@ -32,16 +32,25 @@
               type: 'shadow'
             },
             formatter: function(params) {
-              const ebp = params[0].value;
-              const nonEbp = params[1].value;
-              const total = ebp + nonEbp;
-              const ebpPercentage = ((ebp / total) * 100).toFixed(1);
-              const nonEbpPercentage = ((nonEbp / total) * 100).toFixed(1);
-              return `<b>${params[0].name}</b><br/>` +
+              const ebpParams = params[0];
+              const nonEbpParams = params[1];
+              
+              const ebpPercentage = ebpParams.value.toFixed(1);
+              const nonEbpPercentage = nonEbpParams.value.toFixed(1);
+              
+              const ebpCount = ebpParams.data.actualCount;
+              const nonEbpCount = nonEbpParams.data.actualCount;
+              const total = ebpParams.data.totalCount;
+              
+              return `<b>${ebpParams.name}</b><br/>` +
                      `Total counts: ${total}<br/>` +
-                     `EBP contribution: ${ebp} (${ebpPercentage}%)<br/>` +
-                     `Non-EBP contribution: ${nonEbp} (${nonEbpPercentage}%)`;
-            }
+                     `EBP contribution: ${ebpCount} (${ebpPercentage}%)<br/>` +
+                     `Non-EBP contribution: ${nonEbpCount} (${nonEbpPercentage}%)`;
+            },
+            textStyle: {
+              fontSize: 14
+            },
+            extraCssText: 'box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);'
           },
           legend: {
             data: [
@@ -58,7 +67,7 @@
                 }
               }
             ],
-            top: 60,
+            top: 35,
             textStyle: {
               fontSize: 14,
               fontWeight: 'bold'
@@ -66,16 +75,19 @@
           },
           grid: {
             left: '10%',    
-            right: '10%',   
+            right: '15%',   // Increased right margin to give more horizontal space
             bottom: '10%',
             top: '20%',     
             containLabel: true
           },
           xAxis: {
             type: 'value',
+            min: 0,
+            max: 100,
+            interval: 20,
             axisLine: { show: true },
             axisLabel: {
-              formatter: '{value}',
+              formatter: '{value}%',
               margin: 10,
               fontSize: 14,
             },
@@ -89,7 +101,7 @@
           },
           yAxis: {
             type: 'category',
-            data: ['Species', 'Genus', 'Family'],
+            data: ['Species', 'Genus', 'Family', 'Order', 'Class', 'Phylum'],
             axisLine: { show: true },
             axisTick: { show: false },
             axisLabel: {
@@ -147,6 +159,9 @@
         
         // Define URLs for Total Counts with Assemblies Meeting EBP Metrics
         const totalUrls = [
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20tax_rank%28phylum%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=contig_n50&excludeMissing%5B1%5D=scaffold_n50&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20tax_rank%28class%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=contig_n50&excludeMissing%5B1%5D=scaffold_n50&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20tax_rank%28order%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=contig_n50&excludeMissing%5B1%5D=scaffold_n50&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
           'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20tax_rank%28family%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=contig_n50&excludeMissing%5B1%5D=scaffold_n50&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
           'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20tax_rank%28genus%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=contig_n50&excludeMissing%5B1%5D=scaffold_n50&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
           'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20tax_rank%28species%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=contig_n50&excludeMissing%5B1%5D=scaffold_n50&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0'
@@ -154,6 +169,9 @@
 
         // Define URLs for EBP contributions
         const ebpUrls = [
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20bioproject%3DPRJNA533106%20AND%20tax_rank%28phylum%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20bioproject%3DPRJNA533106%20AND%20tax_rank%28class%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
+          'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20bioproject%3DPRJNA533106%20AND%20tax_rank%28order%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
           'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20bioproject%3DPRJNA533106%20AND%20tax_rank%28family%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
           'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20bioproject%3DPRJNA533106%20AND%20tax_rank%28genus%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0',
           'https://goat.genomehubs.org/api/v2/search?result=taxon&query=contig_n50%3E%3D1000000%20AND%20scaffold_n50%3E%3D10000000%20AND%20bioproject%3DPRJNA533106%20AND%20tax_rank%28species%29&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&fields=contig_n50%2Cscaffold_n50%2Cbioproject&report=arc&summaryValues=count&offset=0'
@@ -172,18 +190,32 @@
           
           const ebpData = [];
           const nonEbpData = [];
-          const ranks = ['Species', 'Genus', 'Family'];
+          const ranks = ['Species', 'Genus', 'Family', 'Order', 'Class', 'Phylum'];
           
           ranks.forEach((rank, index) => {
             // Get total count and EBP count
-            const total = totalResults[2-index].status.hits;
-            const ebp = ebpResults[2-index].status.hits;
+            const total = totalResults[5-index].status.hits;
+            const ebp = ebpResults[5-index].status.hits;
             const nonEbp = total - ebp;  // Calculate non-EBP count
             
             console.log(`Rank: ${rank}, Total: ${total}, EBP: ${ebp}, Non-EBP: ${nonEbp}`);
             
-            ebpData.push(ebp);
-            nonEbpData.push(nonEbp);
+            // Calculate percentages
+            const ebpPercentage = (ebp / total) * 100;
+            const nonEbpPercentage = (nonEbp / total) * 100;
+            
+            // Store both actual counts and percentages
+            ebpData.push({
+              value: ebpPercentage,
+              actualCount: ebp,
+              totalCount: total
+            });
+            
+            nonEbpData.push({
+              value: nonEbpPercentage,
+              actualCount: nonEbp,
+              totalCount: total
+            });
           });
 
           const series = [
@@ -193,37 +225,45 @@
               stack: 'total',
               itemStyle: {
                 color: function(params) {
-                  // Gold gradient colors from the image
+                  // Gold gradient colors from the image - maintaining proper gradient
                   const colors = [
                     '#D4B93B',  // Species (bottom) - deeper gold
-                    '#E6CA57',  // Genus - medium gold
-                    '#EED971'   // Family (top) - light gold
+                    '#E6CA57',  // Genus - medium gold 
+                    '#EED971',  // Family - light gold
+                    '#F6E695',  // Order - lighter gold
+                    '#FAEBAA',  // Class - very light gold
+                    '#FDF6D2'   // Phylum (top) - palest gold, but still visible
                   ];
                   return colors[params.dataIndex];
-                }
+                },
+                borderColor: function(params) {
+                  // Only add borders to the Phylum level for visibility
+                  return params.dataIndex === 5 ? '#D4B93B' : 'transparent';
+                },
+                borderWidth: 1
               },
               label: {
-                show: true,
+                show: false,  // Hide numbers and percentages
                 position: 'inside',
                 align: 'center',
                 verticalAlign: 'middle',
                 formatter: function(params) {
-                  const total = params.value + nonEbpData[params.dataIndex];
-                  const percentage = ((params.value / total) * 100).toFixed(1);
-                  return `{a|${params.value}}\n{b|(${percentage}%)}`;
+                  return `{a|${params.data.actualCount}}\n{b|(${params.value.toFixed(1)}%)}`;
                 },
                 rich: {
                   a: {
-                    fontSize: 14,
-                    lineHeight: 18,
+                    fontSize: 12,
+                    lineHeight: 20,
                     fontWeight: 'bold',
-                    align: 'center'
+                    align: 'center',
+                    fontFamily: 'Arial, sans-serif'
                   },
                   b: {
-                    fontSize: 14,
+                    fontSize: 12,
                     lineHeight: 18,
-                    fontWeight: 'bold',
-                    align: 'center'
+                    fontWeight: 'normal',
+                    align: 'center',
+                    fontFamily: 'Arial, sans-serif'
                   }
                 }
               },
@@ -235,37 +275,45 @@
               stack: 'total',
               itemStyle: {
                 color: function(params) {
-                  // Lighter shades for non-EBP data
+                  // Lighter shades for non-EBP data - ensuring a proper smooth gradient
                   const colors = [
-                    '#FFF8E1',  // Species (bottom) - lightest cream
-                    '#FFF3C4',  // Genus - light cream
-                    '#FFEB8D'   // Family (top) - light yellow
+                    '#FEE9A0',  // Species (bottom) - light gold
+                    '#FEF0B8',  // Genus - lighter gold/cream
+                    '#FEF5CB',  // Family - very light cream
+                    '#FEF8D9',  // Order - paler cream
+                    '#FEFBE7',  // Class - almost white cream
+                    '#FFFEF4'   // Phylum (top) - nearly white
                   ];
                   return colors[params.dataIndex];
-                }
+                },
+                borderColor: function(params) {
+                  // Only add borders to the Phylum level for visibility
+                  return params.dataIndex === 5 ? '#FFEB8D' : 'transparent';
+                },
+                borderWidth: 1
               },
               label: {
-                show: true,
+                show: false,  // Hide numbers and percentages
                 position: 'inside',
                 align: 'center',
                 verticalAlign: 'middle',
                 formatter: function(params) {
-                  const total = params.value + ebpData[params.dataIndex];
-                  const percentage = ((params.value / total) * 100).toFixed(1);
-                  return `{a|${params.value}}\n{b|(${percentage}%)}`;
+                  return `{a|${params.data.actualCount}}\n{b|(${params.value.toFixed(1)}%)}`;
                 },
                 rich: {
                   a: {
-                    fontSize: 14,
-                    lineHeight: 18,
+                    fontSize: 12,
+                    lineHeight: 20,
                     fontWeight: 'bold',
-                    align: 'center'
+                    align: 'center',
+                    fontFamily: 'Arial, sans-serif'
                   },
                   b: {
-                    fontSize: 14,
+                    fontSize: 12,
                     lineHeight: 18,
-                    fontWeight: 'bold',
-                    align: 'center'
+                    fontWeight: 'normal',
+                    align: 'center',
+                    fontFamily: 'Arial, sans-serif'
                   }
                 }
               },
