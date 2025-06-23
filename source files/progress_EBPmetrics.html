@@ -44,11 +44,24 @@
             }
           },
           legend: {
-            data: ['EBP Contribution', 'Non-EBP Contribution'],
+            data: [
+              {
+                name: 'EBP Contribution',
+                itemStyle: {
+                  color: '#D4B93B'  // Deeper gold color for EBP
+                }
+              }, 
+              {
+                name: 'Non-EBP Contribution',
+                itemStyle: {
+                  color: '#FFF8E1'  // Light yellow for non-EBP
+                }
+              }
+            ],
             top: 60,
             textStyle: {
               fontSize: 14,
-              fontWeight: 'bold',
+              fontWeight: 'bold'
             }
           },
           grid: {
@@ -76,7 +89,7 @@
           },
           yAxis: {
             type: 'category',
-            data: ['Family', 'Genus', 'Species'],
+            data: ['Species', 'Genus', 'Family'],
             axisLine: { show: true },
             axisTick: { show: false },
             axisLabel: {
@@ -159,12 +172,12 @@
           
           const ebpData = [];
           const nonEbpData = [];
-          const ranks = ['Family', 'Genus', 'Species'];
+          const ranks = ['Species', 'Genus', 'Family'];
           
           ranks.forEach((rank, index) => {
             // Get total count and EBP count
-            const total = totalResults[index].status.hits;
-            const ebp = ebpResults[index].status.hits;
+            const total = totalResults[2-index].status.hits;
+            const ebp = ebpResults[2-index].status.hits;
             const nonEbp = total - ebp;  // Calculate non-EBP count
             
             console.log(`Rank: ${rank}, Total: ${total}, EBP: ${ebp}, Non-EBP: ${nonEbp}`);
@@ -179,7 +192,15 @@
               type: 'bar',
               stack: 'total',
               itemStyle: {
-                color: '#2a788e'
+                color: function(params) {
+                  // Gold gradient colors from the image
+                  const colors = [
+                    '#D4B93B',  // Species (bottom) - deeper gold
+                    '#E6CA57',  // Genus - medium gold
+                    '#EED971'   // Family (top) - light gold
+                  ];
+                  return colors[params.dataIndex];
+                }
               },
               label: {
                 show: true,
@@ -213,7 +234,15 @@
               type: 'bar',
               stack: 'total',
               itemStyle: {
-                color: '#55b4c6'
+                color: function(params) {
+                  // Lighter shades for non-EBP data
+                  const colors = [
+                    '#FFF8E1',  // Species (bottom) - lightest cream
+                    '#FFF3C4',  // Genus - light cream
+                    '#FFEB8D'   // Family (top) - light yellow
+                  ];
+                  return colors[params.dataIndex];
+                }
               },
               label: {
                 show: true,
