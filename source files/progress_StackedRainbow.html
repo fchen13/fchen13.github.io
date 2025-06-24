@@ -6,8 +6,6 @@
     <meta name="copyright" content="Data source: Genomes on a Tree (GoaT). Used with permission." />
     <meta name="author" content="Fang Chen" />
     <title>Progress_StackedRainbow</title>
-    <!-- v1: Initial version -->
-    <!-- v2: Added responsive legend positioning -->
     <script src="./echarts.min.js"></script>
     <script src="./utils.js"></script>
     <script src="./services.js"></script>
@@ -125,16 +123,26 @@
         const EBP = []
         const INSDC = []
         const contrasts = []
-        reverseLegends.forEach(item => {
+        reverseLegends.forEach((item, idx) => {
           names.push({
             type: 'total',
             text: item.name,
-            color: item.color
+            color: item.color,
+            customOffset: item.name === 'phylum' ? 20 : 
+                          item.name === 'class' ? 15 :
+                          item.name === 'order' ? 10 :
+                          item.name === 'family' ? 5 :
+                          item.name === 'genus' ? 0 : -5
           })
           totals.push({
             type: 'total',
             text: item.total,
-            color: '#000000'
+            color: '#000000',
+            customOffset: item.name === 'phylum' ? 10 : 
+                          item.name === 'class' ? 15 :
+                          item.name === 'order' ? 15 :
+                          item.name === 'family' ? 15 :
+                          item.name === 'genus' ? 20 : 20
           })
           EBP.push({
             type: 'rect',
@@ -178,7 +186,8 @@
           group.forEach((item, index) => {
             if(item.type == 'text') {
               const text = getGraphicOption('text', item)
-              text.left = index * width + (item.description ? 60 : 0)
+              const customOffset = item.customOffset || 0
+              text.left = index * width + (item.description ? 60 : 0) + customOffset
               groupOption.children.push(text)
             } else if(item.type == 'rect') {
               const rect = getGraphicOption('rect', item)
@@ -189,10 +198,12 @@
               groupOption.children.push(text)
             } else if(item.type == 'total') {
               const text = getGraphicOption('text', item)
-              text.left = index * width
+              const customOffset = item.customOffset || 0
+              text.left = index * width + customOffset
               groupOption.children.push(text)
               const total = getGraphicOption('text', totals[totals.length - 1 - index])
-              total.left = index * width + document.getElementById('chartContainer').clientHeight + width / 2
+              const totalCustomOffset = totals[totals.length - 1 - index].customOffset || 0
+              total.left = index * width + document.getElementById('chartContainer').clientHeight + width / 2 + totalCustomOffset
               groupOption.children.push(total)
             }
           })
@@ -399,4 +410,4 @@
         <div id="copyright">Data source: Genomes on a Tree (GoaT). Used with permission.</div>
     </div>
   </body>
-</html> 
+</html>
