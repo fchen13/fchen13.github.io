@@ -4,95 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="./favicon.jpg">
-    <title>Earth BioGenome Project</title>
+    <title>Earth BioGenome Project - Dashboard</title>
     <!-- Add Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #e9ecef;
-            margin: 0;
-            padding: 20px;
-            color: #495057;
-            line-height: 1.6;
-        }
-        h1 {
-            text-align: center;
-            color: #343a40;
-            margin-bottom: 30px;
-            font-size: 2.5rem;
-        }
-        #content-container {
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-        .category {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        .category-title {
-            color: #343a40;
-            margin: 0 0 20px 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e9ecef;
-            font-size: 1.5rem;
-        }
-        .links-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
-        }
-        .link {
-            display: flex;
-            align-items: center;
-            background: #6c757d;
-            color: white;
-            text-decoration: none;
-            padding: 15px;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            gap: 12px;
-        }
-        .link:hover {
-            background: #5a6268;
-            transform: translateY(-3px);
-        }
-        .link:active {
-            transform: translateY(1px);
-        }
-        .link i {
-            font-size: 1.2rem;
-            width: 24px;
-            text-align: center;
-        }
-        .link-content {
-            flex: 1;
-        }
-        .link-title {
-            font-size: 1.1rem;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-        .link-description {
-            font-size: 0.85rem;
-            opacity: 0.9;
-        }
-    </style>
+    <!-- External CSS -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>EBP Dashboard</h1>
-    
-    <div id="content-container">
-        <!-- Dynamic content will be loaded here -->
-    </div>
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <img src="favicon.jpg" alt="Earth BioGenome Project Logo">
+                <h1>Earth BioGenome Project</h1>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="about.html" class="nav-link">ABOUT</a></li>
+                    <li><a href="index.html" class="nav-link active">DASHBOARD</a></li>
+                    <li><a href="contact.html" class="nav-link">CONTACT</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Dashboard Page Section -->
+        <section id="dashboard">
+            <h2 class="page-title">EBP Dashboard</h2>
+            <div id="content-container">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>© 2025 THE EARTH BIOGENOME PROJECT</p>
+        </div>
+    </footer>
 
     <script src="config.js"></script>
     <script>
+        // Load dashboard content
         const container = document.getElementById('content-container');
 
         pages.forEach(category => {
