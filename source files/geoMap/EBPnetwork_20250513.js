@@ -498,7 +498,7 @@ const projectsData = [
     projectName: "Soil Invertebrate Genome Initiative (METAINVERT)",
     continent: "Europe",
     type: "Headquarters",
-    address: "Georg-Voigt-Str. 14-16, 60388 Frankfurt am Main, Germany",
+    address: "Senckenberganlage 25, D-60325 Frankfurt/Main, Germany",
     website: null,
     latitude: 50.1171516011758,
     longitude: 8.65149548210233
