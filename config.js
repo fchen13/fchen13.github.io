@@ -22,7 +22,7 @@ const pages = [
     pages: [
       {
         name: "Progress Over the Years", 
-        file: "./source files/progress_Family_Species_v2.html",
+        file: "./source files/progress_Family_Species.html",
         description: "Annual assembly progress at the family and species level",
         icon: "fa-chart-line"
       },
@@ -63,7 +63,7 @@ const pages = [
     pages: [
       {
         name: "Global Distribution",
-        file: "./source files/projectsMap_v6.html",
+        file: "./source files/projectsMap.html",
         description: "Geographic distribution of EBP affiliates",
         icon: "fa-globe"
       },
