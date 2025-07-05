@@ -18,7 +18,7 @@
         const myChart = echarts.init(chartDom);
         const option = {
           title: {
-            text: 'Percentage of assemblies meeting EBP-standard metrics',
+            text: 'Total counts with assemblies meeting EBP-standard metrics',
             left: 'center',
             top: -5,
             textStyle: {
@@ -32,20 +32,15 @@
               type: 'shadow'
             },
             formatter: function(params) {
-              const ebpParams = params[0];
-              const nonEbpParams = params[1];
-              
-              const ebpPercentage = ebpParams.value.toFixed(1);
-              const nonEbpPercentage = nonEbpParams.value.toFixed(1);
-              
-              const ebpCount = ebpParams.data.actualCount;
-              const nonEbpCount = nonEbpParams.data.actualCount;
-              const total = ebpParams.data.totalCount;
-              
-              return `<b>${ebpParams.name}</b><br/>` +
+              const ebp = params[0].value;
+              const nonEbp = params[1].value;
+              const total = ebp + nonEbp;
+              const ebpPercentage = ((ebp / total) * 100).toFixed(1);
+              const nonEbpPercentage = ((nonEbp / total) * 100).toFixed(1);
+              return `<b>${params[0].name}</b><br/>` +
                      `Total counts: ${total}<br/>` +
-                     `EBP contribution: ${ebpCount} (${ebpPercentage}%)<br/>` +
-                     `Non-EBP contribution: ${nonEbpCount} (${nonEbpPercentage}%)`;
+                     `EBP contribution: ${ebp} (${ebpPercentage}%)<br/>` +
+                     `Non-EBP contribution: ${nonEbp} (${nonEbpPercentage}%)`;
             },
             textStyle: {
               fontSize: 14
@@ -81,13 +76,12 @@
             containLabel: true
           },
           xAxis: {
-            type: 'value',
-            min: 0,
-            max: 100,
-            interval: 20,
+            type: 'log',      // Change to logarithmic scale
+            min: 1,           // Set minimum to 1 (log scale can't start at 0)
+            max: 'dataMax',   // Dynamically set maximum to the largest data value
             axisLine: { show: true },
             axisLabel: {
-              formatter: '{value}%',
+              formatter: '{value}',
               margin: 10,
               fontSize: 14,
             },
@@ -200,22 +194,8 @@
             
             console.log(`Rank: ${rank}, Total: ${total}, EBP: ${ebp}, Non-EBP: ${nonEbp}`);
             
-            // Calculate percentages
-            const ebpPercentage = (ebp / total) * 100;
-            const nonEbpPercentage = (nonEbp / total) * 100;
-            
-            // Store both actual counts and percentages
-            ebpData.push({
-              value: ebpPercentage,
-              actualCount: ebp,
-              totalCount: total
-            });
-            
-            nonEbpData.push({
-              value: nonEbpPercentage,
-              actualCount: nonEbp,
-              totalCount: total
-            });
+            ebpData.push(ebp);
+            nonEbpData.push(nonEbp);
           });
 
           const series = [
@@ -248,7 +228,9 @@
                 align: 'center',
                 verticalAlign: 'middle',
                 formatter: function(params) {
-                  return `{a|${params.data.actualCount}}\n{b|(${params.value.toFixed(1)}%)}`;
+                  const total = params.value + nonEbpData[params.dataIndex];
+                  const percentage = ((params.value / total) * 100).toFixed(1);
+                  return `{a|${params.value}}\n{b|(${percentage}%)}`;
                 },
                 rich: {
                   a: {
@@ -275,14 +257,14 @@
               stack: 'total',
               itemStyle: {
                 color: function(params) {
-                  // Lighter shades for non-EBP data - ensuring a proper smooth gradient
+                  // Lighter shades for non-EBP data - maintaining proper gradient
                   const colors = [
-                    '#FEE9A0',  // Species (bottom) - light gold
-                    '#FEF0B8',  // Genus - lighter gold/cream
-                    '#FEF5CB',  // Family - very light cream
-                    '#FEF8D9',  // Order - paler cream
-                    '#FEFBE7',  // Class - almost white cream
-                    '#FFFEF4'   // Phylum (top) - nearly white
+                    '#FFEB8D',  // Species (bottom) - lightest cream
+                    '#FFF3C4',  // Genus - light cream
+                    '#FFF8E1',  // Family - light cream
+                    '#FFFDF7',  // Order - light cream
+                    '#FFF8E6',  // Class - light cream
+                    '#FEFBF2',  // Phylum (top) - almost white
                   ];
                   return colors[params.dataIndex];
                 },
@@ -298,7 +280,9 @@
                 align: 'center',
                 verticalAlign: 'middle',
                 formatter: function(params) {
-                  return `{a|${params.data.actualCount}}\n{b|(${params.value.toFixed(1)}%)}`;
+                  const total = params.value + ebpData[params.dataIndex];
+                  const percentage = ((params.value / total) * 100).toFixed(1);
+                  return `{a|${params.value}}\n{b|(${percentage}%)}`;
                 },
                 rich: {
                   a: {
