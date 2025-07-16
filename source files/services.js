@@ -1,3 +1,15 @@
+  // Will add consistent color mapping function at the top
+  // Define consistent color mapping based on assembly level names
+  function getAssemblyLevelColor(assemblyLevel) {
+    const assemblyLevelColors = {
+      'contig': '#404387',        // dark blue
+      'scaffold': '#22a884',     // teal
+      'chromosome': '#ffff33',   // yellow
+      'complete genome': '#7ad151' // green
+    };
+    return assemblyLevelColors[assemblyLevel] || '#cccccc'; // fallback color
+  }
+
 // get请求
 async function fetchData(url) {
     const response = await fetch(url); // 替换为你的 API URL
@@ -205,9 +217,7 @@ async function fetchData(url) {
     const category = generateBinLabels(histograms.buckets);
     console.log('Processed categories:', category);
     
-    const colors = ["#404387", "#22a884", "#ffff33", "#7ad151"];
     const series = [];
-    let index = 0
     for (let name in histograms.byCat) {
       const rawData = histograms.byCat[name];
       console.log(`Raw data for ${name}:`, rawData);
@@ -223,7 +233,7 @@ async function fetchData(url) {
           show: false,
         },
         itemStyle: {
-            color: colors[index++],
+            color: getAssemblyLevelColor(name), // Use consistent color mapping
           },
           barGap: '1px',
           barCategoryGap: '1px',
@@ -254,9 +264,7 @@ async function fetchData(url) {
     const tableName = data.report.report.yLabel + ' ' + '(actual)'
     // Generate two-year bin labels
     const category = generateBinLabels(histograms.buckets);
-    const colors = ["#404387", "#22a884", "#ffff33", "#7ad151"];
     const series = [];
-    let index = 0
     for (let name in histograms.byCat) {
       const rawData = histograms.byCat[name];
       const totalBins = category.length; // category is the array of bin labels
@@ -269,7 +277,7 @@ async function fetchData(url) {
           show: false,
         },
         itemStyle: {
-            color: colors[index++],
+            color: getAssemblyLevelColor(name), // Use consistent color mapping
           },
           barGap: '1px', // 同一类目下系列之间的间隔
           barCategoryGap: '1px',
@@ -292,9 +300,7 @@ async function fetchData(url) {
     const tableName = data.report.report.yLabel + ' ' + '(YoY growth)'
     // Generate two-year bin labels
     const category = generateBinLabels(histograms.buckets);
-    const colors = ["#404387", "#22a884", "#ffff33", "#7ad151"];
     const series = [];
-    let index = 0
     for (let name in histograms.byCat) {
       const rawData = histograms.byCat[name];
       const totalBins = category.length; // category is the array of bin labels
@@ -307,7 +313,7 @@ async function fetchData(url) {
           show: false,
         },
         itemStyle: {
-            color: colors[index++],
+            color: getAssemblyLevelColor(name), // Use consistent color mapping
           },
           barGap: '1px', // 同一类目下系列之间的间隔
           barCategoryGap: '1px',

@@ -257,18 +257,61 @@
         const chartDom = document.getElementById(containerId);
         const myChart = echarts.init(chartDom);
 
+        // Define consistent color mapping based on assembly level names
+        const assemblyLevelColors = {
+          'contig': '#ffff33',        // dark blue
+          'scaffold': '#22a884',     // teal
+          'chromosome': '#404387',   // yellow
+          'complete genome': '#7ad151' // green
+        };
+
+        // Apply consistent colors to series based on their names
+        let seriesWithColors = data.series.map(series => ({
+          ...series,
+          itemStyle: {
+            color: assemblyLevelColors[series.name] || '#cccccc' // fallback color
+          }
+        }));
+
+        // Reorder series for species chart - put contig at the bottom
+        if (containerId === 'speciesProgressContainer') {
+          const chromosomeIndex = seriesWithColors.findIndex(s => s.name === 'chromosome');
+          const contigIndex = seriesWithColors.findIndex(s => s.name === 'contig');
+          if (chromosomeIndex !== -1 && contigIndex !== -1) {
+            // Swap chromosome and contig in series array
+            [seriesWithColors[chromosomeIndex], seriesWithColors[contigIndex]] = [seriesWithColors[contigIndex], seriesWithColors[chromosomeIndex]];
+          }
+        }
+
+        // Get the actual order of categories from the reordered series
+        const actualOrder = seriesWithColors.map(series => series.name);
+        
+        // Create custom legend order - swap chromosome and contig for species chart
+        let legendOrder = [...actualOrder];
+        if (containerId === 'speciesProgressContainer') {
+          const chromosomeIndex = legendOrder.indexOf('chromosome');
+          const contigIndex = legendOrder.indexOf('contig');
+          if (chromosomeIndex !== -1 && contigIndex !== -1) {
+            // Swap chromosome and contig
+            [legendOrder[chromosomeIndex], legendOrder[contigIndex]] = [legendOrder[contigIndex], legendOrder[chromosomeIndex]];
+          }
+        }
+        
+        // Create colors array in the same order as the reordered series
+        const orderedColors = actualOrder.map(name => assemblyLevelColors[name] || '#cccccc');
+
         const option = {
           legend: {
             show: true,
             selectedMode: false,
-            data: ['contig', 'scaffold', 'chromosome', 'complete genome'], // Reorder legend items
+            data: legendOrder, // Use custom legend order for species chart
             textStyle: {
               color: '#000',
               fontSize: 12,
               fontWeight: 'bold',
             }
           },
-          color: ['#FF0000', '#00FF00', '#0000FF', '#FFff33'], // Higher contrast colors with distinct color for complete genome
+          color: orderedColors, // Use consistent colors in the right order
           grid: {
             left: '7%',  // Decreased left margin
             right: '2%',
@@ -371,7 +414,7 @@
               return res;
             },
           },
-          series: data.series,
+          series: seriesWithColors, // Use series with consistent colors
         };
         myChart.setOption(option);
       
@@ -411,17 +454,7 @@
       console.warn('Copyright configuration not loaded:', e);
     }
 
-    function fillMissingBins(rawData, totalBins) {
-      const filled = new Array(totalBins).fill(0);
-      for (let i = 0; i < rawData.length; i++) {
-        filled[i] = rawData[i];
-      }
-      return filled;
-    }
 
-    // In your data processing:
-    const totalBins = category.length;
-    const filledData = fillMissingBins(rawData, totalBins);
 
     window.addEventListener('resize', function() {
       if (familyChart) familyChart.resize();
