@@ -218,55 +218,40 @@
         // Family Progress
         const familyUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=min%28assembly_date%29%20AND%20bioproject%3DPRJNA533106&result=taxon&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&stacked=true&cumulative=true&includeEstimates=true&rank=Family&xOpts=2002%2C%2C1%2C%2CAssembly%20date&caption=Cumulative%20number%20of%20eukaryotic%20families%20for%20which%20assemblies%20were%20generated%20by%20EBP%20affiliates%20over%20time&taxonomy=ncbi";
         getStackedBarData(familyUrl).then(({formatData, defaultData, percentData}) => {
-          // initEchart(formatData, 'familyProgressContainer1', 'Count of families (Cumulative)');
-          // initEchart(defaultData, 'familyProgressContainer2', 'Count of families (Actual)');
-          // initEchart(percentData, 'familyProgressContainer3', 'Count of families (YoY Growth)');
+          // initEchart(formatData, 'familyProgressContainer1', 'Count of Families (Cumulative)');
+          // initEchart(defaultData, 'familyProgressContainer2', 'Count of Families (Actual)');
+          // initEchart(percentData, 'familyProgressContainer3', 'Count of Families (YoY Growth)');
           familyDataMap['Cumulative'] = formatData
           familyDataMap['Actual'] = defaultData
           familyDataMap['YoY Growth'] = percentData
-          familyChart = initEchart(familyDataMap[activeType], 'familyProgressContainer', `Count of families (${activeType})`);
+          familyChart = initEchart(familyDataMap[activeType], 'familyProgressContainer', `Count of Families (${activeType})`);
         });
 
         // Species Progress
         const speciesUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=min%28assembly_date%29%20AND%20bioproject%3DPRJNA533106%20AND%20tax_rank%28species%29&rank=species&result=taxon&cat=assembly_level%5B4%5D%3Dchromosome%2Cscaffold%2Ccontig%2Ccomplete%20genome&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&stacked=true&cumulative=true&xOpts=2002%2C%2C2%2C%2CAssembly%20date&caption=Cumulative%20number%20of%20assemblies%20for%20eukaryotic%20species%20generated%20by%20EBP%20affiliates%20over%20time&taxonomy=ncbi";
         getStackedBarData(speciesUrl).then(({formatData, defaultData, percentData}) => {
-          // initEchart(formatData, 'speciesProgressContainer1', 'Count of species (Cumulative)');
-          // initEchart(defaultData, 'speciesProgressContainer2', 'Count of species (Actual)');
-          // initEchart(percentData, 'speciesProgressContainer3', 'Count of species (YoY Growth)');
+          // initEchart(formatData, 'speciesProgressContainer1', 'Count of Species (Cumulative)');
+          // initEchart(defaultData, 'speciesProgressContainer2', 'Count of Species (Actual)');
+          // initEchart(percentData, 'speciesProgressContainer3', 'Count of Species (YoY Growth)');
           speciesDataMap['Cumulative'] = formatData
           speciesDataMap['Actual'] = defaultData
           speciesDataMap['YoY Growth'] = percentData
-          speciesChart = initEchart(speciesDataMap[activeType], 'speciesProgressContainer', `Count of species (${activeType})`);
+          speciesChart = initEchart(speciesDataMap[activeType], 'speciesProgressContainer', `Count of Species (${activeType})`);
         });
       };
 
-      function checkoutChart(type) {
-        if(activeType === type) return;
-        const familyOption = familyChart.getOption();
-        const speciesOption = speciesChart.getOption();
-        familyOption.yAxis[0].name = `Count of families (${type})`;
-        speciesOption.yAxis[0].name = `Count of species (${type})`;
-        familyOption.series = familyDataMap[type].series
-        speciesOption.series = speciesDataMap[type].series
-        familyChart.setOption(familyOption);
-        speciesChart.setOption(speciesOption, );
-        activeType = type
-      }
-
-      function initEchart(data, containerId, yLabel) {
-        const chartDom = document.getElementById(containerId);
-        const myChart = echarts.init(chartDom);
-
+      // Helper function to apply consistent ordering to series data
+      function applyConsistentOrdering(seriesData, containerId) {
         // Define consistent color mapping based on assembly level names
         const assemblyLevelColors = {
-          'contig': '#ffff33',        // dark blue
+          'contig': '#ffff33',        // yellow
           'scaffold': '#22a884',     // teal
-          'chromosome': '#404387',   // yellow
+          'chromosome': '#404387',   // dark blue
           'complete genome': '#7ad151' // green
         };
 
         // Apply consistent colors to series based on their names
-        let seriesWithColors = data.series.map(series => ({
+        let seriesWithColors = seriesData.map(series => ({
           ...series,
           itemStyle: {
             color: assemblyLevelColors[series.name] || '#cccccc' // fallback color
@@ -283,19 +268,45 @@
           }
         }
 
+        return seriesWithColors;
+      }
+
+      function checkoutChart(type) {
+        if(activeType === type) return;
+        const familyOption = familyChart.getOption();
+        const speciesOption = speciesChart.getOption();
+        familyOption.yAxis[0].name = `Count of Families (${type})`;
+        speciesOption.yAxis[0].name = `Count of Species (${type})`;
+        
+        // Apply consistent ordering to series data
+        familyOption.series = applyConsistentOrdering(familyDataMap[type].series, 'familyProgressContainer');
+        speciesOption.series = applyConsistentOrdering(speciesDataMap[type].series, 'speciesProgressContainer');
+        
+        familyChart.setOption(familyOption);
+        speciesChart.setOption(speciesOption);
+        activeType = type
+      }
+
+      function initEchart(data, containerId, yLabel) {
+        const chartDom = document.getElementById(containerId);
+        const myChart = echarts.init(chartDom);
+
+        // Apply consistent ordering and colors to series data using helper function
+        const seriesWithColors = applyConsistentOrdering(data.series, containerId);
+
         // Get the actual order of categories from the reordered series
         const actualOrder = seriesWithColors.map(series => series.name);
         
-        // Create custom legend order - swap chromosome and contig for species chart
-        let legendOrder = [...actualOrder];
-        if (containerId === 'speciesProgressContainer') {
-          const chromosomeIndex = legendOrder.indexOf('chromosome');
-          const contigIndex = legendOrder.indexOf('contig');
-          if (chromosomeIndex !== -1 && contigIndex !== -1) {
-            // Swap chromosome and contig
-            [legendOrder[chromosomeIndex], legendOrder[contigIndex]] = [legendOrder[contigIndex], legendOrder[chromosomeIndex]];
-          }
-        }
+        // Use the same order for legend as the reordered series (contig before chromosome for species chart)
+        const legendOrder = [...actualOrder];
+        
+        // Define consistent color mapping for the color array
+        const assemblyLevelColors = {
+          'contig': '#ffff33',        // yellow
+          'scaffold': '#22a884',     // teal
+          'chromosome': '#404387',   // dark blue
+          'complete genome': '#7ad151' // green
+        };
         
         // Create colors array in the same order as the reordered series
         const orderedColors = actualOrder.map(name => assemblyLevelColors[name] || '#cccccc');
