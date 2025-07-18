@@ -18,14 +18,15 @@
         color: #333;
         letter-spacing: 1px;
         padding: 0;
-        font-size: 1.6vw;
-        min-font-size: 18px;
+        font-size: 2.0vw;
+        min-font-size: 20px;
       }
       .container {
         display: flex;
+        flex-direction: column;
         justify-content: center;
-        flex-wrap: wrap;
-        gap: 0vw;
+        align-items: center;
+        gap: 2vh;
         padding-bottom: 1vh;
         margin-top: 10vh;
         width: 100vw;
@@ -33,9 +34,9 @@
         box-sizing: border-box;
       }
       .column {
-        flex: 1 1 400px; /* Grow, shrink, min width */
-        min-width: 320px;
+        width: 100%;
         max-width: 700px;
+        min-width: 320px;
         box-sizing: border-box;
         padding: 0;
         display: flex;
@@ -176,7 +177,7 @@
     </style>
   </head>
   <body>
-    <h1 class="page-title">Progress of EBP over years</h1>
+    <h1 class="page-title">EBP Progress over years</h1>
     <div class="select-container">
       <div class="custom-select">
         <div class="select-box">Cumulative</div>
@@ -209,34 +210,129 @@
     </div>
 
     <script>
+      console.log('=== SCRIPT LOADING ===');
       const familyDataMap = {}
       const speciesDataMap = {}
       let activeType = 'Cumulative'
       let familyChart = null
       let speciesChart = null
+      
+      // Test function to run directly in console
+      function testSpeciesAPI() {
+        console.log('Testing species API...');
+        const testUrl = "https://goat.genomehubs.org/api/v2/search?query=bioproject%3DPRJNA533106%20AND%20tax_rank%28species%29&result=taxon&includeEstimates=true&taxonomy=ncbi&size=100&offset=0&fields=assembly_date%2Cassembly_level%2Cassembly_span";
+        
+        return fetch(testUrl)
+          .then(response => {
+            console.log('API Response Status:', response.status);
+            return response.json();
+          })
+          .then(data => {
+            console.log('API Response Data:', data);
+            console.log('Results count:', data.results ? data.results.length : 'No results');
+            if (data.results && data.results.length > 0) {
+              console.log('First result:', data.results[0]);
+              console.log('First result fields:', Object.keys(data.results[0]));
+            }
+            return data;
+          })
+          .catch(error => {
+            console.error('API Error:', error);
+            throw error;
+          });
+      }
+      
+      // Test function for family API
+      function testFamilyAPI() {
+        console.log('Testing family API...');
+        const testUrl = "https://goat.genomehubs.org/api/v2/search?query=bioproject%3DPRJNA533106%20AND%20tax_rank%28family%29&result=taxon&includeEstimates=true&taxonomy=ncbi&size=100&offset=0&fields=assembly_date%2Cassembly_level%2Cassembly_span";
+        
+        return fetch(testUrl)
+          .then(response => {
+            console.log('Family API Response Status:', response.status);
+            return response.json();
+          })
+          .then(data => {
+            console.log('Family API Response Data:', data);
+            console.log('Family results count:', data.results ? data.results.length : 'No results');
+            if (data.results && data.results.length > 0) {
+              console.log('First family result:', data.results[0]);
+              console.log('First family result fields:', Object.keys(data.results[0]));
+            }
+            return data;
+          })
+          .catch(error => {
+            console.error('Family API Error:', error);
+            throw error;
+          });
+      }
+
+      // Cache management functions
+      function clearCache() {
+        localStorage.removeItem('ebp_search_data_v1');
+        console.log('Cache cleared');
+        window.searchDataLoaded = false;
+      }
+      
+      // Make them available globally
+      window.testSpeciesAPI = testSpeciesAPI;
+      window.testFamilyAPI = testFamilyAPI;
+      window.clearCache = clearCache;
       window.onload = function () {
+        console.log('=== WINDOW.ONLOAD STARTED ===');
+        console.log('Active type:', activeType);
+        
         // Family Progress
+        console.log('Starting family data fetch...');
         const familyUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=min%28assembly_date%29%20AND%20bioproject%3DPRJNA533106&result=taxon&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&stacked=true&cumulative=true&includeEstimates=true&rank=Family&xOpts=2002%2C%2C1%2C%2CAssembly%20date&caption=Cumulative%20number%20of%20eukaryotic%20families%20for%20which%20assemblies%20were%20generated%20by%20EBP%20affiliates%20over%20time&taxonomy=ncbi";
+        
+        // URL for fetching raw family search data
+        const familySearchUrl = "https://goat.genomehubs.org/api/v2/search?query=bioproject%3DPRJNA533106%20AND%20tax_rank%28family%29&result=taxon&includeEstimates=true&taxonomy=ncbi&size=2000&offset=0&fields=assembly_date%2Cassembly_level";
+        
+        // Load only cumulative data initially for fast page load
+        console.log('Loading cumulative family data only...');
         getStackedBarData(familyUrl).then(({formatData, defaultData, percentData}) => {
-          // initEchart(formatData, 'familyProgressContainer1', 'Count of Families (Cumulative)');
-          // initEchart(defaultData, 'familyProgressContainer2', 'Count of Families (Actual)');
-          // initEchart(percentData, 'familyProgressContainer3', 'Count of Families (YoY Growth)');
-          familyDataMap['Cumulative'] = formatData
-          familyDataMap['Actual'] = defaultData
-          familyDataMap['YoY Growth'] = percentData
+          console.log('Family cumulative data loaded');
+          // Store cumulative data
+          familyDataMap['Cumulative'] = formatData;
+          
+          // Use original actual/YoY data as placeholders until search data is loaded
+          familyDataMap['Actual'] = defaultData;
+          familyDataMap['YoY Growth'] = percentData;
+          
           familyChart = initEchart(familyDataMap[activeType], 'familyProgressContainer', `Count of Families (${activeType})`);
+        }).catch(error => {
+          console.error('Error loading family cumulative data:', error);
         });
 
         // Species Progress
+        console.log('=== STARTING SPECIES SECTION ===');
         const speciesUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=min%28assembly_date%29%20AND%20bioproject%3DPRJNA533106%20AND%20tax_rank%28species%29&rank=species&result=taxon&cat=assembly_level%5B4%5D%3Dchromosome%2Cscaffold%2Ccontig%2Ccomplete%20genome&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&stacked=true&cumulative=true&xOpts=2002%2C%2C2%2C%2CAssembly%20date&caption=Cumulative%20number%20of%20assemblies%20for%20eukaryotic%20species%20generated%20by%20EBP%20affiliates%20over%20time&taxonomy=ncbi";
+        
+        // URL for fetching raw species search data (get all 4073+ results)
+        const speciesSearchUrl = "https://goat.genomehubs.org/api/v2/search?query=bioproject%3DPRJNA533106%20AND%20tax_rank%28species%29&result=taxon&includeEstimates=true&taxonomy=ncbi&size=5000&offset=0&fields=assembly_date%2Cassembly_level";
+        
+        // Fetch cumulative data (keep as is - it's working correctly)
+        console.log('Starting species data fetch...');
+        console.log('Species URL:', speciesUrl);
+        console.log('Species search URL:', speciesSearchUrl);
+        
+        // Optimization: Search data will be loaded on-demand when user switches to Actual/YoY Growth views
+        
+        // Load only cumulative data initially for fast page load
+        console.log('Loading cumulative species data only...');
         getStackedBarData(speciesUrl).then(({formatData, defaultData, percentData}) => {
-          // initEchart(formatData, 'speciesProgressContainer1', 'Count of Species (Cumulative)');
-          // initEchart(defaultData, 'speciesProgressContainer2', 'Count of Species (Actual)');
-          // initEchart(percentData, 'speciesProgressContainer3', 'Count of Species (YoY Growth)');
-          speciesDataMap['Cumulative'] = formatData
-          speciesDataMap['Actual'] = defaultData
-          speciesDataMap['YoY Growth'] = percentData
+          console.log('Species cumulative data loaded');
+          // Store cumulative data
+          speciesDataMap['Cumulative'] = formatData;
+          
+          // Use original actual/YoY data as placeholders until search data is loaded
+          speciesDataMap['Actual'] = defaultData;
+          speciesDataMap['YoY Growth'] = percentData;
+          
           speciesChart = initEchart(speciesDataMap[activeType], 'speciesProgressContainer', `Count of Species (${activeType})`);
+        }).catch(error => {
+          console.error('Error loading species cumulative data:', error);
         });
       };
 
@@ -273,6 +369,78 @@
 
       function checkoutChart(type) {
         if(activeType === type) return;
+        
+        // If switching to Actual/YoY Growth and we haven't loaded search data yet
+        if ((type === 'Actual' || type === 'YoY Growth') && !window.searchDataLoaded) {
+          console.log('Loading search data on demand...');
+          showLoadingIndicator();
+          
+          // Check cache first
+          const cacheKey = 'ebp_search_data_v1';
+          const cachedData = localStorage.getItem(cacheKey);
+          
+          if (cachedData) {
+            console.log('Loading from cache...');
+            try {
+              const parsedData = JSON.parse(cachedData);
+              // Update data maps with cached results
+              familyDataMap['Actual'] = parsedData.family.defaultData;
+              familyDataMap['YoY Growth'] = parsedData.family.percentData;
+              speciesDataMap['Actual'] = parsedData.species.defaultData;
+              speciesDataMap['YoY Growth'] = parsedData.species.percentData;
+              
+              window.searchDataLoaded = true;
+              hideLoadingIndicator();
+              switchToView(type);
+              return;
+            } catch (e) {
+              console.warn('Cache data corrupted, fetching fresh data');
+              localStorage.removeItem(cacheKey);
+            }
+          }
+          
+          // Load search data for both charts
+          Promise.all([
+            window.getFamilySearchData("https://goat.genomehubs.org/api/v2/search?query=bioproject%3DPRJNA533106%20AND%20tax_rank%28family%29&result=taxon&includeEstimates=true&taxonomy=ncbi&size=2000&offset=0&fields=assembly_date%2Cassembly_level"),
+            window.getSpeciesSearchData("https://goat.genomehubs.org/api/v2/search?query=bioproject%3DPRJNA533106%20AND%20tax_rank%28species%29&result=taxon&includeEstimates=true&taxonomy=ncbi&size=5000&offset=0&fields=assembly_date%2Cassembly_level")
+          ]).then(([familySearchResult, speciesSearchResult]) => {
+            // Update data maps with search results
+            familyDataMap['Actual'] = familySearchResult.defaultData;
+            familyDataMap['YoY Growth'] = familySearchResult.percentData;
+            speciesDataMap['Actual'] = speciesSearchResult.defaultData;
+            speciesDataMap['YoY Growth'] = speciesSearchResult.percentData;
+            
+            // Cache the results
+            try {
+              const cacheData = {
+                family: familySearchResult,
+                species: speciesSearchResult,
+                timestamp: Date.now()
+              };
+              localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+              console.log('Data cached successfully');
+            } catch (e) {
+              console.warn('Failed to cache data:', e);
+            }
+            
+            window.searchDataLoaded = true;
+            hideLoadingIndicator();
+            
+            // Now switch to the requested view
+            switchToView(type);
+          }).catch(error => {
+            console.error('Error loading search data on demand:', error);
+            hideLoadingIndicator();
+            alert('Failed to load detailed data. Please try again.');
+          });
+          
+          return;
+        }
+        
+        switchToView(type);
+      }
+      
+      function switchToView(type) {
         const familyOption = familyChart.getOption();
         const speciesOption = speciesChart.getOption();
         familyOption.yAxis[0].name = `Count of Families (${type})`;
@@ -284,7 +452,38 @@
         
         familyChart.setOption(familyOption);
         speciesChart.setOption(speciesOption);
-        activeType = type
+        activeType = type;
+      }
+      
+      function showLoadingIndicator() {
+        // Add loading spinner to the page
+        const loadingDiv = document.createElement('div');
+        loadingDiv.id = 'loading-indicator';
+        loadingDiv.style.cssText = `
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: rgba(255, 255, 255, 0.9);
+          padding: 20px;
+          border-radius: 10px;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+          z-index: 10000;
+          font-family: Arial, sans-serif;
+          text-align: center;
+        `;
+        loadingDiv.innerHTML = `
+          <div style="font-size: 18px; margin-bottom: 10px;">Loading detailed data...</div>
+          <div style="font-size: 14px; color: #666;">This may take a few seconds</div>
+        `;
+        document.body.appendChild(loadingDiv);
+      }
+      
+      function hideLoadingIndicator() {
+        const loadingDiv = document.getElementById('loading-indicator');
+        if (loadingDiv) {
+          loadingDiv.remove();
+        }
       }
 
       function initEchart(data, containerId, yLabel) {

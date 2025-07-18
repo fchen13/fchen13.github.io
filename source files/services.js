@@ -346,3 +346,352 @@ async function fetchData(url) {
     }
     return filled;
   }
+
+  // New function to fetch and aggregate raw species search data
+  async function getSpeciesSearchData(searchUrl) {
+    try {
+      const startTime = performance.now();
+      console.log('Fetching species search data from:', searchUrl);
+      
+      const fetchStartTime = performance.now();
+      const response = await fetch(searchUrl);
+      if (!response.ok) {
+        console.error('HTTP error:', response.status, response.statusText);
+        throw new Error(`Failed to fetch search data: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      const fetchEndTime = performance.now();
+      console.log(`Species fetch time: ${(fetchEndTime - fetchStartTime).toFixed(2)}ms`);
+      
+      console.log('Search data received, data structure:', Object.keys(data));
+      console.log('Search data sample:', data);
+      
+      // Log the total count and structure
+      if (data.results) {
+        console.log('Total results:', data.results.length);
+        if (data.results.length > 0) {
+          console.log('First result structure:', Object.keys(data.results[0]));
+          console.log('First result sample:', data.results[0]);
+        }
+      } else {
+        console.log('No results field found in response');
+      }
+      
+      // Aggregate data by year and assembly level
+      const yearlyData = {};
+      const assemblyLevels = ['contig', 'scaffold', 'chromosome', 'complete genome'];
+      
+      // Mapping from API response values to our internal format
+      const assemblyLevelMapping = {
+        'contig': 'contig',
+        'scaffold': 'scaffold', 
+        'chromosome': 'chromosome',
+        'complete genome': 'complete genome'
+      };
+      
+      // Initialize yearly data structure
+      for (let year = 2002; year <= 2025; year++) {
+        yearlyData[year] = {
+          'contig': 0,
+          'scaffold': 0,
+          'chromosome': 0,
+          'complete genome': 0
+        };
+      }
+      
+      // Process search results
+      const processStartTime = performance.now();
+      if (data.results && data.results.length > 0) {
+        let processedCount = 0;
+        data.results.forEach(item => {
+          if (item.result && item.result.fields && 
+              item.result.fields.assembly_date && item.result.fields.assembly_level) {
+            
+            const assemblyDateValue = item.result.fields.assembly_date.value;
+            const assemblyLevelValue = item.result.fields.assembly_level.value;
+            
+            if (assemblyDateValue && assemblyLevelValue) {
+              const assemblyDate = new Date(assemblyDateValue);
+              const year = assemblyDate.getFullYear();
+              const assemblyLevel = assemblyLevelValue.toLowerCase(); // Convert to lowercase to match our mapping
+              
+              if (year >= 2002 && year <= 2025 && assemblyLevels.includes(assemblyLevel)) {
+                yearlyData[year][assemblyLevel]++;
+                processedCount++;
+              } else if (year >= 2002 && year <= 2025) {
+                // Log unrecognized assembly levels to help with debugging
+                console.log('Unrecognized assembly level:', assemblyLevelValue, 'for year', year);
+              }
+            }
+          }
+        });
+        console.log('Processed', processedCount, 'records from search results');
+      const processEndTime = performance.now();
+      console.log(`Species processing time: ${(processEndTime - processStartTime).toFixed(2)}ms`);
+      } else {
+        console.log('No results found in search data');
+      }
+      
+      // Convert to the format expected by the chart
+      const chartStartTime = performance.now();
+      const category = Array.from({length: 2025 - 2002 + 1}, (_, i) => 2002 + i);
+      const series = [];
+      
+      assemblyLevels.forEach(level => {
+        const yearlyValues = category.map(year => yearlyData[year][level]);
+        
+        // For actual data
+        const actualSeries = {
+          name: level,
+          type: "bar",
+          stack: "total",
+          label: {
+            show: false,
+          },
+          itemStyle: {
+            color: getAssemblyLevelColor(level),
+          },
+          barGap: '1px',
+          barCategoryGap: '1px',
+          data: yearlyValues
+        };
+        
+        const total = yearlyValues.reduce((sum, val) => sum + val, 0);
+        actualSeries.description = formatNumber(total);
+        series.push(actualSeries);
+      });
+      
+      // Calculate YoY growth data
+      const percentSeries = [];
+      assemblyLevels.forEach(level => {
+        const yearlyValues = category.map(year => yearlyData[year][level]);
+        const growthData = yearlyValues.map((item, index) => {
+          if (index === 0) return item > 0 ? 100 : 0;
+          const lastVal = yearlyValues[index - 1];
+          if (lastVal === 0) return item > 0 ? 100 : 0;
+          return ((item - lastVal) / lastVal * 100).toFixed(2);
+        });
+        
+        const percentSeriesItem = {
+          name: level,
+          type: "bar",
+          stack: "total",
+          label: {
+            show: false,
+          },
+          itemStyle: {
+            color: getAssemblyLevelColor(level),
+          },
+          barGap: '1px',
+          barCategoryGap: '1px',
+          data: growthData
+        };
+        
+        percentSeriesItem.description = formatNumber(0);
+        percentSeries.push(percentSeriesItem);
+      });
+      
+      const chartEndTime = performance.now();
+      console.log(`Species chart preparation time: ${(chartEndTime - chartStartTime).toFixed(2)}ms`);
+      
+      const result = {
+        defaultData: {
+          category,
+          series,
+          tableName: 'Count of Species (Actual)'
+        },
+        percentData: {
+          category,
+          series: percentSeries,
+          tableName: 'Count of Species (YoY Growth)'
+        }
+      };
+      
+      console.log('Final aggregated result:', result);
+      console.log('Sample yearly data for 2025:', yearlyData[2025]);
+      
+      const totalTime = performance.now() - startTime;
+      console.log(`Total species processing time: ${totalTime.toFixed(2)}ms`);
+      
+      return result;
+      
+    } catch (error) {
+      console.error('Error fetching species search data:', error);
+      throw error;
+    }
+  }
+
+  // Helper function to format numbers (if not already defined)
+  function formatNumber(num) {
+    if (typeof num !== 'number') return num;
+    return num.toLocaleString();
+  }
+
+  // New function to fetch and aggregate raw family search data
+  async function getFamilySearchData(searchUrl) {
+    try {
+      const startTime = performance.now();
+      console.log('Fetching family search data from:', searchUrl);
+      
+      const fetchStartTime = performance.now();
+      const response = await fetch(searchUrl);
+      if (!response.ok) {
+        console.error('HTTP error:', response.status, response.statusText);
+        throw new Error(`Failed to fetch family search data: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      const fetchEndTime = performance.now();
+      console.log(`Family fetch time: ${(fetchEndTime - fetchStartTime).toFixed(2)}ms`);
+      
+      console.log('Family search data received, data structure:', Object.keys(data));
+      console.log('Family search data sample:', data);
+      
+      // Log the total count and structure
+      if (data.results) {
+        console.log('Total family results:', data.results.length);
+        if (data.results.length > 0) {
+          console.log('First family result structure:', Object.keys(data.results[0]));
+          console.log('First family result sample:', data.results[0]);
+        }
+      } else {
+        console.log('No results field found in family response');
+      }
+      
+      // Aggregate data by year and assembly level
+      const yearlyData = {};
+      const assemblyLevels = ['contig', 'scaffold', 'chromosome', 'complete genome'];
+      
+      // Initialize yearly data structure (families start from 2004)
+      for (let year = 2004; year <= 2025; year++) {
+        yearlyData[year] = {
+          'contig': 0,
+          'scaffold': 0,
+          'chromosome': 0,
+          'complete genome': 0
+        };
+      }
+      
+      // Process search results
+      const processStartTime = performance.now();
+      if (data.results && data.results.length > 0) {
+        let processedCount = 0;
+        data.results.forEach(item => {
+          if (item.result && item.result.fields && 
+              item.result.fields.assembly_date && item.result.fields.assembly_level) {
+            
+            const assemblyDateValue = item.result.fields.assembly_date.value;
+            const assemblyLevelValue = item.result.fields.assembly_level.value;
+            
+            if (assemblyDateValue && assemblyLevelValue) {
+              const assemblyDate = new Date(assemblyDateValue);
+              const year = assemblyDate.getFullYear();
+              const assemblyLevel = assemblyLevelValue.toLowerCase();
+              
+              if (year >= 2004 && year <= 2025 && assemblyLevels.includes(assemblyLevel)) {
+                yearlyData[year][assemblyLevel]++;
+                processedCount++;
+              } else if (year >= 2004 && year <= 2025) {
+                console.log('Unrecognized family assembly level:', assemblyLevelValue, 'for year', year);
+              }
+            }
+          }
+        });
+        console.log('Processed', processedCount, 'family records from search results');
+      const processEndTime = performance.now();
+      console.log(`Family processing time: ${(processEndTime - processStartTime).toFixed(2)}ms`);
+      } else {
+        console.log('No results found in family search data');
+      }
+      
+      // Convert to the format expected by the chart
+      const chartStartTime = performance.now();
+      const category = Array.from({length: 2025 - 2004 + 1}, (_, i) => 2004 + i);
+      const series = [];
+      
+      assemblyLevels.forEach(level => {
+        const yearlyValues = category.map(year => yearlyData[year][level]);
+        
+        // For actual data
+        const actualSeries = {
+          name: level,
+          type: "bar",
+          stack: "total",
+          label: {
+            show: false,
+          },
+          itemStyle: {
+            color: getAssemblyLevelColor(level),
+          },
+          barGap: '1px',
+          barCategoryGap: '1px',
+          data: yearlyValues
+        };
+        
+        const total = yearlyValues.reduce((sum, val) => sum + val, 0);
+        actualSeries.description = formatNumber(total);
+        series.push(actualSeries);
+      });
+      
+      // Calculate YoY growth data
+      const percentSeries = [];
+      assemblyLevels.forEach(level => {
+        const yearlyValues = category.map(year => yearlyData[year][level]);
+        const growthData = yearlyValues.map((item, index) => {
+          if (index === 0) return item > 0 ? 100 : 0;
+          const lastVal = yearlyValues[index - 1];
+          if (lastVal === 0) return item > 0 ? 100 : 0;
+          return ((item - lastVal) / lastVal * 100).toFixed(2);
+        });
+        
+        const percentSeriesItem = {
+          name: level,
+          type: "bar",
+          stack: "total",
+          label: {
+            show: false,
+          },
+          itemStyle: {
+            color: getAssemblyLevelColor(level),
+          },
+          barGap: '1px',
+          barCategoryGap: '1px',
+          data: growthData
+        };
+        
+        percentSeriesItem.description = formatNumber(0);
+        percentSeries.push(percentSeriesItem);
+      });
+      
+      const chartEndTime = performance.now();
+      console.log(`Family chart preparation time: ${(chartEndTime - chartStartTime).toFixed(2)}ms`);
+      
+      const result = {
+        defaultData: {
+          category,
+          series,
+          tableName: 'Count of Families (Actual)'
+        },
+        percentData: {
+          category,
+          series: percentSeries,
+          tableName: 'Count of Families (YoY Growth)'
+        }
+      };
+      
+      console.log('Final family aggregated result:', result);
+      console.log('Sample family yearly data for 2025:', yearlyData[2025]);
+      
+      const totalTime = performance.now() - startTime;
+      console.log(`Total family processing time: ${totalTime.toFixed(2)}ms`);
+      
+      return result;
+      
+    } catch (error) {
+      console.error('Error fetching family search data:', error);
+      throw error;
+    }
+  }
+
+  // Make the functions available globally
+  window.getSpeciesSearchData = getSpeciesSearchData;
+  window.getFamilySearchData = getFamilySearchData;
