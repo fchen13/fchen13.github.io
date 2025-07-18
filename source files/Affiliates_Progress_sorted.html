@@ -38,13 +38,64 @@
             box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
             font-size: 14px;
         }
+        /* Loading indicator styles */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 80vh;
+            font-family: Arial, sans-serif;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .progress-text {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .error-message {
+            color: #e74c3c;
+            background-color: #fdeaea;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px auto;
+            max-width: 600px;
+            text-align: center;
+        }
     </style>
   </head>
   <body>
     <div class="container">
-   <div id="chartContainer1"></div>
-   <div id="chartContainer2"></div>
-   <div id="chartContainer3"></div>
+   <div id="chartContainer1">
+     <div class="loading">
+       <div class="spinner"></div>
+       <div class="progress-text">Loading species count data...</div>
+     </div>
+   </div>
+   <div id="chartContainer2">
+     <div class="loading">
+       <div class="spinner"></div>
+       <div class="progress-text">Loading genome size data...</div>
+     </div>
+   </div>
+   <div id="chartContainer3">
+     <div class="loading">
+       <div class="spinner"></div>
+       <div class="progress-text">Loading assembly span data...</div>
+     </div>
+   </div>
 
     <div id="footer">
         <div id="copyright">Data source: Genomes on a Tree (GoaT). Used with permission.</div>
@@ -56,98 +107,239 @@
         let chartInstance2 = null
         let chartInstance3 = null
 
-      window.onload = function () {
-        const finalReportUrl = 'https://goat.genomehubs.org/api/v2/report?report=histogram&x=tax_tree%282759%29%20AND%20long_list%20AND%20bioproject%3DPRJNA533106&rank=species&includeEstimates=false&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&xOpts=%2C%2C55%2C%2CEBP%20Affiliate&caption=Assemblies%20available%20on%20INSDC%20for%20target%20species%20across%20EBP-affiliated%20projects.%20Note%20that%20umbrella%20projects%20will%20inherit%20counts%20from%20their%20sub-projects%20and%20that%20overlapping%20targets%20sequenced%20by%20at%20least%20one%20EBP%20affiliate%20will%20appear%20as%20complete%20in%20all%20projects%20targeting%20that%20taxon&taxonomy=ncbi&result=taxon&queryId=vLCkKyxY2S'
-        fetchData(finalReportUrl).then(res => {
-          const categories = res.report.report.histogram.histograms.buckets.filter(item => (!!item))
-          const searchRequests = []
-          const validCategories = []
+      // Cache for API responses
+      const apiCache = new Map();
+      
+      // Configuration for API requests
+      const API_CONFIG = {
+        initialPageSize: 5000,  // Start with smaller size for faster initial load
+        maxPageSize: 10000,     // Maximum records per request
+        truncationWarningThreshold: 0.95 // Warn if we get >= 95% of requested records
+      };
+
+      // Enhanced fetch with caching and error handling
+      async function fetchDataWithCache(url, retries = 3) {
+        if (apiCache.has(url)) {
+          return apiCache.get(url);
+        }
+
+        for (let i = 0; i < retries; i++) {
+          try {
+            const response = await fetch(url);
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            apiCache.set(url, data);
+            return data;
+          } catch (error) {
+            if (i === retries - 1) throw error;
+            await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); // Exponential backoff
+          }
+        }
+      }
+
+      // Fetch all data for a project with automatic pagination if needed
+      async function fetchAllProjectData(projectId, projectName) {
+        let allResults = [];
+        let offset = 0;
+        let pageSize = API_CONFIG.initialPageSize;
+        let hasMoreData = true;
+        let totalFetched = 0;
+
+        while (hasMoreData) {
+          const searchUrl = `https://goat.genomehubs.org/api/v2/search?query=bioproject%3D${projectId}%20AND%20tax_rank%28species%29&result=taxon&includeEstimates=true&taxonomy=ncbi&size=${pageSize}&offset=${offset}&fields=genome_size%2Cassembly_level%2Cassembly_span`;
+          
+          const response = await fetchDataWithCache(searchUrl);
+          
+          if (response.results && response.results.length > 0) {
+            allResults = allResults.concat(response.results);
+            totalFetched += response.results.length;
+            
+            // Check if we might have more data
+            if (response.results.length >= pageSize * API_CONFIG.truncationWarningThreshold) {
+              // Likely hitting the limit, fetch more
+              offset += pageSize;
+              // Increase page size for subsequent requests for better efficiency
+              pageSize = Math.min(API_CONFIG.maxPageSize, pageSize * 1.5);
+            } else {
+              hasMoreData = false;
+            }
+          } else {
+            hasMoreData = false;
+          }
+
+          // Safety check to prevent infinite loops
+          if (offset > 50000) {
+            console.warn(`${projectName}: Stopped fetching after 50,000 records. Data may be incomplete.`);
+            break;
+          }
+        }
+
+        return {
+          results: allResults,
+          totalFetched: totalFetched,
+          projectName: projectName
+        };
+      }
+
+      // Show warning for potential data truncation
+      function showDataWarning(projects) {
+        const warningProjects = projects.filter(p => p.totalFetched >= API_CONFIG.initialPageSize * API_CONFIG.truncationWarningThreshold);
+        
+        if (warningProjects.length > 0) {
+          const warningDiv = document.createElement('div');
+          warningDiv.className = 'data-warning';
+          warningDiv.innerHTML = `
+            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 10px; margin: 10px auto; max-width: 800px; font-size: 14px;">
+              <strong>📊 Large Dataset Notice:</strong> Some projects have extensive data:
+              <ul style="margin: 5px 0; padding-left: 20px;">
+                ${warningProjects.map(p => `<li><strong>${p.projectName}:</strong> ${p.totalFetched.toLocaleString()} records loaded</li>`).join('')}
+              </ul>
+              All available data has been included in the visualization.
+            </div>
+          `;
+          document.querySelector('.container').insertBefore(warningDiv, document.getElementById('chartContainer1'));
+        }
+      }
+
+      // Show error message
+      function showError(containerId, message) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = `<div class="error-message">Error: ${message}</div>`;
+      }
+
+      // Update progress text
+      function updateProgress(containerId, text) {
+        const container = document.getElementById(containerId);
+        const progressText = container.querySelector('.progress-text');
+        if (progressText) {
+          progressText.textContent = text;
+        }
+      }
+
+      window.onload = async function () {
+        try {
+          // Update progress
+          updateProgress('chartContainer1', 'Fetching project categories...');
+          updateProgress('chartContainer2', 'Fetching project categories...');
+          updateProgress('chartContainer3', 'Fetching project categories...');
+
+          const finalReportUrl = 'https://goat.genomehubs.org/api/v2/report?report=histogram&x=tax_tree%282759%29%20AND%20long_list%20AND%20bioproject%3DPRJNA533106&rank=species&includeEstimates=false&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&xOpts=%2C%2C55%2C%2CEBP%20Affiliate&caption=Assemblies%20available%20on%20INSDC%20for%20target%20species%20across%20EBP-affiliated%20projects.%20Note%20that%20umbrella%20projects%20will%20inherit%20counts%20from%20their%20sub-projects%20and%20that%20overlapping%20targets%20sequenced%20by%20at%20least%20one%20EBP%20affiliate%20will%20appear%20as%20complete%20in%20all%20projects%20targeting%20that%20taxon&taxonomy=ncbi&result=taxon&queryId=vLCkKyxY2S'
+          
+          const res = await fetchDataWithCache(finalReportUrl);
+          const categories = res.report.report.histogram.histograms.buckets.filter(item => (!!item));
+          
+          const projectsToFetch = [];
+          const validCategories = [];
           
           categories.forEach(projectName => {
-            const projectId = projectsMap[projectName]
+            const projectId = projectsMap[projectName];
             if(projectId) {
-                  const searchUrl = `https://goat.genomehubs.org/api/v2/search?query=bioproject%3D${projectId}%20AND%20tax_rank%28species%29&result=taxon&includeEstimates=true&taxonomy=ncbi&size=9900&offset=0&fields=genome_size%2Cassembly_level%2Cassembly_span`
-                  validCategories.push(projectName)
-                  searchRequests.push(fetchData(searchUrl))
-                }
-              })
-              
-              const speciesCounts = { 'chromosome': [], 'complete genome': [], 'contig': [], 'scaffold': [] }
-              const genomes = { 'chromosome': [], 'complete genome': [], 'contig': [], 'scaffold': [] }
-              const assemblies = { 'chromosome': [], 'complete genome': [], 'contig': [], 'scaffold': [] }
+              validCategories.push(projectName);
+              projectsToFetch.push({ projectId, projectName });
+            }
+          });
 
-              Promise.all(searchRequests).then(results => {
-                results.forEach((projectResult, index) => {
-                  // Initialize counts and sums for this project to 0
-                  Object.keys(speciesCounts).forEach(key => speciesCounts[key][index] = 0);
-                  Object.keys(genomes).forEach(key => genomes[key][index] = 0);
-                  Object.keys(assemblies).forEach(key => assemblies[key][index] = 0);
+          // Update progress
+          updateProgress('chartContainer1', `Fetching data for ${projectsToFetch.length} projects...`);
+          updateProgress('chartContainer2', `Fetching data for ${projectsToFetch.length} projects...`);
+          updateProgress('chartContainer3', `Fetching data for ${projectsToFetch.length} projects...`);
 
-                  if (projectResult.results) {
-                      projectResult.results.forEach(item => {
-                        const { genome_size, assembly_span, assembly_level } = item.result.fields;
-                        if (assembly_level && assembly_level.value) {
-                          const level = assembly_level.value.toLowerCase();
-                          const genome = genome_size ? genome_size.value : 0;
-                          const assembly = assembly_span ? assembly_span.value : 0;
-                          
-                          if (speciesCounts.hasOwnProperty(level)) {
-                            speciesCounts[level][index]++;
-                            genomes[level][index] += genome;
-                            assemblies[level][index] += assembly;
-                          }
-                        }
-                      });
-                  }
-                });
+          // Pre-initialize data structures
+          const speciesCounts = {
+            'chromosome': new Array(validCategories.length).fill(0),
+            'complete genome': new Array(validCategories.length).fill(0),
+            'contig': new Array(validCategories.length).fill(0),
+            'scaffold': new Array(validCategories.length).fill(0)
+          };
+          const genomes = {
+            'chromosome': new Array(validCategories.length).fill(0),
+            'complete genome': new Array(validCategories.length).fill(0),
+            'contig': new Array(validCategories.length).fill(0),
+            'scaffold': new Array(validCategories.length).fill(0)
+          };
+          const assemblies = {
+            'chromosome': new Array(validCategories.length).fill(0),
+            'complete genome': new Array(validCategories.length).fill(0),
+            'contig': new Array(validCategories.length).fill(0),
+            'scaffold': new Array(validCategories.length).fill(0)
+          };
+
+          // Fetch all project data with automatic pagination
+          const projectPromises = projectsToFetch.map((project, index) => {
+            updateProgress('chartContainer1', `Fetching ${project.projectName} data... (${index + 1}/${projectsToFetch.length})`);
+            updateProgress('chartContainer2', `Fetching ${project.projectName} data... (${index + 1}/${projectsToFetch.length})`);
+            updateProgress('chartContainer3', `Fetching ${project.projectName} data... (${index + 1}/${projectsToFetch.length})`);
+            return fetchAllProjectData(project.projectId, project.projectName);
+          });
+
+          const results = await Promise.all(projectPromises);
+          
+          // Show data warning if needed
+          showDataWarning(results);
+          
+          updateProgress('chartContainer1', 'Processing species count data...');
+          updateProgress('chartContainer2', 'Processing genome size data...');
+          updateProgress('chartContainer3', 'Processing assembly span data...');
+
+          // Optimized data processing
+          results.forEach((projectResult, index) => {
+            if (projectResult.results) {
+              projectResult.results.forEach(item => {
+                const fields = item.result.fields;
+                const assemblyLevel = fields.assembly_level;
                 
-                const myData1 = {
-                    report: {
-                        report: {
-                            yLabel: "Count of species",
-                            histogram: {
-                                histograms: {
-                                    byCat: speciesCounts,
-                                    buckets: []
-                                }
-                            }
-                        }
-                    }
+                if (assemblyLevel && assemblyLevel.value) {
+                  const level = assemblyLevel.value.toLowerCase();
+                  
+                  if (speciesCounts.hasOwnProperty(level)) {
+                    speciesCounts[level][index]++;
+                    genomes[level][index] += fields.genome_size ? fields.genome_size.value : 0;
+                    assemblies[level][index] += fields.assembly_span ? fields.assembly_span.value : 0;
+                  }
                 }
-                const { series: series1 } = getDefaultStackedBarData(myData1)
-                const title1 = 'Count of species'
-                chartInstance1 = initEchart({series: series1, categories: validCategories}, 'chartContainer1', title1)
+              });
+            }
+          });
 
-                const myData2 = {
-                    report: {
-                        report: {
-                            yLabel: "Sum of genome_size",
-                            histogram: {
-                                histograms: {
-                                    byCat: genomes,
-                                    buckets: []
-                                }
-                            }
-                        }
-                    }
-                }
-                const myData3 = {
-                    report: {
-                        report: {
-                            yLabel: "Sum of assembly_span",
-                            histogram: {
-                                histograms: {
-                                    byCat: assemblies,
-                                    buckets: []
-                                }
-                            }
-                        }
-                    }
-                }
-                  chartInstance2 = initEchart({series: getDefaultStackedBarData(myData2).series, categories: validCategories}, 'chartContainer2', 'Sum of genome_size')
-                  chartInstance3 = initEchart({series: getDefaultStackedBarData(myData3).series, categories: validCategories}, 'chartContainer3', 'Sum of assembly_span')
-            })
-        })
+          // Create chart data structures
+          const chartData = [
+            {
+              data: { report: { report: { yLabel: "Count of species", histogram: { histograms: { byCat: speciesCounts, buckets: [] } } } } },
+              title: 'Count of species',
+              containerId: 'chartContainer1'
+            },
+            {
+              data: { report: { report: { yLabel: "Sum of genome_size", histogram: { histograms: { byCat: genomes, buckets: [] } } } } },
+              title: 'Sum of genome_size',
+              containerId: 'chartContainer2'
+            },
+            {
+              data: { report: { report: { yLabel: "Sum of assembly_span", histogram: { histograms: { byCat: assemblies, buckets: [] } } } } },
+              title: 'Sum of assembly_span',
+              containerId: 'chartContainer3'
+            }
+          ];
+
+          // Initialize charts
+          chartData.forEach((chart, index) => {
+            updateProgress(chart.containerId, `Rendering ${chart.title.toLowerCase()}...`);
+            
+            const { series } = getDefaultStackedBarData(chart.data);
+            const chartInstance = initEchart({series: series, categories: validCategories}, chart.containerId, chart.title);
+            
+            if (index === 0) chartInstance1 = chartInstance;
+            else if (index === 1) chartInstance2 = chartInstance;
+            else chartInstance3 = chartInstance;
+          });
+
+        } catch (error) {
+          console.error('Error loading data:', error);
+          showError('chartContainer1', 'Failed to load data. Please try refreshing the page.');
+          showError('chartContainer2', 'Failed to load data. Please try refreshing the page.');
+          showError('chartContainer3', 'Failed to load data. Please try refreshing the page.');
+        }
       };
 
       function initEchart(data, containerId, yLabel) {
@@ -205,7 +397,7 @@
               fontWeight: 'bold',
             }
           },
-          color: ['#FF0000', '#00FF00', '#0000FF', '#FFA500'], // Higher contrast colors with distinct color for complete genome
+          color: ['#ffff33', '#22a884', '#404387', '#7ad151'], // Colors from progress_Family_Species.html: contig, scaffold, chromosome, complete genome
           grid: {
             left: '7%',  // Decreased left margin
             right: '2%',
