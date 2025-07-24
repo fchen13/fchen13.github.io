@@ -5,6 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="./favicon.jpg">
     <title>Earth BioGenome Project - Dashboard</title>
+    
+    <!-- Google Analytics 4 -->
+    <!-- Replace YOUR_GA4_MEASUREMENT_ID with your actual GA4 Measurement ID -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N9WF546FSK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        
+        // Configure GA4 with enhanced measurement
+        gtag('config', 'G-N9WF546FSK', {
+            // Enhanced measurement settings
+            enhanced_measurements: {
+                scrolls: true,
+                outbound_clicks: true,
+                site_search: false,
+                video_engagement: false,
+                file_downloads: true
+            },
+            // Custom parameters
+            custom_map: {
+                'custom_parameter_1': 'dashboard_category',
+                'custom_parameter_2': 'visualization_type'
+            }
+        });
+        
+        // Track page load
+        gtag('event', 'page_load', {
+            event_category: 'dashboard',
+            event_label: 'main_dashboard',
+            value: 1
+        });
+    </script>
+    
     <!-- Add Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -199,10 +233,150 @@
 
     <script src="config.js"></script>
     <script>
-        // Load dashboard content
+        // GA4 Event Tracking Functions
+        function trackEvent(eventName, parameters = {}) {
+            if (typeof gtag !== 'undefined') {
+                gtag('event', eventName, parameters);
+            }
+        }
+
+        // Track session start time for duration calculation
+        const sessionStartTime = Date.now();
+
+        // Track visualization clicks
+        function trackVisualizationClick(category, name, file) {
+            trackEvent('visualization_click', {
+                event_category: 'dashboard_interaction',
+                event_label: name,
+                custom_parameter_1: category,
+                custom_parameter_2: 'html_visualization',
+                file_path: file,
+                value: 1
+            });
+        }
+
+        // Track hover events with debouncing
+        let hoverTimeout;
+        function trackHover(category, name) {
+            clearTimeout(hoverTimeout);
+            hoverTimeout = setTimeout(() => {
+                trackEvent('visualization_hover', {
+                    event_category: 'user_engagement',
+                    event_label: name,
+                    custom_parameter_1: category,
+                    value: 1
+                });
+            }, 500); // Track hover after 500ms
+        }
+
+        // Track category engagement
+        function trackCategoryView(categoryName) {
+            trackEvent('category_view', {
+                event_category: 'dashboard_navigation',
+                event_label: categoryName,
+                value: 1
+            });
+        }
+
+        // Track session duration on page unload
+        window.addEventListener('beforeunload', function() {
+            const sessionDuration = Math.round((Date.now() - sessionStartTime) / 1000);
+            trackEvent('session_duration', {
+                event_category: 'user_engagement',
+                event_label: 'dashboard_session',
+                value: sessionDuration
+            });
+        });
+
+        // Track scroll depth
+        let maxScrollDepth = 0;
+        window.addEventListener('scroll', function() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            const scrollDepth = Math.round((scrollTop + windowHeight) / documentHeight * 100);
+            
+            if (scrollDepth > maxScrollDepth) {
+                maxScrollDepth = scrollDepth;
+                
+                // Track milestone scroll depths
+                if (scrollDepth >= 25 && scrollDepth < 50 && maxScrollDepth < 50) {
+                    trackEvent('scroll_depth', {
+                        event_category: 'user_engagement',
+                        event_label: '25_percent',
+                        value: 25
+                    });
+                } else if (scrollDepth >= 50 && scrollDepth < 75 && maxScrollDepth < 75) {
+                    trackEvent('scroll_depth', {
+                        event_category: 'user_engagement',
+                        event_label: '50_percent',
+                        value: 50
+                    });
+                } else if (scrollDepth >= 75 && scrollDepth < 100 && maxScrollDepth < 100) {
+                    trackEvent('scroll_depth', {
+                        event_category: 'user_engagement',
+                        event_label: '75_percent',
+                        value: 75
+                    });
+                } else if (scrollDepth >= 100) {
+                    trackEvent('scroll_depth', {
+                        event_category: 'user_engagement',
+                        event_label: '100_percent',
+                        value: 100
+                    });
+                }
+            }
+        });
+
+        // Enhanced device and performance tracking
+        function trackDeviceInfo() {
+            const deviceInfo = {
+                screen_resolution: `${screen.width}x${screen.height}`,
+                viewport_size: `${window.innerWidth}x${window.innerHeight}`,
+                color_depth: screen.colorDepth,
+                pixel_ratio: window.devicePixelRatio || 1,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                language: navigator.language,
+                platform: navigator.platform,
+                connection_type: navigator.connection ? navigator.connection.effectiveType : 'unknown'
+            };
+
+            trackEvent('device_info', {
+                event_category: 'technical_metrics',
+                event_label: 'device_specifications',
+                ...deviceInfo
+            });
+        }
+
+        // Track page performance
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if (window.performance && window.performance.timing) {
+                    const timing = window.performance.timing;
+                    const loadTime = timing.loadEventEnd - timing.navigationStart;
+                    const domContentLoaded = timing.domContentLoadedEventEnd - timing.navigationStart;
+                    
+                    trackEvent('page_performance', {
+                        event_category: 'technical_metrics',
+                        event_label: 'load_time',
+                        page_load_time: loadTime,
+                        dom_content_loaded: domContentLoaded,
+                        value: Math.round(loadTime / 1000)
+                    });
+                }
+                
+                // Track device info after page load
+                trackDeviceInfo();
+            }, 1000);
+        });
+
+        // Load dashboard content with tracking
         const container = document.getElementById('content-container');
 
         pages.forEach(category => {
+            // Track category creation
+            trackCategoryView(category.category);
+
             // Create category container
             const categoryDiv = document.createElement('div');
             categoryDiv.classList.add('category');
@@ -217,13 +391,33 @@
             const linksContainer = document.createElement('div');
             linksContainer.classList.add('links-container');
 
-            // Add links for this category
+            // Add links for this category with tracking
             category.pages.forEach(page => {
                 const link = document.createElement('a');
                 link.classList.add('link');
                 link.href = page.file;
                 link.target = '_blank';
                 link.title = page.description;
+
+                // Add click tracking
+                link.addEventListener('click', function(e) {
+                    trackVisualizationClick(category.category, page.name, page.file);
+                });
+
+                // Add hover tracking
+                link.addEventListener('mouseenter', function() {
+                    trackHover(category.category, page.name);
+                });
+
+                // Add focus tracking for accessibility
+                link.addEventListener('focus', function() {
+                    trackEvent('visualization_focus', {
+                        event_category: 'accessibility',
+                        event_label: page.name,
+                        custom_parameter_1: category.category,
+                        value: 1
+                    });
+                });
 
                 // Add icon
                 const icon = document.createElement('i');
@@ -252,6 +446,15 @@
 
             categoryDiv.appendChild(linksContainer);
             container.appendChild(categoryDiv);
+        });
+
+        // Track dashboard load completion
+        trackEvent('dashboard_loaded', {
+            event_category: 'dashboard',
+            event_label: 'content_ready',
+            categories_count: pages.length,
+            total_visualizations: pages.reduce((sum, cat) => sum + cat.pages.length, 0),
+            value: 1
         });
     </script>
 </body>
