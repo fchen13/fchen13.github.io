@@ -33,21 +33,9 @@ const pages = [
         icon: "fa-rainbow"
       },
       {
-        name: "Phylogenomic Display of Progress at Order Level",
-        file: "./source files/PhyloTree_order.html",
-        description: "Phylogenomic tree of orders with at least one species sequenced by EBP",
-        icon: "fa-tree"
-      },
-      {
         name: "Progress by Phylum Groups",
         file: "./source files/progress_Phylum_v2.html",
         description: "Number of eukaryotic species sequenced by EBP grouped by phylum",
-        icon: "fa-chart-column"
-      },
-      {
-        name: "Affiliate Progress",
-        file: "./source files/Affiliates_Progress_sorted.html",
-        description: "Assembly progress across EBP affiliate projects",
         icon: "fa-chart-column"
       },
       {
@@ -55,6 +43,18 @@ const pages = [
         file: "./source files/progress_EBPmetrics.html",
         description: "EBP's contribution to assemblies meeting EBP quality metrics at species, genus, and family levels",
         icon: "fa-chart-bar"
+      },
+      {
+        name: "Phylogenomic Display of Progress at Order Level",
+        file: "./source files/PhyloTree_order.html",
+        description: "Phylogenomic tree of orders with at least one species sequenced by EBP",
+        icon: "fa-tree"
+      },
+      {
+        name: "Affiliate Progress",
+        file: "./source files/Affiliates_Progress_sorted.html",
+        description: "Assembly progress across EBP affiliate projects",
+        icon: "fa-chart-column"
       }
     ]
   },
@@ -62,16 +62,16 @@ const pages = [
     category: "Network Visualization", 
     pages: [
       {
-        name: "Global Distribution",
-        file: "./source files/projectsMap.html",
-        description: "Geographic distribution of EBP affiliates",
-        icon: "fa-globe"
-      },
-      {
         name: "Affiliate Network",
         file: "./source files/WireMaps.html",
         description: "Wired map showing EBP and affiliate network connections",
         icon: "fa-network-wired" 
+      },
+      {
+        name: "Global Distribution",
+        file: "./source files/projectsMap.html",
+        description: "Geographic distribution of EBP affiliates",
+        icon: "fa-globe"
       }
     ]
   }
