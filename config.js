@@ -39,9 +39,9 @@ const pages = [
         icon: "fa-chart-column"
       },
       {
-        name: "EBP Contribution to Assemblies Meeting EBP Metrics",
+        name: "Genome Assemblies Meeting EBP-standard Metrics",
         file: "./source files/progress_EBPmetrics.html",
-        description: "EBP's contribution to assemblies meeting EBP quality metrics at species, genus, and family levels",
+        description: "Contribution of EBP to assemblies meeting EBP-standard metrics at all taxonomic levels",
         icon: "fa-chart-bar"
       },
       {
