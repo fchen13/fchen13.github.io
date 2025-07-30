@@ -307,9 +307,29 @@
       window.testSpeciesAPI = testSpeciesAPI;
       window.testFamilyAPI = testFamilyAPI;
       window.clearCache = clearCache;
+      // Function to initialize both charts after all data is loaded
+      function initializeChartsAfterDataLoaded() {
+        // Check if both datasets are available
+        if (familyDataMap[activeType] && speciesDataMap[activeType]) {
+          console.log('Both datasets loaded, initializing charts with optimal start year...');
+          
+          // Now we can calculate the optimal start year with both datasets available
+          familyChart = initEchart(familyDataMap[activeType], 'familyProgressContainer', `Count of Families (${activeType})`);
+          speciesChart = initEchart(speciesDataMap[activeType], 'speciesProgressContainer', `Count of Species (${activeType})`);
+          
+          // Hide loading indicators for both charts after they are created
+          hideLoadingIndicator('familyProgressContainer');
+          hideLoadingIndicator('speciesProgressContainer');
+        }
+      }
+
       window.onload = function () {
         console.log('=== WINDOW.ONLOAD STARTED ===');
         console.log('Active type:', activeType);
+        
+        // Show loading indicators for both charts
+        showLoadingIndicator('familyProgressContainer');
+        showLoadingIndicator('speciesProgressContainer');
         
         // Family Progress - Load search data to ensure 2025 data is included
         console.log('Starting family data fetch from search endpoint...');
@@ -317,7 +337,7 @@
         
         // Load actual data from search endpoint and calculate cumulative from it
         console.log('Loading family search data to calculate accurate cumulative...');
-        window.getFamilySearchData(familySearchUrl).then(({defaultData, percentData}) => {
+        const familyDataPromise = window.getFamilySearchData(familySearchUrl).then(({defaultData, percentData}) => {
           console.log('Family search data loaded, calculating cumulative...');
           
           // Calculate cumulative from actual data to ensure 2025 is included
@@ -331,9 +351,12 @@
           console.log('Family cumulative data calculated from actual data');
           console.log('Sample cumulative data for verification:', cumulativeData);
           
-          familyChart = initEchart(familyDataMap[activeType], 'familyProgressContainer', `Count of Families (${activeType})`);
+          // Try to initialize charts after family data is loaded
+          initializeChartsAfterDataLoaded();
         }).catch(error => {
           console.error('Error loading family search data:', error);
+          // Show error message for family chart
+          showErrorMessage('familyProgressContainer', 'family');
         });
 
         // Species Progress - Load search data to ensure 2025 data is included
@@ -343,12 +366,9 @@
         console.log('Starting species data fetch from search endpoint...');
         console.log('Species search URL:', speciesSearchUrl);
         
-        // Show loading indicator for species chart
-        showSpeciesLoadingIndicator();
-        
         // Load actual data from search endpoint and calculate cumulative from it
         console.log('Loading species search data to calculate accurate cumulative...');
-        window.getSpeciesSearchData(speciesSearchUrl).then(({defaultData, percentData}) => {
+        const speciesDataPromise = window.getSpeciesSearchData(speciesSearchUrl).then(({defaultData, percentData}) => {
           console.log('Species search data loaded, calculating cumulative...');
           
           // Calculate cumulative from actual data to ensure 2025 is included
@@ -362,15 +382,13 @@
           console.log('Species cumulative data calculated from actual data');
           console.log('Sample cumulative data for verification:', cumulativeData);
           
-          speciesChart = initEchart(speciesDataMap[activeType], 'speciesProgressContainer', `Count of Species (${activeType})`);
-          
-          // Hide loading indicator after chart is created
-          hideSpeciesLoadingIndicator();
+          // Try to initialize charts after species data is loaded
+          initializeChartsAfterDataLoaded();
         }).catch(error => {
           console.error('Error loading species search data:', error);
           // Hide loading indicator on error and show error message
-          hideSpeciesLoadingIndicator();
-          showSpeciesErrorMessage();
+          hideLoadingIndicator('speciesProgressContainer');
+          showErrorMessage('speciesProgressContainer', 'species');
         });
       };
 
@@ -409,13 +427,33 @@
         familyOption.yAxis[0].name = `Count of Families (${type})`;
         speciesOption.yAxis[0].name = `Count of Species (${type})`;
         
-        // Apply consistent ordering to series data
-        familyOption.series = applyConsistentOrdering(familyDataMap[type].series, 'familyProgressContainer');
-        speciesOption.series = applyConsistentOrdering(speciesDataMap[type].series, 'speciesProgressContainer');
+        // Update activeType before calculating start year
+        activeType = type;
+        
+        // Calculate optimal start year for each chart independently
+        const familyStartYear = findOptimalStartYearForData(familyDataMap[type], 'Family');
+        const speciesStartYear = findOptimalStartYearForData(speciesDataMap[type], 'Species');
+        const endYear = 2025;
+        
+        console.log(`Switching to ${type}: Family starts ${familyStartYear}, Species starts ${speciesStartYear}`);
+        
+        // Generate year ranges for each chart
+        const familyYearRange = Array.from({length: endYear - familyStartYear + 1}, (_, i) => familyStartYear + i);
+        const speciesYearRange = Array.from({length: endYear - speciesStartYear + 1}, (_, i) => speciesStartYear + i);
+        
+        // Update x-axis data with independent year ranges
+        familyOption.xAxis[0].data = familyYearRange;
+        speciesOption.xAxis[0].data = speciesYearRange;
+        
+        // Trim and apply consistent ordering to series data
+        const trimmedFamilySeries = trimSeriesToStartYear(familyDataMap[type].series, familyStartYear, 'familyProgressContainer');
+        const trimmedSpeciesSeries = trimSeriesToStartYear(speciesDataMap[type].series, speciesStartYear, 'speciesProgressContainer');
+        
+        familyOption.series = applyConsistentOrdering(trimmedFamilySeries, 'familyProgressContainer');
+        speciesOption.series = applyConsistentOrdering(trimmedSpeciesSeries, 'speciesProgressContainer');
         
         familyChart.setOption(familyOption);
         speciesChart.setOption(speciesOption);
-        activeType = type;
       }
       
       // Helper function to format numbers (used in calculateCumulativeFromActual)
@@ -424,11 +462,11 @@
         return num.toLocaleString();
       }
       
-      // Loading indicator functions for species chart
-      function showSpeciesLoadingIndicator() {
-        const speciesContainer = document.getElementById('speciesProgressContainer');
-        if (speciesContainer) {
-          speciesContainer.innerHTML = `
+      // Generic loading indicator functions for both charts
+      function showLoadingIndicator(containerId) {
+        const container = document.getElementById(containerId);
+        if (container) {
+          container.innerHTML = `
             <div style="
               display: flex;
               flex-direction: column;
@@ -453,7 +491,7 @@
                 font-size: 16px;
                 font-weight: normal;
                 color: #666;
-              ">Fetching species data...</div>
+              ">Fetching data...</div>
             </div>
             <style>
               @keyframes spin {
@@ -465,15 +503,15 @@
         }
       }
       
-      function hideSpeciesLoadingIndicator() {
+      function hideLoadingIndicator(containerId) {
         // Don't clear the container - let echarts.init() handle replacing the content
         // The loading indicator will be automatically replaced when the chart is initialized
       }
       
-      function showSpeciesErrorMessage() {
-        const speciesContainer = document.getElementById('speciesProgressContainer');
-        if (speciesContainer) {
-          speciesContainer.innerHTML = `
+      function showErrorMessage(containerId, dataType) {
+        const container = document.getElementById(containerId);
+        if (container) {
+          container.innerHTML = `
             <div style="
               display: flex;
               flex-direction: column;
@@ -490,7 +528,7 @@
                 font-size: 18px;
                 margin-bottom: 10px;
                 font-weight: bold;
-              ">Failed to load species data</div>
+              ">Failed to load ${dataType} data</div>
               <div style="
                 font-size: 14px;
                 color: #721c24;
@@ -501,12 +539,106 @@
         }
       }
 
+      // Backward compatibility functions (deprecated)
+      function showSpeciesLoadingIndicator() {
+        showLoadingIndicator('speciesProgressContainer');
+      }
+      
+      function hideSpeciesLoadingIndicator() {
+        hideLoadingIndicator('speciesProgressContainer');
+      }
+      
+      function showSpeciesErrorMessage() {
+        showErrorMessage('speciesProgressContainer', 'species');
+      }
+
+      // Function to find the first year with non-zero counts for a specific data type
+      function findOptimalStartYearForData(data, dataType) {
+        // Use correct original start years based on the original hardcoded values
+        const originalStartYear = dataType === 'Family' ? 2004 : 2002;
+        const endYear = 2025;
+        
+        if (!data || !data.series || data.series.length === 0) {
+          console.log(`No data available for ${dataType}, using original start year: ${originalStartYear}`);
+          return originalStartYear;
+        }
+        
+        // Find the first year where this data type has non-zero counts
+        for (let year = originalStartYear; year <= endYear; year++) {
+          const yearIndex = year - originalStartYear;
+          
+          // Check if this year index exists in the data and has non-zero values
+          for (let series of data.series) {
+            if (series.data && 
+                yearIndex < series.data.length && 
+                series.data[yearIndex] && 
+                series.data[yearIndex] > 0) {
+              console.log(`${dataType} optimal start year found: ${year} (first non-zero data)`);
+              return year;
+            }
+          }
+        }
+        
+        console.log(`${dataType} using original start year: ${originalStartYear} (no non-zero data found)`);
+        return originalStartYear;
+      }
+
+      // Function to find the optimal start year (takes the later of family and species start years)
+      function findOptimalStartYear() {
+        // Check if both data sets are available
+        if (!familyDataMap[activeType] || !speciesDataMap[activeType]) {
+          return 2004; // Use family start year as default since it's later
+        }
+        
+        const familyStartYear = findOptimalStartYearForData(familyDataMap[activeType], 'Family');
+        const speciesStartYear = findOptimalStartYearForData(speciesDataMap[activeType], 'Species');
+        
+        // Use the later of the two start years to ensure both charts have meaningful data
+        const optimalStartYear = Math.max(familyStartYear, speciesStartYear);
+        console.log(`Combined optimal start year: ${optimalStartYear} (Family: ${familyStartYear}, Species: ${speciesStartYear})`);
+        
+        return optimalStartYear;
+      }
+
+      // Function to trim series data to match the optimal start year
+      function trimSeriesToStartYear(series, startYear, containerId) {
+        // Original start years differ between charts based on the original hardcoded values
+        const originalStartYear = containerId === 'familyProgressContainer' ? 2004 : 2002;
+        const skipYears = startYear - originalStartYear;
+        
+        console.log(`Trimming ${containerId}: originalStartYear=${originalStartYear}, newStartYear=${startYear}, skipYears=${skipYears}`);
+        
+        // Only skip years if the optimal start year is later than the original start year
+        if (skipYears > 0) {
+          return series.map(s => ({
+            ...s,
+            data: s.data.slice(skipYears) // Remove data points before the optimal start year
+          }));
+        } else {
+          // If optimal start year is same or earlier, return original series
+          return series;
+        }
+      }
+
       function initEchart(data, containerId, yLabel) {
         const chartDom = document.getElementById(containerId);
         const myChart = echarts.init(chartDom);
 
+        // Determine optimal start year for this specific chart
+        const dataType = containerId === 'familyProgressContainer' ? 'Family' : 'Species';
+        const startYear = findOptimalStartYearForData(data, dataType);
+        const endYear = 2025;
+        
+        console.log(`${dataType} chart using start year: ${startYear}`);
+        
+        // Generate year range from optimal start year to end year
+        const yearRange = Array.from({length: endYear - startYear + 1}, (_, i) => startYear + i);
+
+        // Trim series data to match the optimal start year
+        const trimmedSeries = trimSeriesToStartYear(data.series, startYear, containerId);
+
         // Apply consistent ordering and colors to series data using helper function
-        const seriesWithColors = applyConsistentOrdering(data.series, containerId);
+        const seriesWithColors = applyConsistentOrdering(trimmedSeries, containerId);
 
         // Get the actual order of categories from the reordered series
         const actualOrder = seriesWithColors.map(series => series.name);
@@ -575,9 +707,7 @@
           },
           xAxis: {
             type: "category",
-            data: containerId === 'familyProgressContainer'
-              ? Array.from({length: 2025 - 2004 + 1}, (_, i) => 2004 + i) // Family: 2004-2025
-              : Array.from({length: 2025 - 2002 + 1}, (_, i) => 2002 + i), // Species: 2002-2025
+            data: yearRange, // Use dynamic year range based on data
             axisLine: {
               show: true,
               lineStyle: {
