@@ -84,6 +84,11 @@
        <div class="progress-text">Loading species count data...</div>
      </div>
    </div>
+   
+   <!-- Disclaimer moved to bottom of chart container -->
+   <div id="disclaimer" style="margin-top: 10px; text-align: center; color: #333; font-size: 16px;">
+       Disclaimer: There may be double counting due to project nesting and collaborative projects where multiple projects take credit for a single assembly.
+   </div>
    <!-- <div id="chartContainer2">
      <div class="loading">
        <div class="spinner"></div>
@@ -234,7 +239,7 @@
           const validCategories = [];
           
           categories.forEach(projectName => {
-            const projectId = projectsMap[projectName];
+            const projectId = projectsList[projectName];
             if(projectId) {
               validCategories.push(projectName);
               projectsToFetch.push({ projectId, projectName });

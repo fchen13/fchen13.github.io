@@ -7,7 +7,7 @@
     <script src="./echarts.min.js"></script>
     <script src="./utils.js"></script>
     <script src="./services.js"></script>
-    <script src="./projectsMap.js"></script>
+    <script src="./projectsList.js"></script>
     <style>
         #chartContainer1,
         #chartContainer2,
@@ -50,7 +50,7 @@
           const validCategories = []
           const projectIds = []
           categories.forEach(projectName => {
-            const projectId = projectsMap[projectName]
+            const projectId = projectsList[projectName]
             if(projectId) {
                   const url = `https://goat.genomehubs.org/api/v2/report?report=histogram&x=bioproject%3D${projectId}&rank=species&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&xOpts=${projectId}%2C%2C1%2C%2C&caption=Assembly%20level%20of%20AG100PEST%20genomes&taxonomy=ncbi&result=taxon&queryId=2_ayC5oMSb`
                   validCategories.push(projectName)

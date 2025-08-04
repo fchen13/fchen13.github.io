@@ -10,7 +10,7 @@
     <script src="./echarts.min.js"></script>
     <script src="./utils.js"></script>
     <script src="./services.js"></script>
-    <script src="./projectsMap.js"></script>
+    <script src="./projectsList.js"></script>
     <style>
         #chartContainer1,
         #chartContainer2,
@@ -234,7 +234,7 @@
           const validCategories = [];
           
           categories.forEach(projectName => {
-            const projectId = projectsMap[projectName];
+            const projectId = projectsList[projectName];
             if(projectId) {
               validCategories.push(projectName);
               projectsToFetch.push({ projectId, projectName });
