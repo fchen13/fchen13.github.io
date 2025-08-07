@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Debug Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .debug-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .error {
+            color: #d32f2f;
+            background-color: #ffebee;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            color: #388e3c;
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .warning {
+            color: #f57c00;
+            background-color: #fff3e0;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        pre {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        button {
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #1565c0;
+        }
+        .file-input {
+            margin: 10px 0;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>EBP Database File Debug Tool</h1>
+        <p>This tool helps diagnose issues with EBPnetwork database files used in WireMaps.</p>
+
+        <div class="debug-section">
+            <h2>Step 1: Load and Test Database File</h2>
+            <p>Test your database file by pasting the JavaScript content below:</p>
+            <textarea id="dbContent" rows="10" style="width: 100%; font-family: monospace;" 
+                      placeholder="Paste your EBPnetwork_20250807.js content here..."></textarea>
+            <br>
+            <button onclick="testDatabase()">Test Database</button>
+            <div id="testResults"></div>
+        </div>
+
+        <div class="debug-section">
+            <h2>Step 2: Structure Validation</h2>
+            <div id="structureResults"></div>
+        </div>
+
+        <div class="debug-section">
+            <h2>Step 3: Data Comparison</h2>
+            <p>Compare with working database structure:</p>
+            <div id="comparisonResults"></div>
+        </div>
+
+        <div class="debug-section">
+            <h2>Step 4: Fix Suggestions</h2>
+            <div id="fixSuggestions"></div>
+        </div>
+    </div>
+
+    <script>
+        function testDatabase() {
+            const content = document.getElementById('dbContent').value;
+            const resultsDiv = document.getElementById('testResults');
+            const structureDiv = document.getElementById('structureResults');
+            const comparisonDiv = document.getElementById('comparisonResults');
+            const suggestionsDiv = document.getElementById('fixSuggestions');
+            
+            // Clear previous results
+            [resultsDiv, structureDiv, comparisonDiv, suggestionsDiv].forEach(div => div.innerHTML = '');
+            
+            if (!content.trim()) {
+                resultsDiv.innerHTML = '<div class="error">Please paste your database file content.</div>';
+                return;
+            }
+
+            let projectsData;
+            let issues = [];
+            let suggestions = [];
+
+            // Test 1: Basic JavaScript syntax
+            try {
+                eval(content);
+                if (typeof projectsData === 'undefined') {
+                    issues.push('Variable "projectsData" is not defined');
+                    suggestions.push('Ensure your file starts with: const projectsData = [');
+                } else {
+                    resultsDiv.innerHTML += '<div class="success">✓ JavaScript syntax is valid</div>';
+                    resultsDiv.innerHTML += '<div class="success">✓ projectsData variable found</div>';
+                }
+            } catch (error) {
+                issues.push('JavaScript syntax error: ' + error.message);
+                suggestions.push('Check for missing commas, brackets, or quotes in your file');
+                resultsDiv.innerHTML += '<div class="error">✗ Syntax Error: ' + error.message + '</div>';
+                return;
+            }
+
+            // Test 2: Data structure validation
+            if (projectsData) {
+                if (!Array.isArray(projectsData)) {
+                    issues.push('projectsData is not an array');
+                    suggestions.push('Ensure projectsData is defined as an array: const projectsData = [...]');
+                } else {
+                    resultsDiv.innerHTML += '<div class="success">✓ projectsData is an array with ' + projectsData.length + ' items</div>';
+                    
+                    // Validate required fields
+                    const requiredFields = ['projectName', 'continent', 'type', 'address', 'website', 'latitude', 'longitude'];
+                    const fieldIssues = [];
+                    const sampleItem = projectsData[0];
+                    
+                    if (sampleItem) {
+                        requiredFields.forEach(field => {
+                            if (!(field in sampleItem)) {
+                                fieldIssues.push('Missing field: ' + field);
+                            } else if (field === 'latitude' || field === 'longitude') {
+                                if (typeof sampleItem[field] !== 'number') {
+                                    fieldIssues.push(field + ' should be a number, got: ' + typeof sampleItem[field]);
+                                }
+                            }
+                        });
+
+                        if (fieldIssues.length === 0) {
+                            structureDiv.innerHTML += '<div class="success">✓ All required fields present in sample item</div>';
+                        } else {
+                            fieldIssues.forEach(issue => {
+                                structureDiv.innerHTML += '<div class="error">✗ ' + issue + '</div>';
+                                issues.push(issue);
+                            });
+                        }
+
+                        // Show sample structure
+                        structureDiv.innerHTML += '<h3>Sample Item Structure:</h3>';
+                        structureDiv.innerHTML += '<pre>' + JSON.stringify(sampleItem, null, 2) + '</pre>';
+                    }
+
+                    // Test for specific type values
+                    const validTypes = ['Headquarters', 'Center', 'Site'];
+                    const typeIssues = [];
+                    projectsData.slice(0, 10).forEach((item, index) => {
+                        if (item.type && !validTypes.includes(item.type)) {
+                            typeIssues.push('Item ' + index + ' has invalid type: "' + item.type + '"');
+                        }
+                    });
+
+                    if (typeIssues.length > 0) {
+                        typeIssues.forEach(issue => {
+                            structureDiv.innerHTML += '<div class="warning">⚠ ' + issue + '</div>';
+                        });
+                        suggestions.push('Valid type values are: ' + validTypes.join(', '));
+                    }
+                }
+            }
+
+            // Test 3: Compare with expected structure
+            const expectedStructure = {
+                projectName: "string",
+                continent: "string", 
+                type: "string (Headquarters|Center|Site)",
+                address: "string",
+                website: "string",
+                latitude: "number",
+                longitude: "number"
+            };
+
+            comparisonDiv.innerHTML += '<h3>Expected Structure:</h3>';
+            comparisonDiv.innerHTML += '<pre>' + JSON.stringify(expectedStructure, null, 2) + '</pre>';
+
+            // Display suggestions
+            if (suggestions.length > 0) {
+                suggestionsDiv.innerHTML += '<h3>Recommended Fixes:</h3>';
+                suggestions.forEach((suggestion, index) => {
+                    suggestionsDiv.innerHTML += '<div class="warning">' + (index + 1) + '. ' + suggestion + '</div>';
+                });
+            }
+
+            // Show issues summary
+            if (issues.length > 0) {
+                resultsDiv.innerHTML += '<div class="error"><strong>Issues Found:</strong><ul>' + 
+                    issues.map(issue => '<li>' + issue + '</li>').join('') + '</ul></div>';
+            } else if (projectsData) {
+                resultsDiv.innerHTML += '<div class="success">✓ No major issues detected! The file should work with WireMaps.</div>';
+            }
+        }
+
+        // Show instructions on load
+        window.onload = function() {
+            document.getElementById('testResults').innerHTML = 
+                '<div class="warning">Ready to test. Paste your EBPnetwork_20250807.js file content above and click "Test Database".</div>';
+        };
+    </script>
+</body>
+</html>
