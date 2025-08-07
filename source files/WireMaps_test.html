@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="copyright" content="© 2025 The Earth BioGenome Project" />
+    <meta name="author" content="Fang Chen" />
+    <title>EBP Network Connections - Test</title>
+    <script src="../config.js"></script>
+    <script src="./echarts.min.js"></script>
+    <script src="./geoMap/world.zh.js"></script>
+    <!-- Using latest available data file -->
+    <script src="./geoMap/EBPnetwork_20250401.js"></script>
+    <link href="./geoMap/bootstrap.min.css" rel="stylesheet" />
+    <script src="./geoMap/jquery-3.6.0.min.js"></script>
+    <script src="./geoMap/popper.min.js"></script>
+    <script src="./geoMap/bootstrap.min.js"></script>
+    <style>
+    * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+      body {
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+      }        
+      #mapContainer {
+        flex-grow: 1;
+        overflow: hidden;
+        background-color: #b1c6ca;
+        height: 100vh;
+      }
+
+      /* Add styles for the wrapper */
+      #mainLayout {
+        display: flex;
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+      }
+
+      /* Footer styles */
+      #footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        height: 30px;
+        background-color: rgba(255, 255, 255, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 12px;
+        color: #666;
+        z-index: 1000;
+      }
+
+      /* Debug console */
+      #debug {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        font-family: monospace;
+        font-size: 12px;
+        max-width: 400px;
+        z-index: 1001;
+      }
+
+      /* Controls */
+      .controls {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: rgba(255,255,255,0.9);
+        padding: 15px;
+        border-radius: 5px;
+        z-index: 1001;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="debug">
+      <div>Data Status: <span id="dataStatus">Loading...</span></div>
+      <div>Projects Found: <span id="projectCount">0</span></div>
+      <div>Headquarters: <span id="headquartersCount">0</span></div>
+    </div>
+    
+    <div class="controls">
+      <button onclick="toggleDebug()">Toggle Debug</button>
+      <button onclick="reloadData()">Reload Data</button>
+    </div>
+    
+    <div id="mainLayout">
+      <div id="mapContainer"></div>
+    </div>
+    
+    <div id="footer">
+      <div id="copyright">© 2025 Earth BioGenome Project - Test Version</div>
+    </div>
+    
+    <script>
+      // Debug functions
+      function updateDebug() {
+        try {
+          if (typeof projectsData !== 'undefined') {
+            document.getElementById('dataStatus').textContent = 'Loaded ✓';
+            document.getElementById('projectCount').textContent = projectsData.length;
+            const headquarters = projectsData.filter(item => item.type === "Headquarters");
+            document.getElementById('headquartersCount').textContent = headquarters.length;
+          } else {
+            document.getElementById('dataStatus').textContent = 'Not Found ✗';
+          }
+        } catch (error) {
+          document.getElementById('dataStatus').textContent = 'Error: ' + error.message;
+        }
+      }
+      
+      function toggleDebug() {
+        const debug = document.getElementById('debug');
+        debug.style.display = debug.style.display === 'none' ? 'block' : 'none';
+      }
+      
+      function reloadData() {
+        location.reload();
+      }
+
+      function initMap(worldJson) {
+        console.log("Initializing map...");
+        
+        // Check if data is available
+        if (typeof projectsData === 'undefined') {
+          console.error("projectsData is not defined!");
+          document.getElementById('dataStatus').textContent = 'Data not loaded!';
+          return;
+        }
+        
+        console.log("Data loaded successfully, projects:", projectsData.length);
+        
+        const data = projectsData;
+        updateDebug();
+
+        // Debug logging for headquarters
+        const headquarters = data.filter(item => item.type === "Headquarters");
+        console.log("Headquarters projects:", headquarters.map(item => item.projectName));
+
+        const addressMap = {};
+        const aggregatedData = data.map((item) => {
+          const address = item.address;
+          item.name = item.type === "Headquarters" ? item.projectName : item.institution;
+          addressMap[address] = (addressMap[address] || 0) + 1;
+
+          const offsetX = addressMap[address] > 1 ? ((Math.random() - 0.5) * 2) / 5 : 0;
+          const offsetY = addressMap[address] > 1 ? ((Math.random() - 0.5) * 2) / 5 : 0;
+
+          return {
+            name: item.projectName,
+            value: [
+              item.longitude + offsetX,
+              item.latitude + offsetY,
+              addressMap[address],
+            ],
+            type: item.type,
+            website: item.website,
+            isCenter: item.type === "Center",
+            symbolSize: item.type === "Center" ? 8 : item.type === "Headquarters" ? 5 : 4,
+            itemStyle: {
+              color: "#303030",
+              borderColor: item.type === "Headquarters" ? "transparent" : item.type === "Center" ? "#dbc649" : "transparent",
+              borderWidth: 4,
+              opacity: 1,
+            },
+            rawData: item,
+            visible: true,
+          };
+        });
+
+        console.log("Aggregated data points:", aggregatedData.length);
+
+        // Filter to show only headquarters and center points
+        const filteredData = aggregatedData.filter(
+          (point) => point.type === "Headquarters" || point.type === "Center"
+        );
+        
+        console.log("Filtered data points:", filteredData.length);
+
+        // Initialize ECharts
+        const myChart = echarts.init(document.getElementById('mapContainer'));
+        
+        const option = {
+          backgroundColor: '#b1c6ca',
+          geo: {
+            map: 'world',
+            roam: true,
+            zoom: 1.2,
+            center: [0, 0],
+            itemStyle: {
+              areaColor: '#ffffff',
+              borderColor: '#cccccc',
+              borderWidth: 0.5,
+            },
+            emphasis: {
+              itemStyle: {
+                areaColor: '#f0f0f0',
+              },
+            },
+          },
+          series: [{
+            type: 'scatter',
+            coordinateSystem: 'geo',
+            data: filteredData,
+            symbolSize: function(val) {
+              return val[2] > 1 ? 8 : 6;
+            },
+            itemStyle: {
+              color: '#303030',
+            },
+            emphasis: {
+              itemStyle: {
+                color: '#dbc649',
+              },
+            },
+          }]
+        };
+
+        myChart.setOption(option);
+        console.log("Map initialized successfully!");
+      }
+
+      // Wait for world data to load
+      if (typeof worldJson !== 'undefined') {
+        initMap(worldJson);
+      } else {
+        console.log("Waiting for world data...");
+        setTimeout(() => {
+          if (typeof worldJson !== 'undefined') {
+            initMap(worldJson);
+          } else {
+            console.error("World data failed to load");
+          }
+        }, 1000);
+      }
+
+      // Update debug info on load
+      updateDebug();
+
+      // Register world map
+      if (typeof echarts !== 'undefined' && typeof worldJson !== 'undefined') {
+        echarts.registerMap('world', worldJson);
+      }
+    </script>
+  </body>
+</html>
