@@ -10,7 +10,7 @@
     <script src="./echarts.min.js"></script>
     <script src="./geoMap/world.zh.js"></script>
     <!-- 替换为新的JS数据文件 -->
-    <script src="./geoMap/EBPnetwork_20250513.js"></script>
+    <script src="./geoMap/EBPnetwork_20250807.js"></script>
     <link href="./geoMap/bootstrap.min.css" rel="stylesheet" />
     <script src="./geoMap/jquery-3.6.0.min.js"></script>
     <script src="./geoMap/popper.min.js"></script>
@@ -249,13 +249,10 @@
           ergaNode.visible = false;
         }
 
-        // Prepare ERGA logic
-        const ERGA_AFFILIATES = [
-          "ERGA-25GP", "ERGA-BGE", "ERGA-CH", "ERGA-COM", "ERGA-FR", "ERGA-PIL",
-          "Project Psyche", "An Atlas of Eukaryotic Marine Genomes (ATLASea)", "Darwin Tree of Life (DToL)", "Catalan Initiative for the Earth BioGenome Project (CBP)", "Italian Endemics (ENDEMIXIT)"
-        ];
-        // Find headquarters points for these affiliates
-        const ergaAffiliatePoints = filteredData.filter(p => ERGA_AFFILIATES.includes(p.name));
+        // Prepare ERGA logic - connect to all ERGA Site entries
+        const ergaAffiliatePoints = aggregatedData.filter(p => 
+          p.rawData.projectName === "European Reference Genome Atlas (ERGA)" && p.type === "Site"
+        );
         // Precompute ERGA links
         let ergaLinks = [];
         if (ergaNode) {
@@ -267,8 +264,8 @@
               normal: {
                 curveness: point.value[0] >= ergaNode.value[0] ? 0.4 : -0.4,
                 color: "#dbc649",
-                width: 1.5,
-                opacity: 0.7,
+                width: 1.0,
+                opacity: 0.5,
               },
             },
             visible: false,
@@ -316,7 +313,7 @@
             visibleRegionalNodes.push({
               ...ergaNode,
               value: [ergaNode.value[0], ergaNode.value[1], 1],
-              symbolSize: 6,
+              symbolSize: 4,
               symbol: 'circle',
               zlevel: 6,
               itemStyle: { 
@@ -326,6 +323,21 @@
                 opacity: 1 
               },
             });
+            
+            // Add ERGA sites to visible points with proper structure
+            const visibleErgaSites = ergaAffiliatePoints.filter(point => point.visible).map(point => ({
+              ...point,
+              value: [point.value[0], point.value[1], 1],
+              symbolSize: 3,
+              symbol: 'circle',
+              itemStyle: {
+                color: "#303030",
+                borderColor: "transparent",
+                borderWidth: 0,
+                opacity: 1
+              }
+            }));
+            visibleRegionalNodes.push(...visibleErgaSites);
             
             // Add ERGA links for visible affiliate points
             visibleRegionalLinks = ergaAffiliatePoints
@@ -338,7 +350,7 @@
                   normal: {
                     curveness: point.value[0] >= ergaNode.value[0] ? 0.4 : -0.4,
                     color: "#303030",
-                    width: 1,
+                    width: 1.0,
                     opacity: 0.5,
                   },
                 },
@@ -355,8 +367,8 @@
           // Check if ERGA is selected
           const isErgaSelected = ergaNode && ergaNode.visible;
           
-          // Only show sites and their connections if EBP Secretariat is not selected and ERGA is not selected
-          if (!isCenterSelected && !isErgaSelected) {
+          // Only show sites and their connections if EBP Secretariat is not selected
+          if (!isCenterSelected) {
             const visibleHeadquarters = filteredData.filter(p => p.type === "Headquarters" && p.visible);
             visibleHeadquarters.forEach(headquarters => {
               // Find associated sites
@@ -428,7 +440,7 @@
                   if (point && point.type === "Headquarters") return 5;
                   if (point && point.type === "Center") return 9;
                   if (point && point.type === "Node") return 8;
-                  return 4;
+                  return 3;
                 },
               },
               {
@@ -533,13 +545,13 @@
                   {
                     type: "scatter",
                     data: [...filteredData.filter(p => p.visible), ...relatedSite],
-                    symbolSize: function (val) {
-                      return val.type === "Site"
-                        ? 4
-                        : val.type === "Headquarters"
-                        ? 5
-                        : 9;
-                    },
+                                         symbolSize: function (val) {
+                       return val.type === "Site"
+                         ? 3
+                         : val.type === "Headquarters"
+                         ? 5
+                         : 9;
+                     },
                   },
                   {
                     type: "lines",
