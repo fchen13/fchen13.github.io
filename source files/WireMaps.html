@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="copyright" content="© 2025 The Earth BioGenome Project" />
+    <meta name="author" content="Fang Chen" />
+    <title>EBP Network Connections - Debug Version</title>
+    <script src="../config.js"></script>
+    <script src="./echarts.min.js"></script>
+    <script src="./geoMap/world.zh.js"></script>
+    
+    <!-- Data Source - Change this line to switch between data files -->
+    <!-- Working version: -->
+    <!-- <script src="./geoMap/EBPnetwork_20250513.js"></script> -->
+    <!-- Updated version that needs fixing: -->
+    <script src="./geoMap/EBPnetwork_20250807.js"></script>
+    <!-- Fallback for testing: -->
+    <!-- <script src="./geoMap/EBPnetwork_20250401.js"></script> -->
+    
+    <link href="./geoMap/bootstrap.min.css" rel="stylesheet" />
+    <script src="./geoMap/jquery-3.6.0.min.js"></script>
+    <script src="./geoMap/popper.min.js"></script>
+    <script src="./geoMap/bootstrap.min.js"></script>
+    
+    <style>
+    * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+      body {
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+      }        
+      #mapContainer {
+        flex-grow: 1;
+        overflow: hidden;
+        background-color: #b1c6ca;
+        height: 100vh;
+      }
+
+      /* Add styles for the wrapper */
+      #mainLayout {
+        display: flex;
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+      }
+
+      /* Debug panel styles */
+      #debugPanel {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        font-family: monospace;
+        font-size: 12px;
+        z-index: 10000;
+        max-width: 300px;
+      }
+
+      /* Footer styles */
+      #footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: rgba(248, 249, 250, 0.95);
+        color: #333;
+        text-align: center;
+        padding: 5px;
+        z-index: 9999;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        font-size: 14px;
+        display: none;
+      }
+
+      /* Filter Panel styles */
+      #filterPanel {
+        width: 250px;
+        height: 100vh;
+        background-color: #464f4f;
+        padding: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        z-index: 1000;
+        overflow-y: auto;
+        flex-shrink: 0;
+      }
+
+      .filter-group {
+        margin-bottom: 15px;
+      }
+
+      .filter-group:last-child {
+        margin-bottom: 0;
+      }
+
+      .filter-group h3 {
+        margin-bottom: 10px;
+        font-size: 16px;
+        color: #f3f3f3;
+      }
+
+      .filter-item {
+        margin: 5px 0;
+        display: flex;
+        align-items: center;
+      }
+
+      .filter-item input[type="checkbox"] {
+        margin-right: 8px;
+        accent-color: #f3f3f3;
+      }
+
+      .filter-item label {
+        font-size: 14px;
+        cursor: pointer;
+        color: #f3f3f3;
+      }
+
+      .filter-item label:hover {
+        color: #ffffff;
+      }
+
+      .select-all {
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .select-all label {
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Debug Panel -->
+    <div id="debugPanel">
+      <div><strong>Debug Info:</strong></div>
+      <div id="debugInfo">Loading...</div>
+    </div>
+
+    <div class="container">
+      <div id="mainLayout">
+        <div id="mapContainer"></div>
+        <div id="filterPanel">
+          <div class="filter-group">
+            <div id="centerFilters"></div>
+          </div>
+          <div class="filter-group">
+            <h3>Affiliated Projects</h3>
+            <div id="headquartersFilters"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="footer">
+      <div id="copyright">© 2025 Earth BioGenome Project</div>
+    </div>
+    
+    <script>
+      // Debug function to check data loading
+      function debugDataLoading() {
+        const debugInfo = document.getElementById('debugInfo');
+        let debugText = '';
+        
+        try {
+          // Check if projectsData is defined
+          if (typeof projectsData === 'undefined') {
+            debugText += 'ERROR: projectsData is undefined<br>';
+            debugText += 'Check if the data file is loaded correctly<br>';
+            return debugText;
+          }
+          
+          debugText += `✓ projectsData loaded<br>`;
+          debugText += `Total records: ${projectsData.length}<br>`;
+          
+          // Check data structure
+          if (projectsData.length > 0) {
+            const firstRecord = projectsData[0];
+            debugText += `First record keys: ${Object.keys(firstRecord).join(', ')}<br>`;
+            
+            // Check required fields
+            const requiredFields = ['projectName', 'type', 'latitude', 'longitude'];
+            const missingFields = requiredFields.filter(field => !(field in firstRecord));
+            
+            if (missingFields.length > 0) {
+              debugText += `⚠ Missing fields: ${missingFields.join(', ')}<br>`;
+            } else {
+              debugText += `✓ All required fields present<br>`;
+            }
+            
+            // Check data types
+            const types = {};
+            projectsData.slice(0, 10).forEach(record => {
+              if (!types[record.type]) types[record.type] = 0;
+              types[record.type]++;
+            });
+            debugText += `Types found: ${Object.keys(types).join(', ')}<br>`;
+            
+            // Check for coordinates
+            const invalidCoords = projectsData.filter(record => 
+              typeof record.latitude !== 'number' || 
+              typeof record.longitude !== 'number' ||
+              isNaN(record.latitude) || 
+              isNaN(record.longitude)
+            ).length;
+            
+            if (invalidCoords > 0) {
+              debugText += `⚠ Invalid coordinates: ${invalidCoords} records<br>`;
+            } else {
+              debugText += `✓ All coordinates valid<br>`;
+            }
+          }
+          
+        } catch (error) {
+          debugText += `ERROR: ${error.message}<br>`;
+          console.error('Debug error:', error);
+        }
+        
+        debugInfo.innerHTML = debugText;
+        return debugText;
+      }
+
+      function initMap(worldJson) {
+        // Run debug check first
+        const debugResult = debugDataLoading();
+        console.log('Debug Result:', debugResult);
+        
+        // Check if data is available
+        if (typeof projectsData === 'undefined') {
+          console.error('projectsData is not defined. Check if the data file is loaded correctly.');
+          document.getElementById('mapContainer').innerHTML = 
+            '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: red; font-size: 18px;">' +
+            'Error: Data file not loaded. Check browser console for details.</div>';
+          return;
+        }
+
+        console.log('Projects data loaded successfully:', {
+          totalRecords: projectsData.length,
+          sampleRecord: projectsData[0]
+        });
+
+        const data = projectsData;
+
+        // Debug logging for headquarters
+        console.log("Headquarters projects:", data.filter(item => item.type === "Headquarters").map(item => item.projectName));
+
+        const addressMap = {};
+        const aggregatedData = data.map((item) => {
+          const address = item.address;
+          item.name =
+            item.type === "Headquarters" ? item.projectName : item.institution;
+          addressMap[address] = (addressMap[address] || 0) + 1;
+
+          const offsetX =
+            addressMap[address] > 1 ? ((Math.random() - 0.5) * 2) / 5 : 0;
+          const offsetY =
+            addressMap[address] > 1 ? ((Math.random() - 0.5) * 2) / 5 : 0;
+
+          const point = {
+            name: item.projectName,
+            value: [
+              item.longitude + offsetX,
+              item.latitude + offsetY,
+              addressMap[address],
+            ],
+            type: item.type,
+            website: item.website,
+            isCenter: item.type === "Center",
+            symbolSize:
+              item.type === "Center" ? 8 : item.type === "Headquarters" ? 5 : 4,
+            itemStyle: {
+              color: "#303030",
+              borderColor:
+                item.type === "Headquarters"
+                  ? "transparent"
+                  : item.type === "Center"
+                  ? "#dbc649"
+                  : "transparent",
+              borderWidth: 4,
+              opacity: 1,
+            },
+            rawData: item,
+            visible: true, // Add visibility state
+          };
+          
+          return point;
+        });
+
+        // Filter to show only headquarters and center points
+        const filteredData = aggregatedData.filter(
+          (point) => point.type === "Headquarters" || point.type === "Center"
+        );
+
+        console.log('Filtered data:', {
+          headquarters: filteredData.filter(p => p.type === "Headquarters").length,
+          centers: filteredData.filter(p => p.type === "Center").length
+        });
+
+        // Find center point
+        const center = aggregatedData.find((point) => point.type === "Center");
+        
+        if (!center) {
+          console.warn('No center point found in data');
+        }
+
+        // Create filter checkboxes
+        const centerFilters = document.getElementById('centerFilters');
+        const headquartersFilters = document.getElementById('headquartersFilters');
+
+        // Add center filter (EBP Secretariat)
+        if (center) {
+          const centerCheckbox = document.createElement('div');
+          centerCheckbox.className = 'filter-item';
+          centerCheckbox.innerHTML = `
+            <input type="checkbox" id="center-${center.name}">
+            <label for="center-${center.name}">${center.name}</label>
+          `;
+          centerFilters.appendChild(centerCheckbox);
+        }
+
+        // Add headquarters filters
+        filteredData
+          .filter(point => point.type === "Headquarters")
+          .forEach(point => {
+            const checkbox = document.createElement('div');
+            checkbox.className = 'filter-item';
+            checkbox.innerHTML = `
+              <input type="checkbox" id="headquarters-${point.name}">
+              <label for="headquarters-${point.name}">${point.name}</label>
+            `;
+            headquartersFilters.appendChild(checkbox);
+          });
+
+        // Set initial visibility to false
+        filteredData.forEach(point => {
+          point.visible = false;
+        });
+
+        // 预生成所有连接线
+        const allLinks = aggregatedData
+          .filter((point) => point.type === "Headquarters")
+          .map((point) => ({
+            fromName: center ? center.name : '',
+            toName: point.name,
+            coords: center ? [center.value, point.value] : [point.value, point.value],
+            lineStyle: {
+              normal: {
+                curveness: center && point.value[0] >= center.value[0] ? 0.4 : -0.4,
+                color: "#303030",
+                width: 1,
+                opacity: 0.5,
+              },
+            },
+            visible: false, // Set initial visibility to false
+          }));
+
+        const myChart = echarts.init(document.getElementById("mapContainer"));
+        echarts.registerMap("world", worldJson);
+
+        // Function to update visualization based on filter state
+        function updateVisualization() {
+          const visiblePoints = filteredData.filter(point => point.visible);
+          const visibleLinks = allLinks.filter(link => {
+            const fromPoint = filteredData.find(p => p.name === link.fromName);
+            const toPoint = filteredData.find(p => p.name === link.toName);
+            return fromPoint && toPoint && fromPoint.visible && toPoint.visible;
+          });
+
+          // Add visible site points and their connections
+          const visibleSitePoints = [];
+          const visibleSiteLinks = [];
+
+          // Check if EBP Secretariat is selected
+          const centerPoint = filteredData.find(p => p.type === "Center");
+          const isCenterSelected = centerPoint && centerPoint.visible;
+          
+          // Only show sites and their connections if EBP Secretariat is not selected
+          if (!isCenterSelected) {
+            const visibleHeadquarters = filteredData.filter(p => p.type === "Headquarters" && p.visible);
+            visibleHeadquarters.forEach(headquarters => {
+              // Find associated sites
+              const relatedSites = aggregatedData.filter(
+                node => node.rawData.projectName.toLowerCase() === headquarters.rawData.projectName.toLowerCase() &&
+                       node.type === "Site"
+              );
+              
+              // Add visible sites
+              visibleSitePoints.push(...relatedSites);
+              
+              // Add connections from headquarters to sites
+              const siteLinks = relatedSites.map(site => ({
+                fromName: headquarters.name,
+                toName: site.name,
+                coords: [headquarters.value, site.value],
+                lineStyle: {
+                  normal: {
+                    curveness: site.value[0] >= headquarters.value[0] ? 0.4 : -0.4,
+                    color: "#303030",
+                    width: 1,
+                    opacity: 0.4,
+                  },
+                },
+              }));
+              visibleSiteLinks.push(...siteLinks);
+            });
+          }
+
+          myChart.setOption({
+            tooltip: {
+              trigger: "item",
+              formatter: (params) => {
+                if (params.seriesType === "scatter") {
+                  const item = params.data;
+                  let tooltipContent = `<strong>${item.name}</strong><br/>`;
+                  
+                  // Add institution if available
+                  if (item.rawData.institution) {
+                    tooltipContent += `Institution: ${item.rawData.institution}`;
+                  }
+                  
+                  return tooltipContent;
+                }
+                return null;
+              },
+            },
+            geo: {
+              map: "world",
+              roam: true,
+              label: { show: false },
+              itemStyle: {
+                normal: { areaColor: "#f3f3f3", borderColor: "#999" },
+                emphasis: { areaColor: "#FFFF00" },
+              },
+              center: [0, 10],
+              zoom: 1.1
+            },
+            series: [
+              {
+                type: "scatter",
+                coordinateSystem: "geo",
+                data: [...visiblePoints, ...visibleSitePoints],
+                symbolSize: function (val) {
+                  const point = val[2] ? [...visiblePoints, ...visibleSitePoints].find(p => p.value[0] === val[0] && p.value[1] === val[1]) : null;
+                  return point && point.type === "Headquarters" ? 5 : point && point.type === "Center" ? 9 : 4;
+                },
+                itemStyle: {
+                  normal: {
+                    color: "#303030",
+                  }
+                }
+              },
+              {
+                type: "lines",
+                data: [...visibleLinks, ...visibleSiteLinks],
+                lineStyle: {
+                  normal: {
+                    color: "#303030",
+                    width: 1,
+                    opacity: 0.5,
+                    curveness: 0.4,
+                  },
+                },
+              }
+            ]
+          });
+        }
+
+        // Function to update headquarters visibility based on EBP Secretariat state
+        function updateHeadquartersVisibility(centerVisible) {
+          const headquartersCheckboxes = document.querySelectorAll('#headquartersFilters input[type="checkbox"]');
+          headquartersCheckboxes.forEach(checkbox => {
+            checkbox.checked = centerVisible;
+          });
+          
+          filteredData
+            .filter(point => point.type === "Headquarters")
+            .forEach(point => {
+              point.visible = centerVisible;
+            });
+          
+          // Update all headquarters wire connections
+          allLinks.forEach(link => {
+            link.visible = centerVisible;
+          });
+        }
+
+        // Add event listeners for individual checkboxes
+        document.querySelectorAll('#filterPanel input[type="checkbox"]').forEach(checkbox => {
+          checkbox.addEventListener('change', (e) => {
+            const isCenter = e.target.id.startsWith('center-');
+            const projectName = e.target.id.replace(isCenter ? 'center-' : 'headquarters-', '');
+            
+            const point = filteredData.find(p => p.name === projectName);
+            if (point) {
+              if (isCenter) {
+                // If EBP Secretariat checkbox is clicked
+                point.visible = e.target.checked;
+                updateHeadquartersVisibility(e.target.checked);
+              } else {
+                // If a headquarters checkbox is clicked
+                point.visible = e.target.checked;
+              }
+              updateVisualization();
+            }
+          });
+        });
+
+        // Initial visualization update
+        updateVisualization();
+
+        // 交互逻辑
+        myChart.on("mouseover", function (params) {
+          if (params.seriesType === "scatter") {
+            const item = params.data;
+
+            // 总部悬停显示关联站点
+            if (item.type === "Headquarters") {
+              const relatedSite = aggregatedData.filter(
+                (node) =>
+                  node.rawData.projectName.toLowerCase() === item.rawData.projectName.toLowerCase() &&
+                  node.type === "Site"
+              );
+              const data = filteredData.find((node) => node.name === item.name);
+              if (data) {
+                data.itemStyle.borderColor = "#dbc649";
+              }
+              const links = relatedSite.map((point) => ({
+                fromName: item.name,
+                toName: point.name,
+                coords: [item.value, point.value],
+                lineStyle: {
+                  normal: {
+                    curveness: point.value[0] >= item.value[0] ? 0.4 : -0.4,
+                  },
+                },
+              }));
+              myChart.setOption({
+                series: [
+                  {
+                    type: "scatter",
+                    data: [...filteredData.filter(p => p.visible), ...relatedSite],
+                    symbolSize: function (val) {
+                      return val.type === "Site"
+                        ? 4
+                        : val.type === "Headquarters"
+                        ? 5
+                        : 9;
+                    },
+                  },
+                  {
+                    type: "lines",
+                    data: links,
+                    lineStyle: {
+                      normal: {
+                        color: "#303030",
+                        width: 1,
+                        opacity: 0.5,
+                        curveness: 0.4,
+                      },
+                    },
+                  },
+                ],
+              });
+            }
+
+            // 中心点悬停显示全局飞线
+            if (item.type === "Center") {
+              const visibleLinks = allLinks.filter(link => {
+                const toPoint = filteredData.find(p => p.name === link.toName);
+                return toPoint && toPoint.visible;
+              });
+              myChart.setOption({
+                series: [
+                  { type: "scatter", data: filteredData.filter(p => p.visible) },
+                  {
+                    type: "lines",
+                    data: visibleLinks,
+                    lineStyle: {
+                      normal: {
+                        color: "#303030",
+                        width: 1,
+                        opacity: 0.5,
+                        curveness: 0.4,
+                      },
+                    },
+                  },
+                ],
+              });
+            }
+          }
+        });
+
+        myChart.on("mouseout", function (params) {
+          if (params.seriesType === "scatter") {
+            const item = params.data;
+            if (item.type === "Headquarters") {
+              const data = filteredData.find((node) => node.name === item.name);
+              if (data) {
+                data.itemStyle.borderColor = "transparent";
+              }
+              updateVisualization();
+            }
+          }
+        });
+      }
+
+      // Wait for DOM to be ready
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize map
+        if (typeof worldJson !== 'undefined') {
+          initMap(worldJson);
+        } else {
+          console.error('worldJson is not defined');
+          document.getElementById('debugInfo').innerHTML += 'ERROR: worldJson not loaded<br>';
+        }
+
+        // 版权信息
+        if (typeof copyright !== "undefined") {
+          document.getElementById("copyright").textContent = copyright.notice;
+        }
+      });
+    </script>
+  </body>
+</html>
