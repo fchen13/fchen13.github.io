@@ -27,6 +27,7 @@
         }
         /* Footer styles */
         #footer {
+            display: none; /* Hide the footer */
             position: fixed;
             bottom: 0;
             width: 100%;
@@ -85,10 +86,12 @@
      </div>
    </div>
    
-   <!-- Disclaimer moved to bottom of chart container -->
-   <div id="disclaimer" style="margin-top: 10px; text-align: center; color: #333; font-size: 16px;">
-       Disclaimer: There may be double counting due to project nesting and collaborative projects where multiple projects take credit for a single assembly.
+   <!-- Disclaimer positioned with better spacing -->
+   <div id="disclaimer" style="margin-top: 0px; text-align: center; color: #333; font-size: 16px; padding: 0px; background-color: #f8f9fa; border-radius: 8px; max-width: 1000px; margin-left: auto; margin-right: auto;">
+       <strong>Disclaimer:</strong> There may be double counting due to project nesting and collaboration, where multiple projects take credit for a single assembly. 
+       <br>All EBP affiliated projects with available bioproject IDs are included, except for ERGA that is a regional node and does not sequence on its own.
    </div>
+   
    <!-- <div id="chartContainer2">
      <div class="loading">
        <div class="spinner"></div>
@@ -155,23 +158,45 @@
         while (hasMoreData) {
           const searchUrl = `https://goat.genomehubs.org/api/v2/search?query=bioproject%3D${projectId}%20AND%20tax_rank%28species%29&result=taxon&includeEstimates=true&taxonomy=ncbi&size=${pageSize}&offset=${offset}&fields=genome_size%2Cassembly_level%2Cassembly_span`;
           
-          const response = await fetchDataWithCache(searchUrl);
-          
-          if (response.results && response.results.length > 0) {
-            allResults = allResults.concat(response.results);
-            totalFetched += response.results.length;
+          try {
+            const response = await fetchDataWithCache(searchUrl);
             
-            // Check if we might have more data
-            if (response.results.length >= pageSize * API_CONFIG.truncationWarningThreshold) {
-              // Likely hitting the limit, fetch more
-              offset += pageSize;
-              // Increase page size for subsequent requests for better efficiency
-              pageSize = Math.min(API_CONFIG.maxPageSize, pageSize * 1.5);
+            // Debug logging for problematic projects
+            if (projectName === 'lmgp') {
+              console.log(`🔍 LMGP API Response:`, response);
+              console.log(`🔍 LMGP URL:`, searchUrl);
+            }
+            
+            if (response.results && response.results.length > 0) {
+              allResults = allResults.concat(response.results);
+              totalFetched += response.results.length;
+              
+              // Check if we might have more data
+              if (response.results.length >= pageSize * API_CONFIG.truncationWarningThreshold) {
+                // Likely hitting the limit, fetch more
+                offset += pageSize;
+                // Increase page size for subsequent requests for better efficiency
+                pageSize = Math.min(API_CONFIG.maxPageSize, pageSize * 1.5);
+              } else {
+                hasMoreData = false;
+              }
             } else {
+              // Log when no results are returned
+              if (projectName === 'lmgp') {
+                console.warn(`⚠️ LMGP: No results returned from API. Response:`, response);
+              }
               hasMoreData = false;
             }
-          } else {
-            hasMoreData = false;
+          } catch (error) {
+            console.error(`❌ Error fetching data for ${projectName} (${projectId}):`, error);
+            console.error(`❌ Failed URL:`, searchUrl);
+            // Return empty results instead of failing completely
+            return {
+              results: [],
+              totalFetched: 0,
+              projectName: projectName,
+              error: error.message
+            };
           }
 
           // Safety check to prevent infinite loops
@@ -223,6 +248,26 @@
         }
       }
 
+      // Test if a project ID is valid in GoaT
+      async function testProjectIdInGoaT(projectId, projectName) {
+        try {
+          const testUrl = `https://goat.genomehubs.org/api/v2/search?query=bioproject%3D${projectId}&result=taxon&size=1&fields=bioproject`;
+          const response = await fetch(testUrl);
+          const data = await response.json();
+          
+          if (data.results && data.results.length > 0) {
+            console.log(`✅ ${projectName} (${projectId}): Project found in GoaT`);
+            return true;
+          } else {
+            console.warn(`⚠️ ${projectName} (${projectId}): Project NOT found in GoaT`);
+            return false;
+          }
+        } catch (error) {
+          console.error(`❌ ${projectName} (${projectId}): Error testing project ID:`, error);
+          return false;
+        }
+      }
+
       window.onload = async function () {
         try {
           // Update progress
@@ -230,26 +275,76 @@
           // updateProgress('chartContainer2', 'Fetching project categories...');
           // updateProgress('chartContainer3', 'Fetching project categories...');
 
+          // First, try to get categories from GoaT API
           const finalReportUrl = 'https://goat.genomehubs.org/api/v2/report?report=histogram&x=tax_tree%282759%29%20AND%20long_list%20AND%20bioproject%3DPRJNA533106&rank=species&includeEstimates=false&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&xOpts=%2C%2C55%2C%2CEBP%20Affiliate&caption=Assemblies%20available%20on%20INSDC%20for%20target%20species%20across%20EBP-affiliated%20projects.%20Note%20that%20umbrella%20projects%20will%20inherit%20counts%20from%20their%20sub-projects%20and%20that%20overlapping%20targets%20sequenced%20by%20at%20least%20one%20EBP%20affiliate%20will%20appear%20as%20complete%20in%20all%20projects%20targeting%20that%20taxon&taxonomy=ncbi&result=taxon&queryId=vLCkKyxY2S'
           
-          const res = await fetchDataWithCache(finalReportUrl);
-          const categories = res.report.report.histogram.histograms.buckets.filter(item => (!!item));
+          let categories = [];
+          try {
+            const res = await fetchDataWithCache(finalReportUrl);
+            categories = res.report.report.histogram.histograms.buckets.filter(item => (!!item));
+          } catch (error) {
+            console.warn('Failed to fetch categories from GoaT API, using fallback approach:', error);
+          }
           
           const projectsToFetch = [];
           const validCategories = [];
           
-          categories.forEach(projectName => {
-            const projectId = projectsList[projectName];
-            if(projectId) {
-              validCategories.push(projectName);
-              projectsToFetch.push({ projectId, projectName });
-            }
-          });
+          // If we got categories from GoaT, use them
+          if (categories.length > 0) {
+            categories.forEach(projectName => {
+              const projectId = projectsList[projectName];
+              if(projectId) {
+                validCategories.push(projectName);
+                projectsToFetch.push({ projectId, projectName });
+              }
+            });
+          }
+          
+          // Fallback: ensure all projects with IDs from projectsList are included
+          if (projectsToFetch.length === 0) {
+            console.log('Using fallback: including all projects from projectsList.js');
+            Object.entries(projectsList).forEach(([projectName, projectId]) => {
+              if (projectId && projectId.trim() !== '') {
+                validCategories.push(projectName);
+                projectsToFetch.push({ projectId, projectName });
+              }
+            });
+          } else {
+            // Add any missing projects from projectsList that weren't returned by GoaT
+            Object.entries(projectsList).forEach(([projectName, projectId]) => {
+              if (projectId && projectId.trim() !== '' && !validCategories.includes(projectName)) {
+                console.log(`Adding missing project: ${projectName} (${projectId})`);
+                validCategories.push(projectName);
+                projectsToFetch.push({ projectId, projectName });
+              }
+            });
+          }
 
           // Update progress
           updateProgress('chartContainer1', `Fetching data for ${projectsToFetch.length} projects...`);
           // updateProgress('chartContainer2', `Fetching data for ${projectsToFetch.length} projects...`);
           // updateProgress('chartContainer3', `Fetching data for ${projectsToFetch.length} projects...`);
+          
+          // Debug: log which projects are being processed
+          console.log('Projects to fetch:', projectsToFetch.map(p => `${p.projectName} (${p.projectId})`));
+          console.log('Valid categories:', validCategories);
+          
+          // Check if lmgp is specifically included
+          const lmgpProject = projectsToFetch.find(p => p.projectName === 'lmgp');
+          if (lmgpProject) {
+            console.log('✅ lmgp project found:', lmgpProject);
+            
+            // Test if the lmgp project ID is valid in GoaT
+            console.log('🔍 Testing lmgp project ID in GoaT...');
+            const isLmgpValid = await testProjectIdInGoaT(lmgpProject.projectId, 'lmgp');
+            
+            if (!isLmgpValid) {
+              console.warn('⚠️ LMGP project ID may be incorrect or the project may not exist in GoaT');
+            }
+          } else {
+            console.warn('❌ lmgp project NOT found in projectsToFetch');
+            console.log('Available projects:', projectsToFetch.map(p => p.projectName));
+          }
 
           // Pre-initialize data structures
           const speciesCounts = {
@@ -284,6 +379,12 @@
           // Show data warning if needed
           showDataWarning(results);
           
+          // Log any projects that failed to load
+          const failedProjects = results.filter(r => r.error);
+          if (failedProjects.length > 0) {
+            console.warn('⚠️ Projects with errors:', failedProjects.map(p => `${p.projectName}: ${p.error}`));
+          }
+          
           updateProgress('chartContainer1', 'Processing species count data...');
           // updateProgress('chartContainer2', 'Processing genome size data...');
           // updateProgress('chartContainer3', 'Processing assembly span data...');
@@ -291,6 +392,11 @@
           // Optimized data processing
           results.forEach((projectResult, index) => {
             if (projectResult.results) {
+              // Debug logging for lmgp
+              if (projectResult.projectName === 'lmgp') {
+                console.log(`🔍 LMGP processing: ${projectResult.results.length} results, error: ${projectResult.error || 'none'}`);
+              }
+              
               projectResult.results.forEach(item => {
                 const fields = item.result.fields;
                 const assemblyLevel = fields.assembly_level;
@@ -305,6 +411,11 @@
                   }
                 }
               });
+            } else {
+              // Log when no results are available
+              if (projectResult.projectName === 'lmgp') {
+                console.warn(`⚠️ LMGP: No results available for processing`);
+              }
             }
           });
 
@@ -417,7 +528,7 @@
         const option = {
           title: containerId === 'chartContainer1' ? {
             text: '',
-            subtext: `Total Species: ${totalCount.toLocaleString()} | Active Projects: ${projectsWithSpecies} of ${data.categories.length}`,
+            subtext: `Total Species: ${totalCount.toLocaleString()} | Active Projects: ${projectsWithSpecies} of ${data.categories.length} | Total Projects: ${data.categories.length}`,
             left: 'center',
             textStyle: {
               fontSize: 16,
