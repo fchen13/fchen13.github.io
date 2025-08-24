@@ -10,11 +10,11 @@
     <script src="./utils.js"></script>
     <script src="./services.js"></script>
     <script>
-      // 数据地址
+      // Data address
       const url =
         "https://goat.genomehubs.org/api/v2/report?report=arc&x=assembly_span%20AND%20bioproject%3DPRJNA533106&rank=phylum%2Cclass%2Corder%2Cfamily%2Cgenus%2Cspecies&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&caption=%2A%2AEBP%20Umbrella%2A%2A%20-%20EBP%20taxa%20with%20assemblies%20out%20of%20all%20Eukaryotic%20taxa%20in%20INSDC&taxonomy=ncbi&result=taxon&queryId=HvJvG3Tffp";
       
-      // 初始化图表
+      // Initialize chart
         function initEchart(data, annimationDelay ) {
         const chartDom = document.getElementById("chartContainer");
         const myChart = echarts.init(chartDom);
@@ -100,15 +100,15 @@
             left: 0 , // Adjust text positioning
             top: 0,
             shape: {
-              width: 16, // 颜色块宽度
-              height: 10, // 颜色块高度
-              r: 3, // 圆角
+              width: 16, // Color block width
+              height: 10, // Color block height
+              r: 3, // Rounded corners
             },
             style: {
-              fill: data.color, // Series 1 的颜色，与 series 配置中的颜色对应
-              stroke: null, // 不显示边框
+              fill: data.color, // Color of Series 1, corresponding to the color in the series configuration
+              stroke: null, // Don't show border
             },
-            silent: true, // 不响应鼠标事件
+            silent: true, // Don't respond to mouse events
           }
         }
       }
@@ -255,7 +255,7 @@
       }
 
       window.onload = function () {
-        // 请求数据
+        // Request data
 
           const url1 = 'https://goat.genomehubs.org/api/v2/report?report=arc&x=assembly_span%20AND%20bioproject%3DPRJNA533106&rank=phylum%2Cclass%2Corder%2Cfamily%2Cgenus%2Cspecies&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&caption=%2A%2AEBP%20Umbrella%2A%2A%20-%20EBP%20taxa%20with%20assemblies%20out%20of%20all%20Eukaryotic%20taxa%20in%20INSDC&taxonomy=ncbi&result=taxon&queryId=8EWp2aVcZB'
           const url2 = 'https://goat.genomehubs.org/api/v2/report?report=arc&x=assembly_span&rank=phylum%2Cclass%2Corder%2Cfamily%2Cgenus%2Cspecies&includeEstimates=true&excludeAncestral%5B0%5D=assembly_span&excludeMissing%5B0%5D=assembly_span&caption=%2A%2AAll%20INSDC%20taxa%2A%2A%20-%20Taxa%20with%20assemblies%20out%20of%20all%20Eukaryotic%20taxa%20in%20INSDC&taxonomy=ncbi&result=taxon&queryId=R8LGXM94GW'
@@ -272,7 +272,7 @@
               }
             })
             
-            // 绘制图表
+            // Draw chart
             initEchart(stackedData, annimationDelay )
             initLegendChart(legends, annimationDelay)
             renderTaxaPanel(legends)

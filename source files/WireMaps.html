@@ -9,7 +9,7 @@
     <script src="../config.js"></script>
     <script src="./echarts.min.js"></script>
     <script src="./geoMap/world.zh.js"></script>
-    <!-- 替换为新的JS数据文件 -->
+    <!-- Replace with new JS data file -->
     <script src="./geoMap/EBPnetwork_20250807.js"></script>
     <link href="./geoMap/bootstrap.min.css" rel="stylesheet" />
     <script src="./geoMap/jquery-3.6.0.min.js"></script>
@@ -272,7 +272,7 @@
           }));
         }
 
-        // 预生成所有连接线
+        // Pre-generate all connection lines
         const allLinks = aggregatedData
           .filter((point) => point.type === "Headquarters")
           .map((point) => ({
@@ -516,12 +516,12 @@
         // Initial visualization update
         updateVisualization();
 
-        // 交互逻辑
+        // Interaction logic
         myChart.on("mouseover", function (params) {
           if (params.seriesType === "scatter") {
             const item = params.data;
 
-            // 总部悬停显示关联站点
+            // Headquarters hover shows related sites
             if (item.type === "Headquarters") {
               const relatedSite = aggregatedData.filter(
                 (node) =>
@@ -569,7 +569,7 @@
               });
             }
 
-            // 中心点悬停显示全局飞线
+            // Center point hover shows global flight lines
             if (item.type === "Center") {
               const visibleLinks = allLinks.filter(link => {
                 const toPoint = filteredData.find(p => p.name === link.toName);
@@ -618,7 +618,7 @@
       // Initialize map
       initMap(worldJson);
 
-      // 版权信息
+      // Copyright information
       if (typeof copyright !== "undefined") {
         document.getElementById("copyright").textContent = copyright.notice;
       }
