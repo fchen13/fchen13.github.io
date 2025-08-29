@@ -1,0 +1,318 @@
+name: Collect Repository Traffic Data
+
+on:
+  schedule:
+    # Run weekly on Sundays at 2:00 AM UTC
+    - cron: '0 2 * * 0'
+  
+  workflow_dispatch:
+    # Allow manual triggering for testing
+    
+  push:
+    branches: [ main ]
+    paths: 
+      - '.github/workflows/traffic-collector.yml'
+      # Only run on workflow changes for testing
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  collect-traffic-data:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      actions: read
+      metadata: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0  # Full history for better git operations
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+      
+      - name: Create traffic collector script
+        run: |
+          cat > collect_traffic.py << 'EOF'
+          #!/usr/bin/env python3
+          """
+          GitHub Traffic Data Collector
+          Collects and stores repository traffic data using GitHub API
+          """
+          
+          import os
+          import json
+          import csv
+          import requests
+          from datetime import datetime, timezone
+          from pathlib import Path
+          import sys
+          
+          
+          class GitHubTrafficCollector:
+              """Handles collection and storage of GitHub repository traffic data."""
+              
+              def __init__(self, token: str, owner: str, repo: str):
+                  self.token = token
+                  self.owner = owner
+                  self.repo = repo
+                  self.base_url = "https://api.github.com"
+                  self.data_dir = Path("traffic-data")
+                  self.headers = {
+                      "Authorization": f"token {token}",
+                      "Accept": "application/vnd.github.v3+json",
+                      "User-Agent": "GitHub-Traffic-Collector"
+                  }
+              
+              def setup_data_directory(self):
+                  """Create data directory if it doesn't exist."""
+                  self.data_dir.mkdir(exist_ok=True)
+                  print(f"âœ“ Data directory ready: {self.data_dir}")
+              
+              def make_api_request(self, endpoint: str) -> dict:
+                  """Make authenticated request to GitHub API."""
+                  url = f"{self.base_url}/repos/{self.owner}/{self.repo}/{endpoint}"
+                  
+                  try:
+                      response = requests.get(url, headers=self.headers, timeout=30)
+                      response.raise_for_status()
+                      return response.json()
+                  except requests.exceptions.RequestException as e:
+                      print(f"âœ— API request failed for {endpoint}: {e}")
+                      raise
+              
+              def collect_traffic_data(self) -> dict:
+                  """Collect views and clones data from GitHub API."""
+                  print(f"í³Š Collecting traffic data for {self.owner}/{self.repo}")
+                  
+                  try:
+                      views_data = self.make_api_request("traffic/views")
+                      clones_data = self.make_api_request("traffic/clones")
+                      
+                      traffic_data = {
+                          "collected_at": datetime.now(timezone.utc).isoformat(),
+                          "date": datetime.now().strftime("%Y-%m-%d"),
+                          "repository": f"{self.owner}/{self.repo}",
+                          "views": {
+                              "count": views_data.get("count", 0),
+                              "uniques": views_data.get("uniques", 0),
+                              "daily_data": views_data.get("views", [])
+                          },
+                          "clones": {
+                              "count": clones_data.get("count", 0),
+                              "uniques": clones_data.get("uniques", 0),
+                              "daily_data": clones_data.get("clones", [])
+                          }
+                      }
+                      
+                      print(f"âœ“ Views: {traffic_data['views']['count']} total, {traffic_data['views']['uniques']} unique")
+                      print(f"âœ“ Clones: {traffic_data['clones']['count']} total, {traffic_data['clones']['uniques']} unique")
+                      
+                      return traffic_data
+                      
+                  except Exception as e:
+                      print(f"âœ— Failed to collect traffic data: {e}")
+                      raise
+              
+              def save_weekly_json(self, data: dict):
+                  """Save detailed weekly data as JSON file."""
+                  date_str = data["date"]
+                  # Use ISO week format for weekly files (YYYY-WW)
+                  week_str = datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y-W%U")
+                  filename = self.data_dir / f"traffic-{week_str}.json"
+                  
+                  try:
+                      with open(filename, 'w', encoding='utf-8') as f:
+                          json.dump(data, f, indent=2, ensure_ascii=False)
+                      print(f"âœ“ Weekly data saved: {filename}")
+                  except IOError as e:
+                      print(f"âœ— Failed to save JSON file: {e}")
+                      raise
+              
+              def update_summary_csv(self, data: dict):
+                  """Update summary CSV with weekly totals."""
+                  csv_file = self.data_dir / "weekly_summary.csv"
+                  file_exists = csv_file.exists()
+                  
+                  # Calculate week number for better tracking
+                  date_obj = datetime.strptime(data["date"], "%Y-%m-%d")
+                  week_str = date_obj.strftime("%Y-W%U")
+                  
+                  try:
+                      with open(csv_file, 'a', newline='', encoding='utf-8') as f:
+                          writer = csv.writer(f)
+                          
+                          if not file_exists:
+                              writer.writerow([
+                                  'week', 'collection_date', 'views_count', 'views_uniques', 
+                                  'clones_count', 'clones_uniques', 'collected_at'
+                              ])
+                          
+                          writer.writerow([
+                              week_str,
+                              data['date'],
+                              data['views']['count'],
+                              data['views']['uniques'],
+                              data['clones']['count'],
+                              data['clones']['uniques'],
+                              data['collected_at']
+                          ])
+                      
+                      print(f"âœ“ Weekly summary CSV updated: {csv_file}")
+                      
+                  except IOError as e:
+                      print(f"âœ— Failed to update CSV file: {e}")
+                      raise
+              
+              def collect_and_store(self):
+                  """Main method to collect and store traffic data."""
+                  try:
+                      self.setup_data_directory()
+                      traffic_data = self.collect_traffic_data()
+                      self.save_weekly_json(traffic_data)
+                      self.update_summary_csv(traffic_data)
+                      print("í¾‰ Weekly traffic data collection completed successfully!")
+                      return True
+                  except Exception as e:
+                      print(f"í²¥ Collection failed: {e}")
+                      return False
+          
+          
+          def main():
+              """Main entry point."""
+              token = os.getenv('GITHUB_TOKEN')
+              owner = os.getenv('REPO_OWNER')
+              repo = os.getenv('REPO_NAME')
+              
+              if not all([token, owner, repo]):
+                  print("âœ— Missing required environment variables")
+                  sys.exit(1)
+              
+              collector = GitHubTrafficCollector(token, owner, repo)
+              success = collector.collect_and_store()
+              sys.exit(0 if success else 1)
+          
+          
+          if __name__ == "__main__":
+              main()
+          EOF
+          
+          chmod +x collect_traffic.py
+      
+      - name: Run traffic data collection
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: python collect_traffic.py
+      
+      - name: Create README for traffic data
+        run: |
+          if [ ! -f traffic-data/README.md ]; then
+            cat > traffic-data/README.md << 'EOF'
+          # Weekly Traffic Data
+          
+          This directory contains automatically collected GitHub traffic data for this repository.
+          
+          ## Files
+          
+          - `weekly_summary.csv`: Weekly summary of views and clones
+          - `traffic-YYYY-WXX.json`: Detailed weekly traffic data including individual day breakdowns from the 14-day rolling window
+          
+          ## Data Collection
+          
+          - **Frequency**: Weekly on Sundays at 2:00 AM UTC
+          - **Source**: GitHub Traffic API
+          - **Retention**: GitHub only provides 14 days of traffic data, so we collect it weekly to build historical records
+          - **Coverage**: Each collection captures the full 14-day rolling window available at that time
+          
+          ## Data Format
+          
+          ### Weekly Summary CSV
+          ```
+          week,collection_date,views_count,views_uniques,clones_count,clones_uniques,collected_at
+          2025-W03,2025-01-19,156,45,23,8,2025-01-19T02:00:00Z
+          ```
+          
+          ### Weekly JSON
+          Contains detailed breakdown including individual day data from the 14-day rolling window available at collection time.
+          
+          ## Usage
+          
+          You can analyze this data with any tool that supports CSV/JSON:
+          - Excel/Google Sheets for basic analysis
+          - Python pandas for more complex analysis
+          - Any data visualization tool
+          
+          ## Notes
+          
+          - Weekly collection ensures no data loss while avoiding daily commits
+          - Each week's data represents the 14-day window available at collection time
+          - Week numbers follow ISO standard (Sunday as start of week)
+          
+          Last updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          EOF
+          fi
+      
+      - name: Check for changes and commit
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action - Traffic Collector"
+          
+          # Add traffic data
+          git add traffic-data/
+          
+          # Check if there are changes to commit
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          
+          # Commit with informative message
+          CURRENT_DATE=$(date -u +"%Y-%m-%d")
+          WEEK_NUM=$(date -u +"%Y-W%U")
+          git commit -m "í³Š Update weekly traffic data - ${WEEK_NUM} (${CURRENT_DATE})
+          
+          Automated weekly collection of GitHub traffic statistics
+          - Views and clones data from 14-day rolling window
+          - Generated by GitHub Actions workflow"
+          
+          echo "Changes committed successfully"
+      
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+      
+      - name: Summary
+        run: |
+          echo "## Weekly Traffic Data Collection Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f traffic-data/weekly_summary.csv ]; then
+            echo "âœ… Weekly traffic data collected and stored successfully" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Latest Entry" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            tail -1 traffic-data/weekly_summary.csv >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Collection Schedule" >> $GITHUB_STEP_SUMMARY
+            echo "- **Frequency**: Weekly on Sundays at 2:00 AM UTC" >> $GITHUB_STEP_SUMMARY
+            echo "- **Next collection**: $(date -d 'next sunday 2:00' -u)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "âŒ Failed to create weekly traffic data" >> $GITHUB_STEP_SUMMARY
+          fi
