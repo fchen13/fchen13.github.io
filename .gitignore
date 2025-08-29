@@ -49,3 +49,14 @@ ENV/
 *.csv
 *.xlsx
 *.tsv
+
+# Google Analytics 4 - Sensitive data
+web-analytics/ga4_service_account.json
+web-analytics/ga4_config.json
+web-analytics/weekly_analytics_*.json
+web-analytics/*.csv
+
+# GitHub Traffic Data - Sensitive business data
+traffic-data/traffic-*.json
+traffic-data/weekly_summary.csv
+traffic-data/*.png
