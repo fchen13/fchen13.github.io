@@ -81,10 +81,14 @@ class WeeklyAnalyticsCollector:
         print(f"✅ Configuration loaded for property: {self.property_id}")
         return True
     
-    def collect_overview_metrics(self, start_date="7daysAgo", end_date="today"):
+    def collect_overview_metrics(self, start_date="7daysAgo", end_date="today", include_date_dimension=True):
         """Collect overview metrics (sessions, users, pageviews, etc.)"""
         
         print(f"📊 Collecting overview metrics ({start_date} to {end_date})")
+        
+        # For monthly aggregated data, don't use date dimension to avoid double-counting
+        dimensions = [Dimension(name="date")] if include_date_dimension else []
+        order_bys = [OrderBy(dimension={"dimension_name": "date"})] if include_date_dimension else []
         
         request = RunReportRequest(
             property=f"properties/{self.property_id}",
@@ -98,8 +102,8 @@ class WeeklyAnalyticsCollector:
                 Metric(name="averageSessionDuration"),
                 Metric(name="engagementRate")
             ],
-            dimensions=[Dimension(name="date")],
-            order_bys=[OrderBy(dimension={"dimension_name": "date"})]
+            dimensions=dimensions,
+            order_bys=order_bys
         )
         
         try:
@@ -107,21 +111,35 @@ class WeeklyAnalyticsCollector:
             
             data = []
             for row in response.rows:
-                date_value = row.dimension_values[0].value
                 metrics_values = [mv.value for mv in row.metric_values]
                 
-                data.append({
-                    "date": date_value,
-                    "sessions": int(float(metrics_values[0] or 0)),
-                    "total_users": int(float(metrics_values[1] or 0)),
-                    "new_users": int(float(metrics_values[2] or 0)),
-                    "screen_page_views": int(float(metrics_values[3] or 0)),
-                    "bounce_rate": float(metrics_values[4] or 0),
-                    "avg_session_duration": float(metrics_values[5] or 0),
-                    "engagement_rate": float(metrics_values[6] or 0)
-                })
+                # Handle both daily data (with date) and aggregated data (without date)
+                if include_date_dimension:
+                    date_value = row.dimension_values[0].value
+                    data.append({
+                        "date": date_value,
+                        "sessions": int(float(metrics_values[0] or 0)),
+                        "total_users": int(float(metrics_values[1] or 0)),
+                        "new_users": int(float(metrics_values[2] or 0)),
+                        "screen_page_views": int(float(metrics_values[3] or 0)),
+                        "bounce_rate": float(metrics_values[4] or 0),
+                        "avg_session_duration": float(metrics_values[5] or 0),
+                        "engagement_rate": float(metrics_values[6] or 0)
+                    })
+                else:
+                    # Aggregated data for the entire period
+                    data.append({
+                        "sessions": int(float(metrics_values[0] or 0)),
+                        "total_users": int(float(metrics_values[1] or 0)),
+                        "new_users": int(float(metrics_values[2] or 0)),
+                        "screen_page_views": int(float(metrics_values[3] or 0)),
+                        "bounce_rate": float(metrics_values[4] or 0),
+                        "avg_session_duration": float(metrics_values[5] or 0),
+                        "engagement_rate": float(metrics_values[6] or 0)
+                    })
                 
-            print(f"✅ Collected {len(data)} days of overview metrics")
+            period_type = "days" if include_date_dimension else "period"
+            print(f"✅ Collected {len(data)} {period_type} of overview metrics")
             return data
             
         except Exception as e:
@@ -296,6 +314,9 @@ class WeeklyAnalyticsCollector:
         device_data = self.collect_device_data(start_date, end_date)
         events_data = self.collect_custom_events(start_date, end_date)
         
+        # Also collect 30-day active users for accurate dashboard comparison (aggregated, not daily)
+        monthly_overview = self.collect_overview_metrics("30daysAgo", "today", include_date_dimension=False)
+        
         if not overview_data:
             print("❌ No overview data collected")
             return None
@@ -304,7 +325,8 @@ class WeeklyAnalyticsCollector:
             "overview_data": overview_data,
             "geographic_data": geographic_data,
             "device_data": device_data,
-            "events_data": events_data
+            "events_data": events_data,
+            "monthly_overview": monthly_overview
         }
     
     def aggregate_weekly_metrics(self, data):
@@ -314,6 +336,7 @@ class WeeklyAnalyticsCollector:
         geographic_data = data["geographic_data"]
         device_data = data["device_data"]
         events_data = data["events_data"]
+        monthly_overview = data["monthly_overview"]
         
         # Weekly totals from daily data
         weekly_metrics = {
@@ -326,7 +349,10 @@ class WeeklyAnalyticsCollector:
             "avg_engagement_rate": sum(day.get("engagement_rate", 0) for day in overview_data) / len(overview_data) if overview_data else 0,
             "countries_reached": len(set(item["country"] for item in geographic_data)) if geographic_data else 0,
             "total_custom_events": sum(event.get("event_count", 0) for event in events_data) if events_data else 0,
-            "days_collected": len(overview_data)
+            "days_collected": len(overview_data),
+            # Add 30-day active users for dashboard comparison (single aggregated record)
+            "monthly_active_users": monthly_overview[0].get("total_users", 0) if monthly_overview else 0,
+            "monthly_sessions": monthly_overview[0].get("sessions", 0) if monthly_overview else 0
         }
         
         return weekly_metrics
@@ -378,7 +404,7 @@ class WeeklyAnalyticsCollector:
                 'week', 'collection_date', 'sessions', 'total_users', 'new_users',
                 'screen_page_views', 'avg_bounce_rate', 'avg_session_duration', 
                 'avg_engagement_rate', 'countries_reached', 'total_custom_events',
-                'days_collected', 'collected_at'
+                'days_collected', 'monthly_active_users', 'monthly_sessions', 'collected_at'
             ]
             
             writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -400,6 +426,8 @@ class WeeklyAnalyticsCollector:
                 'countries_reached': weekly_metrics['countries_reached'],
                 'total_custom_events': weekly_metrics['total_custom_events'],
                 'days_collected': weekly_metrics['days_collected'],
+                'monthly_active_users': weekly_metrics['monthly_active_users'],
+                'monthly_sessions': weekly_metrics['monthly_sessions'],
                 'collected_at': week_info['collected_at']
             })
         
@@ -498,6 +526,10 @@ Last updated: """ + datetime.now().strftime("%Y-%m-%d") + """
         print(f"✅ Countries Reached: {weekly_metrics['countries_reached']}")
         print(f"✅ Custom Events: {weekly_metrics['total_custom_events']:,}")
         print(f"✅ Engagement Rate: {weekly_metrics['avg_engagement_rate']:.1%}")
+        print(f"")
+        print(f"📊 30-Day Dashboard Comparison:")
+        print(f"✅ Active Users (30 days): {weekly_metrics['monthly_active_users']:,}")
+        print(f"✅ Total Sessions (30 days): {weekly_metrics['monthly_sessions']:,}")
         print(f"")
         print(f"📁 Files updated:")
         print(f"   • {json_file} (detailed weekly data)")
