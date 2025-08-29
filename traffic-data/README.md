@@ -1,41 +1,86 @@
-# Weekly Traffic Data
+# EBP Dashboard Traffic Data Hub
 
-This directory contains automatically collected GitHub traffic data for this repository.
+This directory contains the complete traffic monitoring system for the EBP Dashboard repository.
 
-## Files
+## 📁 Directory Contents
 
-- `weekly_summary.csv`: Weekly summary of views and clones
-- `traffic-YYYY-WXX.json`: Detailed weekly traffic data including individual day breakdowns from the 14-day rolling window
+### 📊 Analysis Tools
+- `analyze_traffic_data.py`: Main analysis & visualization script
+- `add_historical_traffic.py`: Script for integrating historical data  
+- `run_analysis.py`: Simple runner script for easy analysis
 
-## Data Collection
+### 📈 Visualizations (Generated)
+- `traffic_analysis_clones.png`: 4-panel comprehensive clone analysis
+- `traffic_trends_analysis.png`: Weekly and cumulative trend comparison
 
-- **Frequency**: Weekly on Sundays at 2:00 AM UTC
-- **Source**: GitHub Traffic API
-- **Retention**: GitHub only provides 14 days of traffic data, so we collect it weekly to build historical records
-- **Coverage**: Each collection captures the full 14-day rolling window available at that time
+### 📁 Data Files
+- `weekly_summary.csv`: Main summary data (grows weekly)
+- `traffic-YYYY-WXX.json`: Detailed weekly data with daily breakdowns
+- `README.md`: This documentation file
 
-## Data Format
+## 🚀 Quick Start
+
+### Run Analysis (from traffic-data directory):
+```bash
+# Navigate to traffic-data directory
+cd traffic-data
+
+# Run comprehensive analysis
+python analyze_traffic_data.py
+# OR use the simple runner
+python run_analysis.py
+```
+
+### Add Historical Data:
+```bash
+python add_historical_traffic.py
+```
+
+## 📊 Data Collection
+
+- **Frequency**: Automated weekly on Sundays at 2:00 AM UTC
+- **Source**: GitHub Traffic API via GitHub Actions workflow
+- **Historical**: Includes manual snapshots from July 2024 + interpolated data
+- **Coverage**: Each collection captures 14-day rolling window
+
+## 📈 Analysis Features
+
+### Visualizations Created:
+1. **Weekly Clone Count** - Actual weekly activity bars
+2. **Cumulative Clone Count** - Growing total over time
+3. **Weekly Unique Cloners** - Unique visitors per week  
+4. **Cumulative Unique Cloners** - Total unique visitor growth
+5. **Trend Comparisons** - Side-by-side and growth trend analysis
+
+### Statistics Provided:
+- Total clones and unique cloners (all-time)
+- Weekly averages and peak activity periods
+- Engagement ratios and recent activity trends
+
+## 📝 Data Format
 
 ### Weekly Summary CSV
-```
+```csv
 week,collection_date,views_count,views_uniques,clones_count,clones_uniques,collected_at
-2025-W03,2025-01-19,156,45,23,8,2025-01-19T02:00:00Z
+2024-W29,2024-07-15,0,0,34,26,2024-07-15T02:00:00Z
+2025-W34,2025-08-17,0,0,12,8,2025-08-17T02:00:00Z
 ```
 
-### Weekly JSON
-Contains detailed breakdown including individual day data from the 14-day rolling window available at collection time.
+### Weekly JSON  
+Contains detailed daily breakdowns within each 14-day collection window.
 
-## Usage
+## 🔧 Requirements
 
-You can analyze this data with any tool that supports CSV/JSON:
-- Excel/Google Sheets for basic analysis
-- Python pandas for more complex analysis
-- Any data visualization tool
+```bash
+pip install pandas matplotlib seaborn numpy
+```
 
-## Notes
+## 📋 Notes
 
-- Weekly collection ensures no data loss while avoiding daily commits
-- Each week's data represents the 14-day window available at collection time
-- Week numbers follow ISO standard (Sunday as start of week)
+- **Historical Integration**: July 2024 snapshots + interpolated missing periods  
+- **Automated Growth**: New data added weekly via GitHub Actions
+- **Local Analysis**: Pull latest data with `git pull origin ebp-main`
+- **Clean Organization**: All traffic files contained in this directory
 
-Last updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+---
+*Last updated: Generated automatically by traffic analysis system*

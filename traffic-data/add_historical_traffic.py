@@ -13,9 +13,8 @@ from pathlib import Path
 def create_historical_data():
     """Create historical traffic data based on your snapshots."""
     
-    # Create traffic-data directory if it doesn't exist
-    traffic_dir = Path("traffic-data")
-    traffic_dir.mkdir(exist_ok=True)
+    # Use current directory since we're now inside traffic-data
+    traffic_dir = Path(".")
     
     # Historical data from your screenshots
     historical_periods = [
@@ -52,31 +51,43 @@ def create_historical_data():
         {"week": "2024-W32", "date": "2024-08-12", "clones": 8, "uniques": 6},
     ]
     
-    # Recent period data
-    recent_period = {
-        "start_date": "2024-08-15",
-        "week": "2024-W33", 
-        "views_count": 0,
-        "views_uniques": 0,
-        "clones_count": 3,
-        "clones_uniques": 3,
-        "daily_data": [
-            {"timestamp": "2024-08-15T00:00:00Z", "count": 0, "uniques": 0},
-            {"timestamp": "2024-08-16T00:00:00Z", "count": 0, "uniques": 0},
-            {"timestamp": "2024-08-17T00:00:00Z", "count": 0, "uniques": 0},
-            {"timestamp": "2024-08-18T00:00:00Z", "count": 0, "uniques": 0},
-            {"timestamp": "2024-08-19T00:00:00Z", "count": 0, "uniques": 0},
-            {"timestamp": "2024-08-20T00:00:00Z", "count": 1, "uniques": 1},
-            {"timestamp": "2024-08-21T00:00:00Z", "count": 0, "uniques": 0},
-            {"timestamp": "2024-08-22T00:00:00Z", "count": 0, "uniques": 0},
-            {"timestamp": "2024-08-23T00:00:00Z", "count": 0, "uniques": 0},
-            {"timestamp": "2024-08-24T00:00:00Z", "count": 0, "uniques": 0},
-            {"timestamp": "2024-08-25T00:00:00Z", "count": 0, "uniques": 0},
-            {"timestamp": "2024-08-26T00:00:00Z", "count": 0, "uniques": 0},
-            {"timestamp": "2024-08-27T00:00:00Z", "count": 2, "uniques": 2},
-            {"timestamp": "2024-08-28T00:00:00Z", "count": 0, "uniques": 0}
-        ]
-    }
+    # Recent period data - split into two weeks
+    recent_periods = [
+        {
+            "start_date": "2024-08-19",  # Use actual activity date for plotting
+            "week": "2024-W33", 
+            "views_count": 0,
+            "views_uniques": 0,
+            "clones_count": 1,  # Activity on 08/19
+            "clones_uniques": 1,
+            "daily_data": [
+                {"timestamp": "2024-08-15T00:00:00Z", "count": 0, "uniques": 0},
+                {"timestamp": "2024-08-16T00:00:00Z", "count": 0, "uniques": 0},
+                {"timestamp": "2024-08-17T00:00:00Z", "count": 0, "uniques": 0},
+                {"timestamp": "2024-08-18T00:00:00Z", "count": 0, "uniques": 0},
+                {"timestamp": "2024-08-19T00:00:00Z", "count": 1, "uniques": 1},
+                {"timestamp": "2024-08-20T00:00:00Z", "count": 0, "uniques": 0},
+                {"timestamp": "2024-08-21T00:00:00Z", "count": 0, "uniques": 0}
+            ]
+        },
+        {
+            "start_date": "2024-08-27",  # Use actual activity date for plotting
+            "week": "2024-W34", 
+            "views_count": 0,
+            "views_uniques": 0,
+            "clones_count": 2,  # Activity on 08/27
+            "clones_uniques": 2,
+            "daily_data": [
+                {"timestamp": "2024-08-22T00:00:00Z", "count": 0, "uniques": 0},
+                {"timestamp": "2024-08-23T00:00:00Z", "count": 0, "uniques": 0},
+                {"timestamp": "2024-08-24T00:00:00Z", "count": 0, "uniques": 0},
+                {"timestamp": "2024-08-25T00:00:00Z", "count": 0, "uniques": 0},
+                {"timestamp": "2024-08-26T00:00:00Z", "count": 0, "uniques": 0},
+                {"timestamp": "2024-08-27T00:00:00Z", "count": 2, "uniques": 2},
+                {"timestamp": "2024-08-28T00:00:00Z", "count": 0, "uniques": 0}
+            ]
+        }
+    ]
     
     # Create CSV file with historical data
     csv_file = traffic_dir / "weekly_summary.csv"
@@ -121,21 +132,22 @@ def create_historical_data():
                 f"{week['date']}T02:00:00Z"
             ])
         
-        # Add recent period
-        writer.writerow([
-            recent_period['week'],
-            recent_period['start_date'],
-            recent_period['views_count'],
-            recent_period['views_uniques'],
-            recent_period['clones_count'], 
-            recent_period['clones_uniques'],
-            f"{recent_period['start_date']}T02:00:00Z"
-        ])
+        # Add recent periods
+        for period in recent_periods:
+            writer.writerow([
+                period['week'],
+                period['start_date'],
+                period['views_count'],
+                period['views_uniques'],
+                period['clones_count'], 
+                period['clones_uniques'],
+                f"{period['start_date']}T02:00:00Z"
+            ])
     
     print(f"✅ Historical CSV data written to: {csv_file}")
     
     # Create detailed JSON files for each week
-    all_periods = historical_periods + [recent_period]
+    all_periods = historical_periods + recent_periods
     
     for period in all_periods:
         json_filename = traffic_dir / f"traffic-{period['week']}.json"
@@ -164,6 +176,12 @@ def create_historical_data():
     print("\n🎉 Historical traffic data integration complete!")
     print(f"📊 Added {len(all_periods) + len(missing_weeks)} weeks of historical data")
     print(f"📁 Files created in: {traffic_dir.absolute()}")
+    
+    print(f"\n📋 WEEK BREAKDOWN:")
+    print(f"   • Historical snapshots: {len(historical_periods)} weeks")
+    print(f"   • Interpolated missing: {len(missing_weeks)} weeks") 
+    print(f"   • Recent actual data: {len(recent_periods)} weeks")
+    print(f"   • Total coverage: {len(all_periods) + len(missing_weeks)} weeks")
 
 if __name__ == "__main__":
     create_historical_data()
