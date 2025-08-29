@@ -56,7 +56,7 @@ const projectsList = {
     "upg": "",
     "cal-ebp": "PRJNA707235",
     "vgp": "PRJNA489243",
-    "wa": "",
+    "wa": "PRJEB96280",
     "ygg": "PRJNA955268",
     "zoonomia": "PRJNA312960"
 }

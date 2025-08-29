@@ -16,9 +16,9 @@
         /* #chartContainer2,
         #chartContainer3 */
           {
-            height: 80vh;
-            width: 70%;
-            /* min-width: 500px;    */
+            height: 75vh;  /* Increased height for better label visibility */
+            width: 85%;    /* Increased width for smaller screens */
+            min-width: 600px;  /* Ensure minimum width */
             margin: 20px auto;
         }
         /* Add container padding to prevent footer overlap */
@@ -27,7 +27,6 @@
         }
         /* Footer styles */
         #footer {
-            display: none; /* Hide the footer */
             position: fixed;
             bottom: 0;
             width: 100%;
@@ -88,8 +87,7 @@
    
    <!-- Disclaimer positioned with better spacing -->
    <div id="disclaimer" style="margin-top: 0px; text-align: center; color: #333; font-size: 16px; padding: 0px; background-color: #f8f9fa; border-radius: 8px; max-width: 1000px; margin-left: auto; margin-right: auto;">
-       <strong>Disclaimer:</strong> There may be double counting due to project nesting and collaboration, where multiple projects take credit for a single assembly. 
-       <br>All EBP affiliated projects with available bioproject IDs are included, except for ERGA that is a regional node and does not sequence on its own.
+       <strong>Network Collaboration:</strong> Some assemblies appear across multiple projects, reflecting the collaborative nature of our global research community. <br>Regional nodes and projects without BioprojectID are not listed. 
    </div>
    
    <!-- <div id="chartContainer2">
@@ -528,7 +526,7 @@
         const option = {
           title: containerId === 'chartContainer1' ? {
             text: '',
-            subtext: `Total Species: ${totalCount.toLocaleString()} | Active Projects: ${projectsWithSpecies} of ${data.categories.length} | Total Projects: ${data.categories.length}`,
+            subtext: `Individual Project Achievements | Active Projects: ${projectsWithSpecies} of ${data.categories.length}`,
             left: 'center',
             textStyle: {
               fontSize: 16,
@@ -557,7 +555,7 @@
             left: '7%',  // Decreased left margin
             right: '2%',
             top: containerId === 'chartContainer1' ? '18%' : '8%',  // More space for title in species chart
-            bottom: '10%',
+            bottom: '20%',  // Increased bottom margin for rotated labels
             containLabel: true
           },
           yAxis: {
@@ -624,7 +622,7 @@
             },
             name: "EBP affiliates", // Add this line
             nameLocation: 'middle', // Add this line to place the label in the middle 
-            nameGap: 60,  // Adjust gap to bring label closer
+            nameGap: 80,  // Adjust gap to move label down
             nameTextStyle: {
               fontWeight: 'bold',
               fontSize: 14,
@@ -636,7 +634,12 @@
           },
           tooltip: {
             trigger: "axis",
+            position: ['85%', '15%'], // Position in upper-right corner
             formatter: function (params) {
+              // Add project name as the first line
+              var projectName = params[0].name;
+              var header = "<strong>" + projectName + "</strong><br/>";
+              
               var res = params
                 .map(function (item) {
                   return item.seriesName + ": " + (item.value || 0).toLocaleString();
@@ -649,7 +652,7 @@
                 total += item.value || 0;
               });
 
-              return res + "<br/>Total: " + total.toLocaleString();
+              return header + res + "<br/>Total: " + total.toLocaleString();
             },
           },
           series: data.series,
