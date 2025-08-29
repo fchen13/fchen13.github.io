@@ -2,17 +2,8 @@ name: Collect Repository Traffic Data
 
 on:
   schedule:
-    # Run weekly on Sundays at 2:00 AM UTC
     - cron: '0 2 * * 0'
-  
   workflow_dispatch:
-    # Allow manual triggering for testing
-    
-  push:
-    branches: [ main ]
-    paths: 
-      - '.github/workflows/traffic-collector.yml'
-      # Only run on workflow changes for testing
 
 env:
   PYTHON_VERSION: '3.11'
@@ -31,7 +22,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0  # Full history for better git operations
+          fetch-depth: 0
       
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -48,11 +39,6 @@ jobs:
         run: |
           cat > collect_traffic.py << 'EOF'
           #!/usr/bin/env python3
-          """
-          GitHub Traffic Data Collector
-          Collects and stores repository traffic data using GitHub API
-          """
-          
           import os
           import json
           import csv
@@ -61,10 +47,7 @@ jobs:
           from pathlib import Path
           import sys
           
-          
           class GitHubTrafficCollector:
-              """Handles collection and storage of GitHub repository traffic data."""
-              
               def __init__(self, token: str, owner: str, repo: str):
                   self.token = token
                   self.owner = owner
@@ -78,14 +61,11 @@ jobs:
                   }
               
               def setup_data_directory(self):
-                  """Create data directory if it doesn't exist."""
                   self.data_dir.mkdir(exist_ok=True)
                   print(f"âœ“ Data directory ready: {self.data_dir}")
               
               def make_api_request(self, endpoint: str) -> dict:
-                  """Make authenticated request to GitHub API."""
                   url = f"{self.base_url}/repos/{self.owner}/{self.repo}/{endpoint}"
-                  
                   try:
                       response = requests.get(url, headers=self.headers, timeout=30)
                       response.raise_for_status()
@@ -95,9 +75,7 @@ jobs:
                       raise
               
               def collect_traffic_data(self) -> dict:
-                  """Collect views and clones data from GitHub API."""
-                  print(f"í³Š Collecting traffic data for {self.owner}/{self.repo}")
-                  
+                  print(f"ðŸ“Š Collecting traffic data for {self.owner}/{self.repo}")
                   try:
                       views_data = self.make_api_request("traffic/views")
                       clones_data = self.make_api_request("traffic/clones")
@@ -128,9 +106,7 @@ jobs:
                       raise
               
               def save_weekly_json(self, data: dict):
-                  """Save detailed weekly data as JSON file."""
                   date_str = data["date"]
-                  # Use ISO week format for weekly files (YYYY-WW)
                   week_str = datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y-W%U")
                   filename = self.data_dir / f"traffic-{week_str}.json"
                   
@@ -143,13 +119,10 @@ jobs:
                       raise
               
               def update_summary_csv(self, data: dict):
-                  """Update summary CSV with weekly totals."""
                   csv_file = self.data_dir / "weekly_summary.csv"
-                  file_exists = csv_file.exists()
-                  
-                  # Calculate week number for better tracking
                   date_obj = datetime.strptime(data["date"], "%Y-%m-%d")
                   week_str = date_obj.strftime("%Y-W%U")
+                  file_exists = csv_file.exists()
                   
                   try:
                       with open(csv_file, 'a', newline='', encoding='utf-8') as f:
@@ -178,21 +151,18 @@ jobs:
                       raise
               
               def collect_and_store(self):
-                  """Main method to collect and store traffic data."""
                   try:
                       self.setup_data_directory()
                       traffic_data = self.collect_traffic_data()
                       self.save_weekly_json(traffic_data)
                       self.update_summary_csv(traffic_data)
-                      print("í¾‰ Weekly traffic data collection completed successfully!")
+                      print("ðŸŽ‰ Weekly traffic data collection completed successfully!")
                       return True
                   except Exception as e:
-                      print(f"í²¥ Collection failed: {e}")
+                      print(f"ðŸ’¥ Collection failed: {e}")
                       return False
           
-          
           def main():
-              """Main entry point."""
               token = os.getenv('GITHUB_TOKEN')
               owner = os.getenv('REPO_OWNER')
               repo = os.getenv('REPO_NAME')
@@ -204,7 +174,6 @@ jobs:
               collector = GitHubTrafficCollector(token, owner, repo)
               success = collector.collect_and_store()
               sys.exit(0 if success else 1)
-          
           
           if __name__ == "__main__":
               main()
@@ -272,23 +241,16 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action - Traffic Collector"
           
-          # Add traffic data
           git add traffic-data/
           
-          # Check if there are changes to commit
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
           
-          # Commit with informative message
           CURRENT_DATE=$(date -u +"%Y-%m-%d")
           WEEK_NUM=$(date -u +"%Y-W%U")
-          git commit -m "í³Š Update weekly traffic data - ${WEEK_NUM} (${CURRENT_DATE})
-          
-          Automated weekly collection of GitHub traffic statistics
-          - Views and clones data from 14-day rolling window
-          - Generated by GitHub Actions workflow"
+          git commit -m "ðŸ“Š Update weekly traffic data - ${WEEK_NUM} (${CURRENT_DATE})"
           
           echo "Changes committed successfully"
       
