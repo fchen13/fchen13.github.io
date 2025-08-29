@@ -1,0 +1,42 @@
+{
+  "collected_at": "2025-08-29T14:58:12.957144+00:00",
+  "date": "2025-08-29",
+  "repository": "EarthBiogenome/dashboard",
+  "views": {
+    "count": 45,
+    "uniques": 1,
+    "daily_data": [
+      {
+        "timestamp": "2025-08-28T00:00:00Z",
+        "count": 15,
+        "uniques": 1
+      },
+      {
+        "timestamp": "2025-08-29T00:00:00Z",
+        "count": 30,
+        "uniques": 1
+      }
+    ]
+  },
+  "clones": {
+    "count": 18,
+    "uniques": 13,
+    "daily_data": [
+      {
+        "timestamp": "2025-08-20T00:00:00Z",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "timestamp": "2025-08-27T00:00:00Z",
+        "count": 2,
+        "uniques": 2
+      },
+      {
+        "timestamp": "2025-08-29T00:00:00Z",
+        "count": 15,
+        "uniques": 10
+      }
+    ]
+  }
+}
