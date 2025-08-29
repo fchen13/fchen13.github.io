@@ -23,6 +23,12 @@ jobs:
           token: ${{ secrets.TRAFFIC_TOKEN }}
           fetch-depth: 0
       
+      - name: Sync with remote branch
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action - Traffic Collector"
+          git pull origin ${{ github.ref_name }} || echo "No remote changes to pull"
+      
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -236,12 +242,6 @@ jobs:
       
       - name: Check for changes and commit
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action - Traffic Collector"
-          
-          # Pull latest changes to avoid conflicts
-          git pull origin ${{ github.ref_name }}
-          
           git add traffic-data/
           
           if git diff --cached --quiet; then
