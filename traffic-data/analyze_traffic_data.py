@@ -53,13 +53,13 @@ def create_comprehensive_analysis(df):
     fig = plt.figure(figsize=(16, 12))
     
     # Main title
-    fig.suptitle('EBP Dashboard Repository - Clone Traffic Analysis\n(Historical + Automated Data)', 
-                 fontsize=16, fontweight='bold', y=0.95)
+    # fig.suptitle('EBP Dashboard Repository - Clone Traffic Analysis\n(Historical + Automated Data)', 
+    #              fontsize=16, fontweight='bold', y=0.95)
     
     # 1. Weekly Clone Counts (Actual)
     ax1 = plt.subplot(2, 2, 1)
     bars1 = ax1.bar(df['week_label'], df['clones_count'], 
-                    color='skyblue', alpha=0.8, edgecolor='navy', linewidth=0.5)
+                    color='skyblue', alpha=0.8, edqivagecolor='navy', linewidth=0.5)
     ax1.set_title('Weekly Clone Count (Actual)', fontweight='bold', fontsize=12)
     ax1.set_xlabel('Week (Month/Day)')
     ax1.set_ylabel('Number of Clones')
@@ -145,8 +145,8 @@ def create_trend_analysis(df):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
     
     # Add main title
-    fig.suptitle('EBP Dashboard Repository - Git Clone Traffic Analysis', 
-                 fontsize=16, fontweight='bold', y=0.95)
+    # fig.suptitle('EBP Dashboard Repository - Git Clone Traffic Analysis', 
+    #              fontsize=16, fontweight='bold', y=0.95)
     
     # Combined weekly view
     x_pos = np.arange(len(df))

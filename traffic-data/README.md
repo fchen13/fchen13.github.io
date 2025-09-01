@@ -18,6 +18,8 @@ This directory contains the complete traffic monitoring system for the EBP Dashb
 - `traffic-YYYY-WXX.json`: Detailed weekly data with daily breakdowns
 - `README.md`: This documentation file
 
+### to get the latest data locally, run git pull origin ebp-main in the traffic-data directory
+
 ## 🚀 Quick Start
 
 ### Run Analysis (from traffic-data directory):
@@ -38,7 +40,7 @@ python add_historical_traffic.py
 
 ## 📊 Data Collection
 
-- **Frequency**: Automated weekly on Sundays at 2:00 AM UTC
+- **Frequency**: Automated weekly on Mondays at 2:00 AM UTC
 - **Source**: GitHub Traffic API via GitHub Actions workflow
 - **Historical**: Includes manual snapshots from July 2024 + interpolated data
 - **Coverage**: Each collection captures 14-day rolling window
