@@ -59,11 +59,11 @@ def create_comprehensive_analysis(df):
     # 1. Weekly Clone Counts (Actual)
     ax1 = plt.subplot(2, 2, 1)
     bars1 = ax1.bar(df['week_label'], df['clones_count'], 
-                    color='skyblue', alpha=0.8, edqivagecolor='navy', linewidth=0.5)
-    ax1.set_title('Weekly Clone Count (Actual)', fontweight='bold', fontsize=12)
+                    color='skyblue', alpha=0.8, edgecolor='navy', linewidth=0.5)
     ax1.set_xlabel('Week (Month/Day)')
     ax1.set_ylabel('Number of Clones')
-    ax1.grid(True, alpha=0.3)
+    ax1.set_facecolor('#f8f9fa')
+    ax1.grid(True, color='#e0e0e0', linestyle='-', linewidth=0.5, alpha=0.7)
     
     # Add value labels on bars
     for bar in bars1:
@@ -79,10 +79,10 @@ def create_comprehensive_analysis(df):
     line1 = ax2.plot(df['week_label'], df['cumulative_clones_count'], 
                      marker='o', linewidth=2.5, markersize=6, color='darkblue')
     ax2.fill_between(df['week_label'], df['cumulative_clones_count'], alpha=0.3, color='lightblue')
-    ax2.set_title('Cumulative Clone Count (Total)', fontweight='bold', fontsize=12)
     ax2.set_xlabel('Week (Month/Day)')
     ax2.set_ylabel('Total Clones')
-    ax2.grid(True, alpha=0.3)
+    ax2.set_facecolor('#f8f9fa')
+    ax2.grid(True, color='#e0e0e0', linestyle='-', linewidth=0.5, alpha=0.7)
     
     # Add final total annotation
     final_total = df['cumulative_clones_count'].iloc[-1]
@@ -96,10 +96,10 @@ def create_comprehensive_analysis(df):
     ax3 = plt.subplot(2, 2, 3)
     bars2 = ax3.bar(df['week_label'], df['clones_uniques'], 
                     color='lightcoral', alpha=0.8, edgecolor='darkred', linewidth=0.5)
-    ax3.set_title('Weekly Unique Cloners (Actual)', fontweight='bold', fontsize=12)
     ax3.set_xlabel('Week (Month/Day)')
     ax3.set_ylabel('Number of Unique Cloners')
-    ax3.grid(True, alpha=0.3)
+    ax3.set_facecolor('#f8f9fa')
+    ax3.grid(True, color='#e0e0e0', linestyle='-', linewidth=0.5, alpha=0.7)
     
     # Add value labels on bars
     for bar in bars2:
@@ -115,10 +115,10 @@ def create_comprehensive_analysis(df):
     line2 = ax4.plot(df['week_label'], df['cumulative_clones_uniques'], 
                      marker='s', linewidth=2.5, markersize=6, color='darkred')
     ax4.fill_between(df['week_label'], df['cumulative_clones_uniques'], alpha=0.3, color='lightcoral')
-    ax4.set_title('Cumulative Unique Cloners (Total)', fontweight='bold', fontsize=12)
     ax4.set_xlabel('Week (Month/Day)')
     ax4.set_ylabel('Total Unique Cloners')
-    ax4.grid(True, alpha=0.3)
+    ax4.set_facecolor('#f8f9fa')
+    ax4.grid(True, color='#e0e0e0', linestyle='-', linewidth=0.5, alpha=0.7)
     
     # Add final total annotation
     final_unique = df['cumulative_clones_uniques'].iloc[-1]
@@ -156,26 +156,24 @@ def create_trend_analysis(df):
                     label='Clone Count', color='skyblue', alpha=0.8)
     bars2 = ax1.bar(x_pos + width/2, df['clones_uniques'], width,
                     label='Unique Cloners', color='lightcoral', alpha=0.8)
-    
-    ax1.set_title('Weekly Git Clone Activities', fontweight='bold', fontsize=14)
     ax1.set_xlabel('Week')
     ax1.set_ylabel('Count')
     ax1.set_xticks(x_pos)
     ax1.set_xticklabels(df['week_label'], rotation=45)
     ax1.legend()
-    ax1.grid(True, alpha=0.3)
+    ax1.set_facecolor('#f8f9fa')
+    ax1.grid(True, color='#e0e0e0', linestyle='-', linewidth=0.5, alpha=0.7)
     
     # Cumulative trend comparison
     ax2.plot(df['week_label'], df['cumulative_clones_count'], 
              marker='o', linewidth=3, label='Total Clones', color='blue')
     ax2.plot(df['week_label'], df['cumulative_clones_uniques'], 
              marker='s', linewidth=3, label='Total Unique Cloners', color='red')
-    
-    ax2.set_title('Cumulative Git Clone Activities', fontweight='bold', fontsize=14)
     ax2.set_xlabel('Week')
     ax2.set_ylabel('Cumulative Count')
     ax2.legend()
-    ax2.grid(True, alpha=0.3)
+    ax2.set_facecolor('#f8f9fa')
+    ax2.grid(True, color='#e0e0e0', linestyle='-', linewidth=0.5, alpha=0.7)
     plt.xticks(rotation=45)
     
     plt.tight_layout()
