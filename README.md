@@ -58,11 +58,27 @@ To run this dashboard locally:
 - HTML/CSS/JavaScript - For web interface
 
 ## Contributing
-Please contact the EBP team if you'd like to contribute to this dashboard.
+We welcome contributions to improve the EBP Dashboard! Whether you're fixing bugs, adding new visualizations, or improving documentation, your contributions help advance biodiversity science.
 
-## License and Copyright
-© 2025 THE EARTH BIOGENOME PROJECT  
-All content and visualizations in this dashboard are protected by copyright law. Any unauthorized use, reproduction, or distribution is prohibited.
+### How to Contribute
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Commit your changes (`git commit -m 'Add some amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+For major changes or new visualization ideas, please open an issue first to discuss what you would like to change.
+
+### Questions?
+Feel free to open an issue or contact the EBP team for any questions about contributing.
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+Copyright (c) 2024 The Earth BioGenome Project
+
+This open-source license allows others to use, modify, and distribute this software while maintaining attribution to the Earth BioGenome Project.
 
 ## Contact
 For more information about the Earth BioGenome Project, visit [www.earthbiogenome.org](https://www.earthbiogenome.org/).
