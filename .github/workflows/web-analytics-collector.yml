@@ -1,0 +1,438 @@
+name: Weekly Web Analytics Collection
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'  # Monday 2AM UTC (matches traffic collection)
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  collect-web-analytics:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        ref: ebp-main
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install google-analytics-data pandas python-dateutil
+    
+    - name: Create GA4 Configuration
+      working-directory: web-analytics
+      run: |
+        cat > ga4_config.json << EOF
+        {
+          "property_id": "${{ secrets.GA4_PROPERTY_ID }}",
+          "website_url": "https://earthbiogenome.github.io/dashboard",
+          "custom_events": [
+            "visualization_click",
+            "category_view",
+            "dashboard_loaded",
+            "scroll_depth"
+          ]
+        }
+        EOF
+    
+    - name: Create GA4 Service Account Credentials
+      working-directory: web-analytics
+      run: |
+        echo '${{ secrets.GA4_SERVICE_ACCOUNT_JSON }}' > ga4_service_account.json
+    
+    - name: Collect Weekly Web Analytics Data
+      working-directory: web-analytics
+      run: |
+        python3 << 'EOF'
+        #!/usr/bin/env python3
+        """
+        Automated Weekly Web Analytics Collection for EBP Dashboard
+        Runs every Monday at 2:00 AM UTC to collect previous week's data
+        Matches GitHub traffic collection strategy for consistency
+        """
+        
+        import os
+        import json
+        import csv
+        import pandas as pd
+        from datetime import datetime, timezone, timedelta
+        from pathlib import Path
+        from google.analytics.data_v1beta import BetaAnalyticsDataClient
+        from google.analytics.data_v1beta.types import (
+            DateRange,
+            Dimension,
+            Metric,
+            RunReportRequest,
+            OrderBy
+        )
+        from google.oauth2.service_account import Credentials
+        
+        class AutomatedWebAnalyticsCollector:
+            def __init__(self):
+                self.data_dir = Path(".")
+                self.weekly_summary_file = "weekly_web_analytics.csv"
+                self.config_file = Path("ga4_config.json")
+                self.credentials_file = Path("ga4_service_account.json")
+                self.client = None
+                self.property_id = None
+                self.config = None
+                
+            def setup_authentication(self):
+                """Set up Google Analytics API authentication"""
+                
+                if not self.credentials_file.exists():
+                    print(f"❌ Service account credentials not found: {self.credentials_file}")
+                    return False
+                    
+                try:
+                    credentials = Credentials.from_service_account_file(
+                        self.credentials_file,
+                        scopes=["https://www.googleapis.com/auth/analytics.readonly"]
+                    )
+                    self.client = BetaAnalyticsDataClient(credentials=credentials)
+                    print(f"✅ Authentication successful")
+                    return True
+                    
+                except Exception as e:
+                    print(f"❌ Authentication failed: {e}")
+                    return False
+            
+            def load_config(self):
+                """Load configuration from file"""
+                
+                if not self.config_file.exists():
+                    print(f"❌ Configuration file not found: {self.config_file}")
+                    return False
+                    
+                with open(self.config_file, 'r') as f:
+                    self.config = json.load(f)
+                    
+                self.property_id = self.config.get('property_id')
+                print(f"✅ Configuration loaded for property: {self.property_id}")
+                return True
+            
+            def collect_weekly_data(self):
+                """Collect GA4 data for the previous completed week"""
+                
+                # Calculate previous week's Monday (completed week)
+                today = datetime.now(timezone.utc)
+                days_since_monday = today.weekday()  # 0=Monday, 6=Sunday
+                previous_monday = today - timedelta(days=days_since_monday + 7)
+                previous_sunday = previous_monday + timedelta(days=6)
+                
+                target_week = previous_monday.strftime("%Y-W%U")
+                
+                print(f"📊 Collecting web analytics data for EBP Dashboard")
+                print(f"🎯 Target week: {target_week} (completed week {previous_monday.strftime('%Y-%m-%d')} to {previous_sunday.strftime('%Y-%m-%d')})")
+                
+                # Format dates for GA4 API
+                start_date = previous_monday.strftime("%Y-%m-%d")
+                end_date = previous_sunday.strftime("%Y-%m-%d")
+                
+                try:
+                    # Load configuration and setup authentication
+                    if not self.load_config():
+                        return None
+                        
+                    if not self.setup_authentication():
+                        return None
+                    
+                    # Collect overview metrics
+                    overview_data = self.collect_overview_metrics(start_date, end_date)
+                    geographic_data = self.collect_geographic_data(start_date, end_date)
+                    
+                    if not overview_data:
+                        print("❌ No overview data collected")
+                        return None
+                    
+                    # Aggregate weekly metrics
+                    weekly_metrics = self.aggregate_weekly_metrics(overview_data, geographic_data)
+                    
+                    # Prepare data structure
+                    web_analytics_data = {
+                        "collected_at": datetime.now(timezone.utc).isoformat(),
+                        "date": previous_monday.strftime("%Y-%m-%d"),
+                        "week": target_week,
+                        "period": f"{start_date} to {end_date}",
+                        "website_url": self.config.get("website_url", ""),
+                        "property_id": self.property_id,
+                        "weekly_metrics": weekly_metrics,
+                        "raw_data": {
+                            "overview": overview_data,
+                            "geographic": geographic_data
+                        }
+                    }
+                    
+                    return web_analytics_data
+                    
+                except Exception as e:
+                    print(f"❌ Data collection failed: {e}")
+                    return None
+            
+            def collect_overview_metrics(self, start_date, end_date):
+                """Collect overview metrics for the specified date range"""
+                
+                print(f"📊 Collecting overview metrics ({start_date} to {end_date})")
+                
+                request = RunReportRequest(
+                    property=f"properties/{self.property_id}",
+                    date_ranges=[DateRange(start_date=start_date, end_date=end_date)],
+                    metrics=[
+                        Metric(name="sessions"),
+                        Metric(name="totalUsers"),
+                        Metric(name="newUsers"),
+                        Metric(name="screenPageViews"),
+                        Metric(name="bounceRate"),
+                        Metric(name="averageSessionDuration"),
+                        Metric(name="engagementRate")
+                    ],
+                    dimensions=[Dimension(name="date")],
+                    order_bys=[OrderBy(dimension={"dimension_name": "date"})]
+                )
+                
+                try:
+                    response = self.client.run_report(request=request)
+                    
+                    data = []
+                    for row in response.rows:
+                        date_value = row.dimension_values[0].value
+                        metrics_values = [mv.value for mv in row.metric_values]
+                        
+                        data.append({
+                            "date": date_value,
+                            "sessions": int(float(metrics_values[0] or 0)),
+                            "total_users": int(float(metrics_values[1] or 0)),
+                            "new_users": int(float(metrics_values[2] or 0)),
+                            "screen_page_views": int(float(metrics_values[3] or 0)),
+                            "bounce_rate": float(metrics_values[4] or 0),
+                            "avg_session_duration": float(metrics_values[5] or 0),
+                            "engagement_rate": float(metrics_values[6] or 0)
+                        })
+                        
+                    print(f"✅ Collected {len(data)} days of overview metrics")
+                    return data
+                    
+                except Exception as e:
+                    print(f"❌ Failed to collect overview metrics: {e}")
+                    return []
+            
+            def collect_geographic_data(self, start_date, end_date):
+                """Collect geographic data for the specified date range"""
+                
+                print(f"🌍 Collecting geographic data ({start_date} to {end_date})")
+                
+                request = RunReportRequest(
+                    property=f"properties/{self.property_id}",
+                    date_ranges=[DateRange(start_date=start_date, end_date=end_date)],
+                    metrics=[
+                        Metric(name="sessions"),
+                        Metric(name="totalUsers")
+                    ],
+                    dimensions=[
+                        Dimension(name="country")
+                    ],
+                    order_bys=[OrderBy(metric={"metric_name": "sessions"}, desc=True)]
+                )
+                
+                try:
+                    response = self.client.run_report(request=request)
+                    
+                    data = []
+                    for row in response.rows:
+                        country = row.dimension_values[0].value
+                        sessions = int(float(row.metric_values[0].value or 0))
+                        users = int(float(row.metric_values[1].value or 0))
+                        
+                        data.append({
+                            "country": country,
+                            "sessions": sessions,
+                            "users": users
+                        })
+                        
+                    print(f"✅ Collected geographic data from {len(data)} countries")
+                    return data
+                    
+                except Exception as e:
+                    print(f"❌ Failed to collect geographic data: {e}")
+                    return []
+            
+            def aggregate_weekly_metrics(self, overview_data, geographic_data):
+                """Aggregate daily data into weekly totals"""
+                
+                weekly_metrics = {
+                    "sessions": sum(day.get("sessions", 0) for day in overview_data),
+                    "total_users": sum(day.get("total_users", 0) for day in overview_data),
+                    "new_users": sum(day.get("new_users", 0) for day in overview_data),
+                    "screen_page_views": sum(day.get("screen_page_views", 0) for day in overview_data),
+                    "avg_bounce_rate": sum(day.get("bounce_rate", 0) for day in overview_data) / len(overview_data) if overview_data else 0,
+                    "avg_session_duration": sum(day.get("avg_session_duration", 0) for day in overview_data) / len(overview_data) if overview_data else 0,
+                    "avg_engagement_rate": sum(day.get("engagement_rate", 0) for day in overview_data) / len(overview_data) if overview_data else 0,
+                    "countries_reached": len(set(item["country"] for item in geographic_data)) if geographic_data else 0,
+                    "days_collected": len(overview_data)
+                }
+                
+                return weekly_metrics
+            
+            def save_weekly_json(self, data):
+                """Save detailed weekly data as JSON"""
+                
+                json_filename = f"weekly_analytics_{data['week']}.json"
+                
+                with open(json_filename, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+                    
+                print(f"✅ Weekly detailed data saved: {json_filename}")
+                return json_filename
+            
+            def update_summary_csv(self, data):
+                """Update the weekly summary CSV file"""
+                
+                csv_file = Path(self.weekly_summary_file)
+                file_exists = csv_file.exists()
+                
+                # Check if this week already exists
+                if file_exists:
+                    try:
+                        existing_df = pd.read_csv(csv_file)
+                        if data["week"] in existing_df["week"].values:
+                            print(f"⚠️  Week {data['week']} already exists, updating...")
+                            existing_df = existing_df[existing_df["week"] != data["week"]]
+                            existing_df.to_csv(csv_file, index=False)
+                            file_exists = len(existing_df) > 0
+                    except Exception as e:
+                        print(f"⚠️  Error reading existing CSV: {e}")
+                        file_exists = False
+                
+                try:
+                    with open(csv_file, 'a', newline='', encoding='utf-8') as f:
+                        fieldnames = [
+                            'week', 'collection_date', 'sessions', 'total_users', 'new_users',
+                            'screen_page_views', 'avg_bounce_rate', 'avg_session_duration', 
+                            'avg_engagement_rate', 'countries_reached', 'total_custom_events',
+                            'days_collected', 'monthly_active_users', 'monthly_sessions', 'collected_at'
+                        ]
+                        
+                        writer = csv.DictWriter(f, fieldnames=fieldnames)
+                        
+                        if not file_exists:
+                            writer.writeheader()
+                            print(f"📝 Created new weekly summary file: {csv_file}")
+                        
+                        metrics = data["weekly_metrics"]
+                        writer.writerow({
+                            'week': data['week'],
+                            'collection_date': data['date'],
+                            'sessions': metrics['sessions'],
+                            'total_users': metrics['total_users'],
+                            'new_users': metrics['new_users'],
+                            'screen_page_views': metrics['screen_page_views'],
+                            'avg_bounce_rate': round(metrics['avg_bounce_rate'], 4),
+                            'avg_session_duration': round(metrics['avg_session_duration'], 2),
+                            'avg_engagement_rate': round(metrics['avg_engagement_rate'], 4),
+                            'countries_reached': metrics['countries_reached'],
+                            'total_custom_events': 0,  # Not collected in automated version
+                            'days_collected': metrics['days_collected'],
+                            'monthly_active_users': '',  # Not collected in automated version
+                            'monthly_sessions': '',  # Not collected in automated version
+                            'collected_at': data['collected_at']
+                        })
+                    
+                    print(f"✓ Weekly summary CSV updated: {csv_file}")
+                    
+                except IOError as e:
+                    print(f"✗ Failed to update CSV file: {e}")
+                    raise
+            
+            def collect_and_store(self):
+                try:
+                    web_analytics_data = self.collect_weekly_data()
+                    if not web_analytics_data:
+                        return False
+                        
+                    self.save_weekly_json(web_analytics_data)
+                    self.update_summary_csv(web_analytics_data)
+                    print("🎉 Weekly web analytics collection completed successfully!")
+                    return True
+                except Exception as e:
+                    print(f"💥 Collection failed: {e}")
+                    return False
+        
+        def main():
+            collector = AutomatedWebAnalyticsCollector()
+            
+            if collector.collect_and_store():
+                print("✅ Automated web analytics collection completed!")
+            else:
+                print("❌ Automated web analytics collection failed!")
+                exit(1)
+        
+        if __name__ == "__main__":
+            main()
+        EOF
+    
+    - name: Commit and Push Changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        # Check if there are any changes
+        if [[ `git status --porcelain` ]]; then
+          # Get the week info for commit message
+          WEEK_INFO=$(python3 -c "
+        from datetime import datetime, timedelta, timezone
+        today = datetime.now(timezone.utc)
+        days_since_monday = today.weekday()
+        previous_monday = today - timedelta(days=days_since_monday + 7)
+        target_week = previous_monday.strftime('%Y-W%U')
+        collection_date = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+        print(f'{target_week} ({collection_date})')
+        ")
+          
+          git add web-analytics/
+          git commit -m "📊 Update weekly web analytics - $WEEK_INFO"
+          git push origin ebp-main
+          
+          echo "✅ Changes committed and pushed"
+        else
+          echo "ℹ️  No changes to commit"
+        fi
+
+    - name: Clean up credentials
+      if: always()
+      working-directory: web-analytics
+      run: |
+        rm -f ga4_service_account.json ga4_config.json
+
+# Internal Documentation:
+# 
+# This workflow automatically collects Google Analytics data for the EBP Dashboard
+# every Monday at 2:00 AM UTC, using the same "previous week" strategy as the
+# GitHub repository traffic collection.
+#
+# Schedule: Monday 2:00 AM UTC (matches traffic-collector.yml)
+# Strategy: Collects data for the **completed previous week** to ensure accuracy
+# Data Format: Creates both JSON (detailed) and CSV (summary) files
+#
+# Required GitHub Secrets:
+# - GA4_PROPERTY_ID: Google Analytics 4 property ID 
+# - GA4_SERVICE_ACCOUNT_JSON: Service account credentials JSON
+#
+# Files Generated:
+# - weekly_analytics_YYYY-WXX.json: Detailed weekly data with daily breakdowns
+# - weekly_web_analytics.csv: Cumulative weekly summary data
+#
+# The workflow ensures data consistency with the GitHub traffic system by:
+# 1. Using identical scheduling (Monday 2 AM UTC)
+# 2. Applying the same "previous week" collection logic
+# 3. Creating similar dual file structure (JSON + CSV)
+# 4. Following the same commit/push patterns

@@ -144,52 +144,46 @@ def create_weekly_trends_analysis(weekly_df):
 def create_engagement_trends(weekly_df):
     """Create engagement and interaction trends analysis"""
     
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 6))
     
-    # Add main title
-    # fig.suptitle('EBP Dashboard Engagement & Interaction Trends', 
-    #             fontsize=16, fontweight='bold', y=0.95)
-    
-    # 1. Weekly comparison: Sessions vs Users vs Page Views
+    # 1. Weekly Sessions and Users (bar chart)
     x_pos = np.arange(len(weekly_df))
-    width = 0.25
+    width = 0.35
     
-    bars1 = ax1.bar(x_pos - width, weekly_df['sessions'], width, 
-                    label='Sessions', color='skyblue', alpha=0.8)
-    bars2 = ax1.bar(x_pos, weekly_df['total_users'], width,
-                    label='Users', color='lightcoral', alpha=0.8)
-    bars3 = ax1.bar(x_pos + width, weekly_df['screen_page_views'], width,
-                    label='Page Views', color='lightgreen', alpha=0.8)
+    bars1 = ax1.bar(x_pos - width/2, weekly_df['sessions'], width, 
+                    label='Weekly Sessions', color='skyblue', alpha=0.8)
+    bars2 = ax1.bar(x_pos + width/2, weekly_df['total_users'], width,
+                    label='Weekly Users', color='lightcoral', alpha=0.8)
     
-    ax1.set_title('Weekly Web Usage', fontweight='bold', fontsize=14)
-    ax1.set_xlabel('Week')
-    ax1.set_ylabel('Count')
+    ax1.set_xlabel('Week (Month/Day)')
+    ax1.set_ylabel('Activity Count')
     ax1.set_xticks(x_pos)
     ax1.set_xticklabels(weekly_df['week_label'], rotation=45)
     ax1.legend()
-    ax1.grid(True, alpha=0.3)
+    ax1.set_facecolor('#f8f9fa')
+    ax1.grid(True, color='#e0e0e0', linestyle='-', linewidth=0.5, alpha=0.7)
     
-    # 2. Cumulative growth comparison
+    # 2. Cumulative Sessions and Users (line chart with filled areas)
     ax2.plot(weekly_df['week_label'], weekly_df['cumulative_sessions'], 
-             marker='o', linewidth=3, label='Total Sessions', color='blue')
+             marker='o', linewidth=3, label='Total Sessions', color='darkblue')
+    ax2.fill_between(weekly_df['week_label'], weekly_df['cumulative_sessions'], alpha=0.3, color='lightblue')
     ax2.plot(weekly_df['week_label'], weekly_df['cumulative_users'], 
-             marker='s', linewidth=3, label='Total Users', color='red')
-    ax2.plot(weekly_df['week_label'], weekly_df['cumulative_screen_page_views'], 
-             marker='^', linewidth=3, label='Total Page Views', color='green')
+             marker='s', linewidth=3, label='Total Users', color='darkred')
+    ax2.fill_between(weekly_df['week_label'], weekly_df['cumulative_users'], alpha=0.3, color='lightcoral')
     
-    ax2.set_title('Cumulative Web Usage', fontweight='bold', fontsize=14)
-    ax2.set_xlabel('Week')
+    ax2.set_xlabel('Week (Month/Day)')
     ax2.set_ylabel('Cumulative Count')
     ax2.legend()
-    ax2.grid(True, alpha=0.3)
-    plt.setp(ax2.xaxis.get_majorticklabels(), rotation=45)
+    ax2.set_facecolor('#f8f9fa')
+    ax2.grid(True, color='#e0e0e0', linestyle='-', linewidth=0.5, alpha=0.7)
+    plt.xticks(rotation=45)
     
     plt.tight_layout()
     
     # Save engagement trends
     engagement_file = "weekly_engagement_trends.png"
     plt.savefig(engagement_file, dpi=300, bbox_inches='tight')
-    print(f"📈 Engagement trends saved as: {engagement_file}")
+    print(f"📈 Web analytics trends saved as: {engagement_file}")
     
     plt.show()
 
