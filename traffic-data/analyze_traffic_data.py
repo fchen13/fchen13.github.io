@@ -49,87 +49,62 @@ def create_comprehensive_analysis(df):
     plt.style.use('seaborn-v0_8')
     sns.set_palette("husl")
     
-    # Create figure with subplots
-    fig = plt.figure(figsize=(16, 12))
+    # Create figure with subplots (2 rows, 1 column - vertically stacked)
+    fig = plt.figure(figsize=(8, 6))
     
     # Main title
     # fig.suptitle('EBP Dashboard Repository - Clone Traffic Analysis\n(Historical + Automated Data)', 
-    #              fontsize=16, fontweight='bold', y=0.95)
+    #              fontsize=16
+    # Top subplot - Clone Activity Overview
+    ax1 = plt.subplot(2, 1, 1)
     
-    # 1. Weekly Clone Counts (Actual)
-    ax1 = plt.subplot(2, 2, 1)
-    bars1 = ax1.bar(df['week_label'], df['clones_count'], 
-                    color='skyblue', alpha=0.8, edgecolor='navy', linewidth=0.5)
+    # Create a comprehensive view with clone metrics
+    x_pos = range(len(df))
+    width = 0.35
+    
+    # Weekly clones
+    bars1 = ax1.bar([x - width/2 for x in x_pos], df['clones_count'], width,
+                    label='Weekly Clones', color='skyblue', alpha=0.8, edgecolor='navy', linewidth=0.5)
+    
+    # Weekly unique users  
+    bars2 = ax1.bar([x + width/2 for x in x_pos], df['clones_uniques'], width,
+                    label='Weekly Unique Cloners', color='lightcoral', alpha=0.8, edgecolor='darkred', linewidth=0.5)
+    
     ax1.set_xlabel('Week (Month/Day)')
-    ax1.set_ylabel('Number of Clones')
+    ax1.set_ylabel('Activity Count')
     ax1.set_facecolor('#f8f9fa')
     ax1.grid(True, color='#e0e0e0', linestyle='-', linewidth=0.5, alpha=0.7)
+    ax1.legend(loc='upper left')
+    ax1.set_xticks(x_pos)
+    ax1.set_xticklabels(df['week_label'], rotation=45)
     
-    # Add value labels on bars
-    for bar in bars1:
-        height = bar.get_height()
-        if height > 0:
-            ax1.text(bar.get_x() + bar.get_width()/2., height,
-                    f'{int(height)}', ha='center', va='bottom', fontsize=9)
+
     
-    plt.xticks(rotation=45)
+    # Bottom subplot - Cumulative Trends
+    ax2 = plt.subplot(2, 1, 2)
     
-    # 2. Cumulative Clone Count
-    ax2 = plt.subplot(2, 2, 2)
+    # Cumulative clone count (line + area)
     line1 = ax2.plot(df['week_label'], df['cumulative_clones_count'], 
-                     marker='o', linewidth=2.5, markersize=6, color='darkblue')
+                     marker='o', linewidth=3, markersize=8, color='darkblue', label='Total Clones')
     ax2.fill_between(df['week_label'], df['cumulative_clones_count'], alpha=0.3, color='lightblue')
+    
+    # Cumulative unique users (line)
+    line2 = ax2.plot(df['week_label'], df['cumulative_clones_uniques'], 
+                     marker='s', linewidth=3, markersize=8, color='darkred', label='Total Unique Cloners')
+    ax2.fill_between(df['week_label'], df['cumulative_clones_uniques'], alpha=0.3, color='lightcoral')
+    
     ax2.set_xlabel('Week (Month/Day)')
-    ax2.set_ylabel('Total Clones')
+    ax2.set_ylabel('Cumulative Count')
     ax2.set_facecolor('#f8f9fa')
     ax2.grid(True, color='#e0e0e0', linestyle='-', linewidth=0.5, alpha=0.7)
+    ax2.legend(loc='upper left')
     
-    # Add final total annotation
-    final_total = df['cumulative_clones_count'].iloc[-1]
-    ax2.text(len(df)-1, final_total, f'Total: {int(final_total)}', 
-             ha='right', va='bottom', fontsize=10, fontweight='bold',
-             bbox=dict(boxstyle='round,pad=0.3', facecolor='yellow', alpha=0.7))
+
     
     plt.xticks(rotation=45)
     
-    # 3. Weekly Unique Cloners (Actual)
-    ax3 = plt.subplot(2, 2, 3)
-    bars2 = ax3.bar(df['week_label'], df['clones_uniques'], 
-                    color='lightcoral', alpha=0.8, edgecolor='darkred', linewidth=0.5)
-    ax3.set_xlabel('Week (Month/Day)')
-    ax3.set_ylabel('Number of Unique Cloners')
-    ax3.set_facecolor('#f8f9fa')
-    ax3.grid(True, color='#e0e0e0', linestyle='-', linewidth=0.5, alpha=0.7)
-    
-    # Add value labels on bars
-    for bar in bars2:
-        height = bar.get_height()
-        if height > 0:
-            ax3.text(bar.get_x() + bar.get_width()/2., height,
-                    f'{int(height)}', ha='center', va='bottom', fontsize=9)
-    
-    plt.xticks(rotation=45)
-    
-    # 4. Cumulative Unique Cloners
-    ax4 = plt.subplot(2, 2, 4)
-    line2 = ax4.plot(df['week_label'], df['cumulative_clones_uniques'], 
-                     marker='s', linewidth=2.5, markersize=6, color='darkred')
-    ax4.fill_between(df['week_label'], df['cumulative_clones_uniques'], alpha=0.3, color='lightcoral')
-    ax4.set_xlabel('Week (Month/Day)')
-    ax4.set_ylabel('Total Unique Cloners')
-    ax4.set_facecolor('#f8f9fa')
-    ax4.grid(True, color='#e0e0e0', linestyle='-', linewidth=0.5, alpha=0.7)
-    
-    # Add final total annotation
-    final_unique = df['cumulative_clones_uniques'].iloc[-1]
-    ax4.text(len(df)-1, final_unique, f'Total: {int(final_unique)}', 
-             ha='right', va='bottom', fontsize=10, fontweight='bold',
-             bbox=dict(boxstyle='round,pad=0.3', facecolor='yellow', alpha=0.7))
-    
-    plt.xticks(rotation=45)
-    
-    # Adjust layout
-    plt.tight_layout()
+    # Adjust layout with extra spacing
+    plt.tight_layout(pad=3.0)
     
     # Save the plot
     output_file = "traffic_analysis_clones.png"

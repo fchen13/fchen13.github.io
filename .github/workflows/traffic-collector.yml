@@ -47,7 +47,7 @@ jobs:
           import json
           import csv
           import requests
-          from datetime import datetime, timezone
+          from datetime import datetime, timezone, timedelta
           from pathlib import Path
           import sys
           
@@ -79,14 +79,21 @@ jobs:
                       raise
               
               def collect_traffic_data(self) -> dict:
+                  # Calculate previous week's Monday (completed week)
+                  today = datetime.now(timezone.utc)
+                  days_since_monday = today.weekday()  # 0=Monday, 6=Sunday  
+                  previous_monday = today - timedelta(days=days_since_monday + 7)
+                  target_week = previous_monday.strftime("%Y-W%U")
+                  
                   print(f"📊 Collecting traffic data for {self.owner}/{self.repo}")
+                  print(f"🎯 Target week: {target_week} (completed week starting {previous_monday.strftime('%Y-%m-%d')})")
                   try:
                       views_data = self.make_api_request("traffic/views")
                       clones_data = self.make_api_request("traffic/clones")
                       
                       traffic_data = {
                           "collected_at": datetime.now(timezone.utc).isoformat(),
-                          "date": datetime.now().strftime("%Y-%m-%d"),
+                          "date": previous_monday.strftime("%Y-%m-%d"),
                           "repository": f"{self.owner}/{self.repo}",
                           "views": {
                               "count": views_data.get("count", 0),
@@ -207,7 +214,7 @@ jobs:
           
           ## Data Collection
           
-          - **Frequency**: Weekly on Mondays at 2:00 AM UTC
+          - **Frequency**: Weekly on Mondays at 2:00 AM UTC (collects previous completed week)
           - **Source**: GitHub Traffic API
           - **Retention**: GitHub only provides 14 days of traffic data, so we collect it weekly to build historical records
           - **Coverage**: Each collection captures the full 14-day rolling window available at that time

@@ -41,6 +41,7 @@ python add_historical_traffic.py
 ## 📊 Data Collection
 
 - **Frequency**: Automated weekly on Mondays at 2:00 AM UTC
+- **Collection Strategy**: Collects data for the **completed previous week** to ensure accuracy
 - **Source**: GitHub Traffic API via GitHub Actions workflow
 - **Historical**: Includes manual snapshots from July 2024 + interpolated data
 - **Coverage**: Each collection captures 14-day rolling window
