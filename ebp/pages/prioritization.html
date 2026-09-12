@@ -92,7 +92,7 @@
    Only an EXPLICIT choice is stored. With nothing in storage no attribute is
    set, so `@media (prefers-color-scheme)` decides and the page still follows
    the OS the way it always did. `ebp-theme` is shared by prioritization.html
-   and duplication_overview.html — same origin, one key — so the switcher in
+   and duplication.html — same origin, one key — so the switcher in
    the topbar no longer drops your choice when you move between the two tools.
 
    Wrapped in try/catch on purpose: `localStorage` THROWS rather than returning
@@ -127,7 +127,7 @@
     /* Outbound links — cited sources — are BLUE, the convention readers already
        have for "this leaves the site"; green stays in-product navigation.
        Measured on this page's grounds: 7.16:1 on --ink-2. Matches
-       duplication_overview.html so the two tools cite the same way. */
+       duplication.html so the two tools cite the same way. */
     --link-out:#7aa2ff;
     --radius:14px; font-synthesis:none;
   }
@@ -268,9 +268,9 @@
          reorder itself as you move between them. `Tools` used to sit here alone: a
          section label from the redesign's four-part IA (Tree/Progress/Network/Tools)
          that was never built, so it linked nowhere and left this page with no route
-         to its sibling at all. `duplication_overview.html` already carries the
+         to its sibling at all. `duplication.html` already carries the
          mirror image of this. -->
-    <nav class="topnav"><span class="n on">Prioritization</span><a class="n" href="./duplication_overview.html">Duplication</a></nav>
+    <nav class="topnav"><span class="n on">Prioritization</span><a class="n" href="./duplication.html">Duplication</a></nav>
     <button class="theme-toggle" id="themeToggle" type="button">◑ Theme</button>
   </div>
 </div>

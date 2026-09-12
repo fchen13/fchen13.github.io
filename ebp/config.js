@@ -99,7 +99,7 @@ const pages = [
       },
       {
         name: "Cross-project Duplication",
-        file: "./pages/duplication_overview.html",
+        file: "./pages/duplication.html",
         description: "Is another project already sequencing these? Species one project shares with every other, by sequencing stage",
         icon: "fa-shuffle",
         requiresBackend: true
