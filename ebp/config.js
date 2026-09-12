@@ -26,40 +26,40 @@ const copyright = {
 
 const pages = [
   {
-    category: "Assembly Progress",
+    category: "Assembly progress",
     pages: [
       {
-        name: "Progress Over the Years", 
+        name: "Progress over the years", 
         file: "./pages/progress_Family_Species.html",
         description: "Annual assembly progress at the family and species level",
         icon: "fa-chart-line"
       },
       {
-        name: "Progress at all Taxonomic Levels",
+        name: "Progress at all taxonomic levels",
         file: "./pages/progress_all_taxa.html",
         description: "Animation display of assembly progress at main taxonomic ranks",
         icon: "fa-rainbow"
       },
       {
-        name: "Progress by Phylum Groups",
+        name: "Progress by phylum groups",
         file: "./pages/progress_Phylum.html",
         description: "Number of eukaryotic species sequenced by EBP grouped by phylum",
         icon: "fa-chart-column"
       },
       {
-        name: "Genome Assemblies Meeting EBP-standard Metrics",
+        name: "Genome assemblies meeting EBP-standard metrics",
         file: "./pages/progress_quality_metrics.html",
         description: "Contribution of EBP to assemblies meeting EBP-standard metrics at all taxonomic levels",
         icon: "fa-chart-bar"
       },
       {
-        name: "Phylogenomic Display of Progress at Order Level",
+        name: "Phylogenomic display of progress at order level",
         file: "./pages/phylotree.html",
         description: "Phylogenomic tree of orders with at least one species sequenced by EBP",
         icon: "fa-tree"
       },
       {
-        name: "Affiliate & Regional Node Progress",
+        name: "Affiliate & regional node progress",
         file: "./pages/progress_affiliates_nodes.html",
         description: "Assembly progress across EBP affiliate projects and regional nodes",
         icon: "fa-chart-column"
@@ -67,16 +67,16 @@ const pages = [
     ]
   },
   {
-    category: "Network Visualization", 
+    category: "Network visualization", 
     pages: [      
       {
-        name: "Global Distribution",
+        name: "Global distribution",
         file: "./pages/distribution_map.html",
         description: "Geographic distribution of EBP affiliates",
         icon: "fa-globe"
       },
       {
-        name: "Affiliate Network",
+        name: "Affiliate network",
         file: "./pages/wiremaps.html",
         description: "Wired map showing EBP and affiliate network connections",
         icon: "fa-network-wired" 
@@ -88,17 +88,17 @@ const pages = [
        question and a species list and answer it, rather than displaying a
        standing dataset. Both are served by `ebp-backend` and neither calls
        GoaT from the browser. */
-    category: "Sequencing Coordination Toolset",
+    category: "Sequencing coordination toolset",
     pages: [
       {
-        name: "Species Prioritization",
+        name: "Species prioritization",
         file: "./pages/prioritization.html",
         description: "Is my species list worth sequencing? Each species labelled by phylogenetic novelty and by what the network is already doing",
         icon: "fa-bullseye",
         requiresBackend: true
       },
       {
-        name: "Cross-project Duplication",
+        name: "Cross-project duplication",
         file: "./pages/duplication.html",
         description: "Is another project already sequencing these? Species one project shares with every other, by sequencing stage",
         icon: "fa-shuffle",
