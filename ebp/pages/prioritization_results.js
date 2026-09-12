@@ -94,8 +94,8 @@ const PrioritizationResults = (function () {
     color:var(--paper-dim,#a6bcaf); font-size:12.5px; border-radius:9px; padding:10px 14px;
     margin-bottom:14px; display:flex; gap:9px; align-items:flex-start; line-height:1.6;}
   .ebp-res-note b{color:var(--paper,#e9f2ec);}
-  .ebp-res-warn{border-color:rgba(224,167,96,.3); background:rgba(224,167,96,.09); color:var(--warn,#e0a760);}
-  .ebp-res-warn b{color:var(--warn,#e0a760);}
+  .ebp-res-warn{border-color:rgba(224,167,96,.3); background:rgba(224,167,96,.09); color:var(--warn-ink,#e0a760);}
+  .ebp-res-warn b{color:var(--warn-ink,#e0a760);}
   .ebp-res-warn ul{margin:0; padding-left:18px;} .ebp-res-warn li{margin:2px 0;}
 
   .ebp-stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:12px; margin-bottom:18px;}

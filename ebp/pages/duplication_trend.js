@@ -91,7 +91,7 @@ const DuplicationTrend = (function () {
   .ebp-trend-head .badge{font-size:10.5px; font-weight:700; letter-spacing:.04em;
     text-transform:uppercase; color:var(--green-glow,#5fd39a); background:rgba(22,163,74,.12);
     border:1px solid rgba(22,163,74,.3); border-radius:999px; padding:2px 9px; white-space:nowrap;}
-  .ebp-trend-head .badge.thin{color:var(--warn,#e0a760); background:rgba(224,167,96,.12);
+  .ebp-trend-head .badge.thin{color:var(--warn-ink,#e0a760); background:rgba(224,167,96,.12);
     border-color:rgba(224,167,96,.3);}
   .ebp-trend-head .tot{margin-left:auto; font-size:12.5px; color:var(--paper-mute,#6f8a7b);}
   .ebp-trend-head .tot b{color:var(--paper-dim,#a6bcaf); font-variant-numeric:tabular-nums;}
@@ -109,7 +109,7 @@ const DuplicationTrend = (function () {
   .ebp-trend-note{display:flex; gap:9px; align-items:flex-start; font-size:11.5px;
     color:var(--paper-mute,#6f8a7b); margin-top:14px; padding-top:13px;
     border-top:1px dashed var(--line,#22362b); line-height:1.65;}
-  .ebp-trend-note .ic{flex:none; color:var(--warn,#e0a760);}
+  .ebp-trend-note .ic{flex:none; color:var(--warn-ink,#e0a760);}
   .ebp-trend-note b{color:var(--paper-dim,#a6bcaf);}
   .ebp-trend-first{border:1px dashed var(--line,#22362b); border-radius:11px; padding:16px 18px;
     background:var(--ink-3,#14231b); font-size:12.5px; color:var(--paper-dim,#a6bcaf);

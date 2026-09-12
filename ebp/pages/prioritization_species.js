@@ -226,12 +226,12 @@ const PrioritizationSpecies = (function () {
   .ebp-tl-delta .now{color:var(--green-glow,#5fd39a); font-weight:600;}
   .ebp-tl-cause{margin-top:6px; font-size:11.5px; display:inline-flex; gap:7px; align-items:center;
     border-radius:8px; padding:4px 9px; line-height:1.45;}
-  .ebp-tl-cause.ours{color:var(--warn,#e0a760); background:rgba(224,167,96,.12); border:1px solid rgba(224,167,96,.28);}
+  .ebp-tl-cause.ours{color:var(--warn-ink,#e0a760); background:rgba(224,167,96,.12); border:1px solid rgba(224,167,96,.28);}
   .ebp-tl-cause.source{color:var(--green-glow,#5fd39a); background:rgba(63,191,127,.1); border:1px solid rgba(63,191,127,.26);}
   .ebp-tl-cause.membership{color:var(--novel,#7aa2ff); background:rgba(122,162,255,.1); border:1px solid rgba(122,162,255,.26);}
   .ebp-tl-cause.unknown{color:var(--paper-mute,#6f8a7b); background:var(--ink-3,#14231b); border:1px solid var(--line,#22362b);}
   .ebp-tl-quiet{font-size:11.5px; color:var(--paper-mute,#6f8a7b); margin-top:2px;}
-  .ebp-tl-pipe{font-size:11px; color:var(--warn,#e0a760); margin-top:5px;}
+  .ebp-tl-pipe{font-size:11px; color:var(--warn-ink,#e0a760); margin-top:5px;}
 
   .ebp-tl-foldbtn{background:none; border:none; padding:0; font:inherit; font-size:11.5px;
     color:var(--paper-mute,#6f8a7b); cursor:pointer; text-align:left;}

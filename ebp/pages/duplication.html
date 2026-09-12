@@ -155,6 +155,11 @@
     --stat-done:#5fd39a;
 
     --warn:#e0a760; --gap:#7aa2ff; --red:#e0736a;
+    /* --warn is a FILL: duplication_report.js falls back to it for an unknown-status
+       heat cell, so its value must not move. Warning TEXT uses --warn-ink instead,
+       which is free to go dark enough to read on a light ground (#e0a760 was 1.97:1
+       there). Same colour in dark, where the amber already clears 7:1. */
+    --warn-ink:#e0a760;
 
     /* Outbound links — cited sources, GoaT records — are BLUE, the convention
        readers already have for "this leaves the site", while green stays the
@@ -181,7 +186,8 @@
     /* Re-stepped for a white ground: the dark line colours sit at 1.6–2.1:1
        there. These clear 3:1 and separate best under normal vision (ΔE 22.3). */
     --trend-r1:#0d7a47; --trend-r2:#a8452a; --trend-r3:#3f63c8;
-    --link-out:#1558c4;      /* 6.51:1 on white, 6.03:1 on the page ground */
+    --link-out:#0000ee;       /* the browser default, as the report pages use */
+    --warn-ink:#935f1d;      /* 5.39:1 on white, 4.62:1 on the amber tint */
     --stat-done:#227d50;     /* 5.10:1 on white; the ramp is untouched */
   }
   @media (prefers-color-scheme: light){
@@ -192,7 +198,8 @@
       --green-glow:#0d7846; --green-bright:#16a34a;
       --s-not:#c3d0c8;
       --trend-r1:#0d7a47; --trend-r2:#a8452a; --trend-r3:#3f63c8;
-      --link-out:#1558c4;
+      --link-out:#0000ee;       /* the browser default, as the report pages use */
+      --warn-ink:#935f1d;      /* 5.39:1 on white, 4.62:1 on the amber tint */
       --stat-done:#227d50;
     }
   }
@@ -267,7 +274,7 @@
   .asof{margin-left:auto; font-size:12px; color:var(--paper-mute); text-align:right; line-height:1.6;}
   .asof b{color:var(--paper-dim);}
   .asof .d{color:var(--paper); font-weight:700; font-variant-numeric:tabular-nums;}
-  .asof.overdue .age{color:var(--warn);}
+  .asof.overdue .age{color:var(--warn-ink);}
 
   /* ── KPI row ── */
   .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:22px;}
@@ -279,14 +286,14 @@
   .kpi .l{font-size:11.5px; color:var(--paper-mute); margin-top:2px; line-height:1.35;}
   .kpi.k-total .stripe{background:var(--paper-mute);}
   .kpi.k-r1 .stripe{background:var(--s-published);} .kpi.k-r1 .n{color:var(--stat-done);}
-  .kpi.k-r2 .stripe{background:var(--s-progress);} .kpi.k-r2 .n{color:var(--warn);}
+  .kpi.k-r2 .stripe{background:var(--s-progress);} .kpi.k-r2 .n{color:var(--warn-ink);}
   .kpi.k-r3 .stripe{background:var(--gap);} .kpi.k-r3 .n{color:var(--gap);}
 
   /* ── staleness ── */
   .stale{margin-bottom:22px; padding:13px 17px; border-radius:11px; font-size:13px; line-height:1.7;
-    color:var(--warn); background:rgba(224,167,96,.1); border:1px solid rgba(224,167,96,.4);}
+    color:var(--warn-ink); background:rgba(224,167,96,.1); border:1px solid rgba(224,167,96,.4);}
   .stale[hidden]{display:none;}
-  .stale b{color:var(--warn);}
+  .stale b{color:var(--warn-ink);}
   .stale code{color:inherit; background:rgba(224,167,96,.14); border-color:rgba(224,167,96,.3);}
 
   /* ── footer actions on the panel ── */
@@ -306,7 +313,7 @@
   .notice p{margin:0 0 10px; color:var(--paper-dim); font-size:13px; line-height:1.7; max-width:92ch;}
   .notice p:last-child{margin-bottom:0;}
   .notice.caution{border-color:rgba(224,167,96,.35); background:rgba(224,167,96,.07);}
-  .notice.caution b.hd{color:var(--warn);}
+  .notice.caution b.hd{color:var(--warn-ink);}
 
   /* ── reading guide ── */
   .guide{border:1px solid var(--line); border-radius:var(--radius); background:var(--ink-2);
@@ -327,10 +334,10 @@
   .gloss dd{margin:0; color:var(--paper-dim);}
 
   .origin-warning{margin:0 0 22px; padding:13px 18px; border-radius:10px; font-size:13px;
-    line-height:1.7; color:var(--warn); background:rgba(224,167,96,.1);
+    line-height:1.7; color:var(--warn-ink); background:rgba(224,167,96,.1);
     border:1px solid rgba(224,167,96,.35);}
   .origin-warning[hidden]{display:none;}
-  .origin-warning b{color:var(--warn);}
+  .origin-warning b{color:var(--warn-ink);}
   .origin-warning code{color:inherit; background:rgba(224,167,96,.14); border-color:rgba(224,167,96,.3);}
 
   .site-footer{border-top:1px solid var(--line); background:var(--ink-2); color:var(--paper-mute);
@@ -528,7 +535,7 @@
     return '<b>' + num(index.with_report_count) + '</b> of ' + num(index.reportable_count)
       + ' projects have a report'
       + (index.stale_count
-        ? ' · <span style="color:var(--warn)">⚠ ' + num(index.stale_count)
+        ? ' · <span style="color:var(--warn-ink)">⚠ ' + num(index.stale_count)
           + ' failed their last capture</span>' : '');
   }
 

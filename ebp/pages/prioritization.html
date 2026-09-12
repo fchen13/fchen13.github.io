@@ -124,6 +124,12 @@
     --paper:#e9f2ec; --paper-dim:#a6bcaf; --paper-mute:#748f80;
     --green:#16a34a; --green-deep:#0d7a47; --green-bright:#3fbf7f; --green-glow:#5fd39a;
     --novel:#7aa2ff; --improve:#e0a760; --low:#8595a0; --warn:#e0a760; --red:#e0736a;
+    /* --warn is a FILL: duplication_report.js falls back to it for an
+       unknown-status heat cell, so its value must not move. Warning TEXT uses
+       --warn-ink instead, which is free to go dark enough to read on a light
+       ground (#e0a760 was 1.97:1 there). Same colour in dark, where the amber
+       already clears 7:1. */
+    --warn-ink:#e0a760;
     /* Outbound links — cited sources — are BLUE, the convention readers already
        have for "this leaves the site"; green stays in-product navigation.
        Measured on this page's grounds: 7.16:1 on --ink-2. Matches
@@ -137,7 +143,8 @@
     --line-strong:#78907f;   /* 3.19:1 on --ink, 3.45:1 on --ink-2 */
     --paper:#12211a; --paper-dim:#3e5548; --paper-mute:#5a6e62;
     --green-glow:#0d7846; --green-bright:#16a34a;
-    --link-out:#1558c4;      /* 6.51:1 on white, 6.03:1 on the page ground */
+    --link-out:#0000ee;       /* the browser default, as the report pages use */
+    --warn-ink:#935f1d;      /* 5.39:1 on white, 4.62:1 on the amber tint */      /* 6.51:1 on white, 6.03:1 on the page ground */
   }
   @media (prefers-color-scheme: light){
     :root:not([data-theme="dark"]){
@@ -146,7 +153,8 @@
       --line-strong:#78907f;   /* 3.19:1 on --ink, 3.45:1 on --ink-2 */
       --paper:#12211a; --paper-dim:#3e5548; --paper-mute:#5a6e62;
       --green-glow:#0d7846; --green-bright:#16a34a;
-      --link-out:#1558c4;
+      --link-out:#0000ee;       /* the browser default, as the report pages use */
+    --warn-ink:#935f1d;      /* 5.39:1 on white, 4.62:1 on the amber tint */
     }
   }
   *{box-sizing:border-box;}
@@ -248,10 +256,10 @@
      prevents otherwise surfaces only after a list has been uploaded and
      screened for half a minute. */
   .origin-warning{max-width:1180px; margin:0 auto 18px; padding:13px 18px; border-radius:10px;
-    font-size:13px; line-height:1.7; color:var(--warn); background:rgba(224,167,96,.1);
+    font-size:13px; line-height:1.7; color:var(--warn-ink); background:rgba(224,167,96,.1);
     border:1px solid rgba(224,167,96,.35);}
   .origin-warning[hidden]{display:none;}
-  .origin-warning b{color:var(--warn);}
+  .origin-warning b{color:var(--warn-ink);}
   .origin-warning code{color:inherit; background:rgba(224,167,96,.14); border-color:rgba(224,167,96,.3);}
 
   .site-footer{border-top:1px solid var(--line); background:var(--ink-2); color:var(--paper-mute);

@@ -152,7 +152,7 @@ const PrioritizationTrend = (function () {
   .ebp-trend-note{display:flex; gap:9px; align-items:flex-start; font-size:12px;
     color:var(--paper-dim,#a6bcaf); margin-top:14px; padding:11px 13px; background:var(--ink-3,#14231b);
     border:1px solid var(--line,#22362b); border-radius:9px;}
-  .ebp-trend-note .ic{flex:none; color:var(--warn,#e0a760);}
+  .ebp-trend-note .ic{flex:none; color:var(--warn-ink,#e0a760);}
   .ebp-trend-note b{color:var(--paper,#e9f2ec);}
   .ebp-trend-note[hidden]{display:none;}
   .ebp-trend-msg{border:1px solid var(--line,#22362b); border-radius:var(--radius,14px);
