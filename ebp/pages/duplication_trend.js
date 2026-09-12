@@ -106,11 +106,6 @@ const DuplicationTrend = (function () {
     color:var(--paper-dim,#a6bcaf); flex-wrap:wrap;}
   .ebp-trend-legend span{display:inline-flex; align-items:center; gap:7px;}
   .ebp-trend-legend .ln{width:22px; height:0; border-top-width:2px; border-top-style:solid; flex:none;}
-  .ebp-trend-note{display:flex; gap:9px; align-items:flex-start; font-size:11.5px;
-    color:var(--paper-mute,#6f8a7b); margin-top:14px; padding-top:13px;
-    border-top:1px dashed var(--line,#22362b); line-height:1.65;}
-  .ebp-trend-note .ic{flex:none; color:var(--warn-ink,#e0a760);}
-  .ebp-trend-note b{color:var(--paper-dim,#a6bcaf);}
   .ebp-trend-first{border:1px dashed var(--line,#22362b); border-radius:11px; padding:16px 18px;
     background:var(--ink-3,#14231b); font-size:12.5px; color:var(--paper-dim,#a6bcaf);
     line-height:1.7;}
@@ -245,13 +240,6 @@ const DuplicationTrend = (function () {
     }).join('') + '</div>';
   }
 
-  function noteHtml() {
-    return '<div class="ebp-trend-note"><span class="ic">⚠</span><span>'
-      + '<b>This history cannot be reconstructed.</b> GoaT reports what is true today and keeps no '
-      + 'past, so each point here exists only because the weekly capture recorded it at the time. '
-      + 'A week that is not captured is missing for good — which is also why the series starts when '
-      + 'capture started, not when the project did.</span></div>';
-  }
 
   function chartHtml(captures) {
     return '<div class="ebp-trend-head">'
@@ -266,7 +254,7 @@ const DuplicationTrend = (function () {
       + 'or finished; lines that <b>rise</b> are new overlap appearing as other projects register '
       + 'target species in GoaT.</p>'
       + '<div class="ebp-trend-chart" id="ebp-trend-chart"></div>'
-      + legendHtml() + noteHtml();
+      + legendHtml();
   }
 
   function firstCaptureHtml() {
@@ -274,7 +262,7 @@ const DuplicationTrend = (function () {
     return '<div class="ebp-trend-head">'
       + '<h2>How is ' + esc(displayName || project.toUpperCase())
       + '’s overlap changing?</h2>'
-      + '<span class="badge thin">1 capture · not yet a trend</span></div>'
+      + '</div>'
       + '<div class="ebp-trend-first">'
       + '<b>One capture has been recorded, on ' + esc(date) + '.</b> A trend needs a second, and '
       + 'the next weekly run will produce it. These are the numbers a future line will start from:'
@@ -282,8 +270,7 @@ const DuplicationTrend = (function () {
         const value = entry.points[date];
         return '<li>' + esc(entry.label) + ' — <span class="v">'
           + (value === undefined ? '—' : num(value)) + '</span> species</li>';
-      }).join('') + '</ul></div>'
-      + noteHtml();
+      }).join('') + '</ul></div>';
   }
 
   function noHistoryHtml() {
@@ -293,7 +280,7 @@ const DuplicationTrend = (function () {
       + '<span class="badge thin">no captures recorded</span></div>'
       + '<div class="ebp-trend-first"><b>Nothing has been recorded for this project yet.</b> '
       + 'The weekly capture writes one dated point per report per project; once it has reached this '
-      + 'project, its history starts accruing here.</div>' + noteHtml();
+      + 'project, its history starts accruing here.</div>';
   }
 
   // ── mount ─────────────────────────────────────────────────────────────────
