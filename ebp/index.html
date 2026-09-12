@@ -1,8 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- The mockup (docs/ebp-homepage.html) declares no charset at all — it begins
+         at <title>. Served over http that mojibakes every em dash, arrow and emoji
+         on the page. This must stay first in <head>. -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Light only, deliberately (Fang, 2026-09-12). This page takes the mockup's
+         light palette as its one palette; there is no dark variant and no toggle.
+         `color-scheme: light` keeps form controls and scrollbars light even where
+         the visitor's OS is dark — without it the search input renders dark on a
+         light page. The two tool pages still follow the OS and keep their toggle;
+         a dark-OS visitor therefore gets a light home and dark tools, which is the
+         agreed trade. -->
+    <meta name="color-scheme" content="light">
     <link rel="icon" type="image/x-icon" href="./favicon.jpg">
     <title>Earth BioGenome Project - Dashboard</title>
 
@@ -15,579 +26,483 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        :root {
-            --bg:            #ffffff;
-            --bg-alt:        #f4f6f4;
-            --bg-card:       #ffffff;
-            --bg-card-hover: #f7faf8;
-            --accent:        #0d7a47;
-            --accent-light:  #e5f3ec;
-            --accent-mid:    #16a34a;
-            --text:          #111827;
-            --text-dim:      #4b5563;
-            --text-muted:    #9ca3af;
-            --border:        #e5e7eb;
-        }
+      /* ══════════════════════════════════════════════════════════════════
+         Palette — the mockup's :root[data-theme="light"] block, flattened.
+         The mockup was written dark-first with a light variant selected by
+         `prefers-color-scheme` or a toggle; here the light values ARE the
+         base tokens and the dark ones do not exist. Nothing selects on
+         `prefers-color-scheme`, so a dark-OS visitor gets this page as-is.
+         ══════════════════════════════════════════════════════════════════ */
+      :root{
+        color-scheme: light;
+        /* ground */
+        --ink:#f4f7f4; --ink-2:#ffffff; --ink-3:#eef5f0; --ink-4:#e2ede5;
+        --line:#d6e3d9; --line-soft:#e6efe8;
+        /* --paper-mute was #6b8375 in the mockup's light variant and FAILED WCAG AA
+           everywhere it was used (3.4-4.1:1 against these grounds, where normal text
+           needs 4.5). It carries 30 rules of real reading text at 9.5-12.5px -- KPI
+           labels and captions, rank percentages, the label ladder, every description
+           in the nav and search -- so it was small AND faint. Darkened to #5a6e62,
+           same hue and saturation, which clears 4.5 on all four grounds (worst case
+           4.55 on --ink-4). The mockup was drawn dark-first; its light variant was
+           never contrast-checked. */
+        --paper:#12211a; --paper-dim:#3e5548; --paper-mute:#5a6e62;
+        /* EBP green spine */
+        --green:#16a34a; --green-deep:#0d7a47; --green-bright:#16a34a; --green-glow:#0d7a47;
+        /* Viridis taxonomic-rank spectrum (prioritization world) */
+        --r-phylum:#440154; --r-class:#404387; --r-order:#2a788e; --r-family:#22a884; --r-genus:#7ad151; --r-species:#fde725;
+        /* Sequencing-status ramp (duplication world). --s-not is the light
+           variant's one ramp override; --s-published is darkened here because
+           the dark-theme mint (#5fd39a) cannot carry text on white. */
+        --s-not:#c3d0c8; --s-collected:#4a6fa5; --s-datagen:#5fa39a; --s-progress:#b4923e; --s-published:#2f9e68;
+        /* semantic */
+        --warn:#b4762a; --gap:#4a6fa5; --novel:#4a6fa5;
+        /* a green dark enough to read as a label on white. #4d8a1f read 4.22:1 and
+           failed AA on every ground including its own badge tint; #467d1c clears it. */
+        --genus-ink:#467d1c;
+        /* progress bars: a light fill with the EBP-standard share solid on top */
+        --green-soft:#8ed3ad;
+        /* Outbound links — cited sources — are BLUE, the convention readers already
+           have for "this leaves the site"; green stays in-product navigation. Same
+           token and same value as prioritization.html and duplication.html, so all
+           three pages cite the same way. 6.51:1 on white, 6.03:1 on the page ground. */
+        --link-out:#1558c4;
+        --radius:14px;
+        font-synthesis:none;
+      }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+      *{box-sizing:border-box;}
+      @media (prefers-reduced-motion:reduce){ *{animation:none!important; transition:none!important;} }
+      body{margin:0; background:var(--ink); color:var(--paper);
+        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif;
+        font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;}
+      .tnum{font-variant-numeric:tabular-nums;}
+      .wrap{max-width:1180px; margin:0 auto; padding:0 24px;}
+      a{color:var(--green-glow); text-decoration:none;}
+      /* Matches the two tool pages exactly. Relative hrefs — the nav, the catalogue,
+         "Open the full page" — are in-product and stay green; only links that leave
+         the site turn blue, which is the whole signal. */
+      a[href^="http"]:not(.btn){color:var(--link-out);}
+      h2{text-wrap:balance;}
+      .vh{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            line-height: 1.6;
-        }
+      /* ── top bar ── */
+      .topbar{position:sticky; top:0; z-index:30; border-bottom:1px solid var(--line); background:rgba(255,255,255,.92); backdrop-filter:blur(8px);}
+      .topbar .inner{display:flex; align-items:center; gap:12px; padding:13px 24px; flex-wrap:wrap;}
+      .logo{display:flex; align-items:center; gap:9px; font-weight:800; font-size:14px; white-space:nowrap; color:var(--paper);}
+      .logo img{width:25px; height:25px; border-radius:7px; object-fit:cover; display:block;}
+      .search-wrap{margin-left:14px; flex:1; max-width:420px; position:relative;}
+      .search{display:flex; align-items:center; gap:8px; background:var(--ink); border:1px solid var(--line); border-radius:9px; padding:0 13px; color:var(--paper-mute); font-size:12.5px;}
+      .search:focus-within{border-color:var(--green-glow);}
+      .search input{flex:1; background:transparent; border:none; outline:none; color:var(--paper); font:inherit; font-size:12.5px; padding:9px 0;}
+      .search input::placeholder{color:var(--paper-mute);}
+      .search .kbd{font-size:10px; color:var(--paper-mute); border:1px solid var(--line); border-radius:5px; padding:1px 6px; background:var(--ink-2);}
 
-        /* ── Header ─────────────────────────────────────── */
-        .site-header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: #ffffff;
-            border-bottom: 1px solid var(--border);
-            padding: 0.9rem 2rem;
-            display: flex;
-            align-items: center;
-        }
+      /* grouped results dropdown */
+      .results{position:absolute; left:0; right:0; top:calc(100% + 8px); background:var(--ink-2); border:1px solid var(--line); border-radius:12px; box-shadow:0 22px 54px rgba(18,33,26,.16); padding:8px; z-index:45; max-height:min(70vh,520px); overflow-y:auto; display:none;}
+      .results.on{display:block;}
+      .res-group{margin-bottom:6px;}
+      .res-group:last-child{margin-bottom:0;}
+      .res-gh{display:flex; align-items:center; gap:8px; padding:8px 10px 6px; font-size:10px; letter-spacing:.09em; text-transform:uppercase; font-weight:800; color:var(--paper-mute);}
+      .res-item{display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:8px; cursor:pointer; color:inherit; text-decoration:none;}
+      .res-item:hover, .res-item.active{background:var(--ink-3);}
+      .res-item .ri{width:28px; height:28px; border-radius:7px; background:var(--ink-4); display:flex; align-items:center; justify-content:center; font-size:12px; flex:none; color:var(--green-deep);}
+      .res-item .rt{font-size:13px; font-weight:650; color:var(--paper);}
+      /* both the title and the description carry highlights; scoping this to .rt
+         left description matches on the browser default yellow. */
+      .res-item mark{background:rgba(13,122,71,.16); color:inherit; border-radius:2px; padding:0 1px;}
+      .res-item .rd{font-size:11px; color:var(--paper-mute); line-height:1.3;}
+      .res-item .rmeta{margin-left:auto; display:flex; align-items:center; gap:8px; flex:none;}
+      .res-item .rchip{font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; white-space:nowrap; color:var(--paper-mute); background:var(--ink-3); border:1px solid var(--line);}
+      .res-empty{padding:20px 12px; text-align:center; color:var(--paper-mute); font-size:12.5px;}
+      .res-foot{border-top:1px solid var(--line); margin-top:6px; padding:9px 10px 4px; font-size:10.5px; color:var(--paper-mute); line-height:1.4;}
+      .res-foot b{color:var(--paper-dim);}
 
-        .logo {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            color: var(--text);
-            gap: 0.75rem;
-        }
+      .topnav{margin-left:auto; display:flex; gap:3px; align-items:center;}
+      .topnav .n{font-size:13px; padding:8px 13px; border-radius:8px; color:var(--paper-dim); cursor:pointer; white-space:nowrap; background:none; border:none; font-family:inherit;}
+      .topnav .n:hover{color:var(--paper);}
+      .nav-menu{position:relative;}
+      .nav-menu .n{display:inline-flex; align-items:center; gap:6px;}
+      .nav-menu .caret{font-size:9px; opacity:.7;}
+      .dropdown{position:absolute; right:0; top:calc(100% + 8px); background:var(--ink-2); border:1px solid var(--line); border-radius:12px; box-shadow:0 18px 44px rgba(18,33,26,.15); padding:7px; opacity:0; visibility:hidden; transform:translateY(-6px); transition:opacity .15s, transform .15s, visibility .15s; z-index:40;}
+      .dropdown.wide{width:300px;}
+      .dropdown.list{width:265px;}
+      .nav-menu:hover .dropdown, .nav-menu:focus-within .dropdown{opacity:1; visibility:visible; transform:translateY(0);}
+      /* rich tool items */
+      .dd-item{display:flex; gap:11px; align-items:flex-start; padding:11px 12px; border-radius:9px; text-decoration:none;}
+      a.dd-item:hover{background:var(--ink-3);}
+      .dd-item.off{opacity:.6; cursor:default;}
+      .dd-item .di{width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; flex:none;}
+      .dd-item.prio .di{background:rgba(122,209,81,.18); border:1px solid rgba(122,209,81,.45); color:var(--genus-ink);}
+      .dd-item.dup .di{background:rgba(74,111,165,.13); border:1px solid rgba(74,111,165,.32); color:var(--gap);}
+      .dd-item .dt{font-size:13px; font-weight:700; color:var(--paper);}
+      .dd-item .dd{font-size:11.5px; color:var(--paper-mute); line-height:1.35;}
+      .dd-item .soon{font-size:9.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--paper-mute); border:1px dashed var(--line); border-radius:999px; padding:1px 7px; margin-left:6px; white-space:nowrap;}
+      /* simple link items */
+      .dd-link{display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:8px; color:var(--paper-dim); font-size:13px; text-decoration:none;}
+      .dd-link:hover{background:var(--ink-3); color:var(--paper);}
+      .dd-link .dli{font-size:12px; width:20px; text-align:center; flex:none; color:var(--green-deep);}
+      @media (max-width:900px){ .search-wrap{display:none;} }
 
-        .logo img { height: 38px; }
 
-        .logo span {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: var(--text);
-            letter-spacing: -0.01em;
-        }
+      /* ── hero ── */
+      header.hero{position:relative; overflow:hidden; border-bottom:1px solid var(--line);
+        background:radial-gradient(820px 300px at 80% -30%, rgba(22,163,74,.10), transparent);}
+      header.hero canvas.bg{position:absolute; inset:0; width:100%; height:100%; opacity:.5; z-index:0;}
+      header.hero .inner{position:relative; z-index:2; padding:34px 24px 32px;}
+      .hero-eyebrow{font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--green-glow); font-weight:700; margin-bottom:10px;}
+      .hero-headline{font-size:clamp(21px,3.1vw,30px); line-height:1.12; letter-spacing:-.02em; font-weight:800; margin:0 0 20px; text-wrap:balance;}
+      .hero-headline .n{color:var(--green-glow);}
 
-        /* ── Progress Section ────────────────────────────── */
-        .progress-section {
-            background: var(--bg-alt);
-            border-bottom: 1px solid var(--border);
-            padding: 2.25rem 2rem 2rem;
-        }
+      .kpis{display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:12px;}
+      .kpi{border:1px solid var(--line); border-radius:11px; padding:14px 16px 15px; background:var(--ink-2); position:relative; overflow:hidden;}
+      .kpi .stripe{position:absolute; left:0; top:0; bottom:0; width:3px;}
+      .kpi .n{font-size:25px; font-weight:800; letter-spacing:-.02em;}
+      .kpi .l{font-size:11.5px; color:var(--paper-mute); margin-top:2px; line-height:1.35;}
+      /* Progress toward the Phase I goal. Replaces the mockup's sparkline, whose
+         series was generated with Math.sin() — there is no stored trend behind
+         these two counts, so a trend line would have been drawn, not measured. */
+      .kpi .track{height:9px; border-radius:5px; background:var(--ink-4); overflow:hidden; margin-top:11px; display:flex;}
+      /* No width transition on any bar on this page. The width IS the figure, and a
+         transition makes what is painted depend on an animation clock — which does
+         not advance under headless capture, so the bar renders as an empty sliver
+         and cannot be verified by rendering it. Bars here are measurements, not
+         motion design. */
+      .kpi .fill{height:100%; position:relative; border-radius:5px;}
+      .kpi .fill .std{position:absolute; inset:0 auto 0 0; border-radius:5px; background:var(--green-deep);}
+      .kpi .cap{font-size:10.5px; color:var(--paper-mute); margin-top:7px; line-height:1.4; font-variant-numeric:tabular-nums;}
+      .kpi .cap b{color:var(--paper-dim); font-weight:650;}
 
-        .progress-inner {
-            max-width: 960px;
-            margin: 0 auto;
-        }
+      /* ── tree (left: the shape) + scorecard (right: the same axis, quantitative) ──
+         The mockup's two-column .treecard, restored 2026-09-12. It was cut with the
+         decorative sketch that used to fill the left pane (decision 17(d)); what
+         goes there now is the REAL tree, pages/phylotree.html in an iframe, and
+         only once the visitor asks for it. The scorecard is the right pane again
+         rather than full width. */
+      .treecard{border:1px solid var(--line); border-radius:16px; background:var(--ink-2); overflow:hidden; margin-top:24px;
+        display:grid; grid-template-columns:1.5fr 1fr;}
+      @media (max-width:820px){ .treecard{grid-template-columns:1fr;} }
+      .tree-pane{padding:18px 20px 20px; border-right:1px solid var(--line); min-width:0;}
+      @media (max-width:820px){ .tree-pane{border-right:none; border-bottom:1px solid var(--line);} }
+      .pane-h{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--paper-mute); font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+      .pane-h .tag{font-size:9px; color:var(--green-glow); border:1px solid rgba(22,163,74,.4); border-radius:999px; padding:1px 7px; letter-spacing:.06em; font-weight:700;}
 
-        .progress-header {
-            margin-bottom: 2rem;
-        }
+      /* The stage is a fixed box because phylotree.html sets height:100vh on its
+         own container: in an iframe that resolves to the FRAME's height, so the
+         frame must have one. Nothing here is animated — see the note on .kpi .fill. */
+      .tree-stage{position:relative; height:440px; margin-top:12px; border:1px solid var(--line-soft); border-radius:10px; overflow:hidden; background:var(--ink-3);}
+      .tree-stage iframe{width:100%; height:100%; border:0; display:block; background:var(--ink-2);}
+      @media (max-width:820px){ .tree-stage{height:380px;} }
+      @media (max-width:640px){ .tree-stage{height:320px;} }
+      /* Click-to-load prompt. Deliberately NOT a drawn tree: the mockup's sketch
+         captioned itself "not live data" and was cut for exactly that reason, so
+         the placeholder for a phylogeny must not look like a phylogeny. */
+      .tree-prompt{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+        gap:11px; text-align:center; padding:24px 20px; background:var(--ink-3);}
+      .tree-prompt[hidden]{display:none;}
+      .tree-prompt .tree-ic{width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center;
+        font-size:21px; color:var(--green-deep); background:rgba(22,163,74,.10); border:1px solid rgba(22,163,74,.28);}
+      .tree-ask{font-size:13px; color:var(--paper-dim); margin:0; max-width:46ch; line-height:1.5;}
+      .tree-ask b{color:var(--paper); font-weight:800; font-variant-numeric:tabular-nums;}
+      .tree-load{font:inherit; font-size:13.5px; font-weight:700; color:#fff; background:var(--green-deep);
+        border:1px solid var(--green-deep); border-radius:9px; padding:9px 18px; cursor:pointer;}
+      .tree-load:hover{background:var(--green);}
+      .tree-load[disabled]{opacity:.65; cursor:default;}
+      .tree-cap{font-size:11px; color:var(--paper-mute); margin-top:10px; line-height:1.45;}
+      .tree-cap b{color:var(--paper-dim); font-weight:600;}
 
-        .progress-headline {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: var(--text);
-            letter-spacing: -0.02em;
-            line-height: 1.2;
-            margin-bottom: 0.3rem;
-            text-align: center;
-        }
+      /* ── Taxonomic Milestone Scorecard (right pane) ── */
+      .score-pane{padding:18px 20px 20px; background:var(--ink-3); min-width:0;}
+      .score-sub{font-size:11.5px; color:var(--paper-mute); margin:0 0 16px; line-height:1.45;}
+      /* One column in the narrow right pane; below 820px the card is a single
+         column and the ranks get the page width back. */
+      .score{display:grid; grid-template-columns:1fr; gap:15px;}
+      /* Two columns: the card's height is set by the 440px tree stage, so the four
+         ranks spread down the pane instead of stacking at the top over a block of
+         empty tint. Purely spacing — no bar width depends on it. */
+      @media (min-width:821px){
+        .score-pane{display:flex; flex-direction:column;}
+        .score{flex:1; align-content:space-between;}
+      }
+      @media (max-width:820px){ .score{grid-template-columns:repeat(auto-fit,minmax(232px,1fr)); gap:16px 26px;} }
+      .rank-row{display:grid; grid-template-columns:14px 1fr; gap:11px; align-items:start;}
+      .rank-dot{width:11px; height:11px; border-radius:3px; margin-top:5px; flex:none;}
+      .rank-body{min-width:0;}
+      .rank-top{display:flex; align-items:baseline; gap:8px;}
+      .rank-name{font-size:13px; font-weight:700; color:var(--paper);}
+      .rank-frac{margin-left:auto; font-size:12px; color:var(--paper-dim); font-variant-numeric:tabular-nums;}
+      .rank-frac b{color:var(--paper); font-weight:800; font-size:14px;}
+      .rank-pct{font-size:11px; color:var(--paper-mute); font-variant-numeric:tabular-nums;}
+      .rank-track{height:9px; border-radius:5px; background:var(--ink-4); overflow:hidden; margin-top:6px;}
+      .rank-fill{height:100%; border-radius:5px; width:0;}
 
-        .progress-subline {
-            font-size: 0.9rem;
-            color: var(--text-dim);
-        }
+      /* ── section scaffolding ── */
+      section{padding:34px 0 8px;}
+      .sec-h{display:flex; align-items:baseline; gap:12px; margin-bottom:16px; flex-wrap:wrap;}
+      .sec-h h2{font-size:20px; font-weight:750; letter-spacing:-.01em; margin:0;}
+      .sec-h .sub{font-size:12.5px; color:var(--paper-mute);}
 
-        .progress-legend {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin-top: 0.6rem;
-        }
+      /* ── the two tool cards ── */
+      .tools{display:flex; flex-direction:column; gap:16px;}
+      .tool{position:relative; border:1px solid var(--line); border-radius:16px; background:var(--ink-2); overflow:hidden; transition:border-color .15s, transform .15s, box-shadow .15s;}
+      .tool.live:hover{transform:translateY(-2px); box-shadow:0 16px 40px rgba(18,33,26,.12);}
+      .tool.prio.live:hover{border-color:rgba(122,209,81,.6);}
+      .tool.dup.live:hover{border-color:rgba(74,111,165,.5);}
+      /* No backend for this deployment: the card is not a link, and says so.
+         See the gating note by `backendConfigured` in the script below. */
+      .tool.off{border-style:dashed; background:var(--ink-3);}
+      .tool .accent{height:4px; width:100%;}
+      .tool.prio .accent{background:linear-gradient(90deg,var(--r-phylum),var(--r-class),var(--r-order),var(--r-family),var(--r-genus),var(--r-species));}
+      .tool.dup .accent{background:linear-gradient(90deg,var(--s-not),var(--s-collected),var(--s-datagen),var(--s-progress),var(--s-published));}
+      .tool.off .accent{filter:saturate(.25) opacity(.55);}
+      .tool .body{display:grid; grid-template-columns:1fr 1fr; gap:22px; padding:20px 24px 22px; align-items:center;}
+      @media (max-width:760px){ .tool .body{grid-template-columns:1fr; gap:16px;} }
+      .tool .head{display:flex; align-items:flex-start; gap:13px; margin-bottom:12px;}
+      .tool .ic{width:44px; height:44px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:19px; flex:none;}
+      .tool.prio .ic{background:rgba(122,209,81,.18); border:1px solid rgba(122,209,81,.45); color:var(--genus-ink);}
+      .tool.dup .ic{background:rgba(74,111,165,.13); border:1px solid rgba(74,111,165,.32); color:var(--gap);}
+      .tool .tt{font-size:20px; font-weight:800; letter-spacing:-.01em; margin:0; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+      .tool .badge{font-size:10px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; padding:3px 9px; border-radius:999px;}
+      .tool.prio .badge{color:var(--genus-ink); background:rgba(122,209,81,.16); border:1px solid rgba(122,209,81,.45);}
+      .tool.dup .badge{color:var(--gap); background:rgba(74,111,165,.10); border:1px solid rgba(74,111,165,.32);}
+      .tool .soon{font-size:10px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; padding:3px 9px; border-radius:999px; color:var(--paper-mute); border:1px dashed var(--paper-mute);}
+      .tool .qq{font-size:13.5px; color:var(--paper-dim); font-style:italic; margin:3px 0 0;}
+      .tool .desc{font-size:13.5px; color:var(--paper-dim); margin:0 0 14px;}
+      .tool .desc b{color:var(--paper);}
+      .tool .foot{display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+      .tool .stat{font-size:12.5px; color:var(--paper-mute);}
+      .tool .stat b{color:var(--paper-dim); font-variant-numeric:tabular-nums;}
+      .tool .open{font-size:14px; font-weight:700; display:inline-flex; align-items:center; gap:7px; text-decoration:none; margin-left:auto;}
+      .tool.prio .open{color:var(--genus-ink);} .tool.dup .open{color:var(--gap);}
+      .tool .open .arr{transition:transform .15s; display:inline-block;}
+      .tool:hover .open .arr{transform:translateX(3px);}
+      /* stretched-link overlay: the whole card is the link, but only one focusable target */
+      .tool .open::after{content:""; position:absolute; inset:0; z-index:1;}
+      .tool .open:focus-visible{outline:none;}
+      .tool:focus-within{border-color:var(--green-glow); box-shadow:0 0 0 2px rgba(13,122,71,.30);}
+      .tool .body button, .tool .body a:not(.open){position:relative; z-index:2;}
+      .tool .offnote{font-size:12px; color:var(--paper-mute); margin-left:auto;}
 
-        .legend-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.82rem;
-            color: var(--text-dim);
-        }
+      /* preview shell */
+      .preview{border:1px solid var(--line); border-radius:12px; background:var(--ink-3); padding:16px; margin:0;}
+      .preview .pl{font-size:10px; letter-spacing:.09em; text-transform:uppercase; color:var(--paper-mute); font-weight:700; margin-bottom:13px; line-height:1.5;}
+      .preview .pl .src{font-weight:600; letter-spacing:.02em; text-transform:none;}
 
-        .legend-swatch {
-            width: 11px;
-            height: 11px;
-            border-radius: 3px;
-            flex-shrink: 0;
-        }
+      /* prioritization preview: the novelty LABEL LADDER.
+         This is the tool's vocabulary, not a dataset — see the comment on the
+         card in the markup for why no counts appear here. */
+      .ladder{display:flex; flex-direction:column; gap:7px;}
+      .lad{display:grid; grid-template-columns:10px 96px 1fr; align-items:center; gap:10px;}
+      .lad .sw{width:10px; height:10px; border-radius:3px;}
+      .lad .lb{font-size:11.5px; font-weight:700; color:var(--paper-dim); font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+      .lad .ds{font-size:11.5px; color:var(--paper-mute); line-height:1.35;}
 
-        .legend-swatch-total {
-            background: linear-gradient(135deg, #5fae80 0%, #6fbb8d 100%);
-        }
+      /* duplication preview: mini heatmap */
+      .mini-heat{border-collapse:separate; border-spacing:4px; width:100%; font-size:11px;}
+      .mini-heat th{font-weight:600; color:var(--paper-mute); padding:0 2px 5px; font-size:10px; text-align:center;}
+      .mini-heat th.rh{text-align:right; padding-right:8px; white-space:nowrap; font-size:10.5px; color:var(--paper-dim);}
+      .mini-heat td{height:26px; text-align:center; border-radius:5px; font-variant-numeric:tabular-nums; font-weight:600; color:var(--paper); font-size:11px;}
+      .mini-heat td.z{color:var(--paper-mute); font-weight:400; background:var(--ink-2);}
+      .heat-msg{font-size:11.5px; color:var(--paper-mute); padding:14px 2px; line-height:1.45;}
+      .status-legend{margin-top:14px; padding-top:13px; border-top:1px dashed var(--line);}
+      .status-legend .sl-scale{display:flex; align-items:center; gap:0; border-radius:6px; overflow:hidden; height:9px;}
+      .status-legend .sl-scale i{flex:1;}
+      .status-legend .sl-ends{display:flex; justify-content:space-between; gap:10px; font-size:10px; color:var(--paper-mute); margin-top:6px;}
+      .status-legend .sl-ends b{color:var(--paper-dim); font-weight:600;}
+      .status-legend .sl-note{font-size:10.5px; color:var(--paper-mute); margin-top:7px; line-height:1.4;}
+      .status-legend .sl-note b{color:var(--paper-dim);}
+      .status-legend code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:10px;}
 
-        .legend-swatch-quality {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 100%);
-        }
 
-        /* ── Progress Charts ─────────────────────────────── */
-        .progress-chart {
-            display: flex;
-            align-items: flex-start;
-            gap: 1.5rem;
-            margin-top: 1rem;
-        }
+      footer{border-top:1px solid var(--line); text-align:center; color:var(--paper-mute); font-size:12px; padding:32px 24px 42px; letter-spacing:.03em; margin-top:40px; line-height:1.7;}
 
-        .progress-chart + .progress-chart {
-            margin-top: 1.5rem;
-        }
+      :focus-visible{outline:2px solid var(--green-bright); outline-offset:2px; border-radius:5px;}
 
-        .progress-label {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 0.5rem;
-            font-size: 1.05rem;
-            font-weight: 600;
-            color: var(--text);
-            min-width: 100px;
-            height: 44px;
-        }
-
-        .progress-label i {
-            font-size: 1.3rem;
-            color: var(--accent);
-        }
-
-        .progress-bar-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .progress-bar-wrapper { position: relative; }
-
-        .progress-bar {
-            display: flex;
-            height: 44px;
-            background: #d8e6de;
-            border-radius: 8px;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
-        }
-
-        .progress-completed {
-            background: linear-gradient(135deg, #5fae80 0%, #6fbb8d 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-            min-width: 0;
-            max-width: 100%;
-            position: relative;
-            cursor: default;
-            border-radius: 8px 0 0 8px;
-        }
-
-        .progress-completed-gloss {
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 50%;
-            background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 100%);
-            border-radius: 8px 0 0 0;
-            pointer-events: none;
-        }
-
-        .progress-quality {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 100%);
-            transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 2px 0 8px rgba(13, 122, 71, 0.3);
-            cursor: default;
-        }
-
-        /* ── Bar segment tooltips ─────────────────────────── */
-        .progress-completed[data-tooltip]::before,
-        .progress-quality[data-tooltip]::before,
-        .progress-incomplete[data-tooltip]::before {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%);
-            background: #fff;
-            color: var(--text);
-            font-size: 0.78rem;
-            font-weight: 600;
-            white-space: nowrap;
-            padding: 4px 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.15s ease;
-            z-index: 5;
-        }
-
-        .progress-completed[data-tooltip]::after,
-        .progress-quality[data-tooltip]::after,
-        .progress-incomplete[data-tooltip]::after {
-            content: '';
-            position: absolute;
-            bottom: calc(100% + 4px);
-            left: 50%;
-            transform: translateX(-50%);
-            border: 4px solid transparent;
-            border-top-color: #fff;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.15s ease;
-            z-index: 5;
-        }
-
-        .progress-completed[data-tooltip]:hover::before,
-        .progress-completed[data-tooltip]:hover::after {
-            opacity: 1;
-        }
-
-        .progress-completed:has(.progress-quality:hover)::before,
-        .progress-completed:has(.progress-quality:hover)::after {
-            opacity: 0;
-        }
-
-        .progress-quality[data-tooltip]:hover::before,
-        .progress-quality[data-tooltip]:hover::after {
-            opacity: 1;
-        }
-
-        .progress-incomplete[data-tooltip]:hover::before,
-        .progress-incomplete[data-tooltip]:hover::after {
-            opacity: 1;
-        }
-
-        .progress-incomplete { background: transparent; flex: 1; position: relative; cursor: default; }
-
-        .progress-axis {
-            position: relative;
-            height: 35px;
-        }
-
-        .progress-axis-line {
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 1px;
-            background: #bbb;
-        }
-
-        .progress-axis-tick {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: absolute;
-            transform: translateX(-50%);
-            top: 0;
-        }
-
-        .progress-axis-tick::before {
-            content: '';
-            width: 1px;
-            height: 8px;
-            background-color: #999;
-        }
-
-        .progress-axis-label {
-            font-size: 0.82rem;
-            color: var(--text-dim);
-            font-weight: 500;
-            margin-top: 4px;
-        }
-
-        .progress-footnote {
-            font-size: 0.72rem;
-            color: var(--text-dim);
-            opacity: 0.7;
-            text-align: right;
-            margin: 2px 0 0 0;
-            font-style: italic;
-        }
-
-        /* ── Catalog ─────────────────────────────────────── */
-        .catalog {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 3rem 2rem 4rem;
-        }
-
-        .catalog-heading {
-            font-size: 0.68rem;
-            font-weight: 700;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 2rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .category {
-            margin-bottom: 2.75rem;
-        }
-
-        .category-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.65rem;
-        }
-
-        .category-title::before {
-            content: '';
-            display: block;
-            width: 3px;
-            height: 1.05rem;
-            background: var(--accent);
-            border-radius: 2px;
-            flex-shrink: 0;
-        }
-
-        .links-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 0.875rem;
-        }
-
-        .link {
-            display: flex;
-            align-items: flex-start;
-            padding: 1.1rem 1.2rem;
-            background: var(--bg-card);
-            border-radius: 8px;
-            text-decoration: none;
-            color: var(--text);
-            border: 1px solid var(--border);
-            gap: 0.9rem;
-            transition: background 0.18s, border-color 0.18s, box-shadow 0.18s, transform 0.18s;
-        }
-
-        .link:hover {
-            background: var(--bg-card-hover);
-            border-color: #a3c9b5;
-            box-shadow: 0 4px 16px rgba(13, 122, 71, 0.08);
-            transform: translateY(-1px);
-        }
-
-        .link-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 7px;
-            background: var(--accent-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-
-        .link-icon i {
-            font-size: 0.95rem;
-            color: var(--accent);
-        }
-
-        .link-content { flex: 1; min-width: 0; }
-
-        .link-title {
-            font-size: 0.88rem;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 0.25rem;
-            line-height: 1.35;
-        }
-
-        .link-description {
-            font-size: 0.78rem;
-            color: var(--text-dim);
-            line-height: 1.45;
-        }
-
-        .link-arrow {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            align-self: center;
-            flex-shrink: 0;
-            transition: color 0.18s, transform 0.18s;
-        }
-
-        .link:hover .link-arrow {
-            color: var(--accent);
-            transform: translateX(3px);
-        }
-
-        /* ── A tool with no backend behind it yet ─────────────
-           Rendered as a <div>, not an <a>: until Phase B sets
-           BACKEND_BASE_PRODUCTION the page behind these two can only say "no
-           backend is configured", so a link here would be a dead end dressed as
-           a working tool. Muted, no hover, no arrow. The "Coming soon" badge is
-           the whole of what it says: the card states that the tool is not ready,
-           and deliberately does NOT explain why on a public page. */
-        .link.unavailable {
-            background: var(--bg-alt);
-            border-style: dashed;
-            cursor: default;
-        }
-
-        .link.unavailable:hover {
-            background: var(--bg-alt);
-            border-color: var(--border);
-            box-shadow: none;
-            transform: none;
-        }
-
-        .link.unavailable .link-icon { background: var(--border); }
-        .link.unavailable .link-icon i { color: var(--text-muted); }
-        .link.unavailable .link-title { color: var(--text-dim); }
-
-        /* Its own row, not a chip appended to the title: the two titles are
-           different lengths, so inline it sat beside the first and wrapped below
-           the second — the same state rendered two ways on adjacent cards. */
-        .link-badge {
-            display: inline-block;
-            margin: 0.3rem 0 0.15rem;
-            padding: 0.1rem 0.4rem;
-            border-radius: 4px;
-            background: var(--accent-light);
-            color: var(--accent);
-            font-size: 0.62rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-
-        /* ── Footer ──────────────────────────────────────── */
-        footer {
-            border-top: 1px solid var(--border);
-            text-align: center;
-            padding: 1.25rem 1rem;
-            font-size: 0.73rem;
-            color: var(--text-muted);
-            letter-spacing: 0.05em;
-        }
-
-        /* ── Responsive ──────────────────────────────────── */
-        @media (max-width: 640px) {
-            .progress-section { padding: 1.75rem 1.25rem 1rem; }
-            .progress-headline { font-size: 1.3rem; }
-            .progress-chart { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
-            .progress-label { height: auto; min-width: unset; }
-            .progress-bar-container { width: 100%; }
-            .progress-bar { height: 38px; }
-            .progress-completed { font-size: 0.9rem; }
-            .progress-axis-label { font-size: 0.75rem; }
-            .links-container { grid-template-columns: 1fr; }
-            .catalog { padding: 2rem 1.25rem 3rem; }
-            .site-header { padding: 0.75rem 1.25rem; }
-            .portfolio-note { padding: 0.6rem 1.25rem; font-size: 0.8rem; }
-        }
-
-        /* Portfolio copy only — absent from EarthBiogenome/dashboard. */
-        .portfolio-note {
-            background: var(--accent-light);
-            border-bottom: 1px solid var(--border);
-            color: var(--text-dim);
-            font-size: 0.85rem;
-            line-height: 1.5;
-            padding: 0.7rem 2rem;
-            text-align: center;
-        }
-        .portfolio-note a { color: var(--accent); }
+      @media (max-width:640px){
+        .wrap{padding:0 16px;}
+        .topbar .inner{padding:11px 16px 9px; gap:8px;}
+        /* Measured at a true 400px viewport: the logo and three nav menus on one
+           row come to 430px, i.e. 30px of horizontal scroll. The nav takes its own
+           row instead. */
+        .topnav{margin-left:0; width:100%; justify-content:space-between; gap:2px;}
+        .topnav .n{padding:7px 10px; font-size:12.5px;}
+        /* With .nav-menu static, the panels hang off the sticky topbar instead of
+           off a menu button near the right edge — so a 300px panel cannot push the
+           page sideways, and none of them opens off-screen. */
+        .nav-menu{position:static;}
+        .dropdown, .dropdown.wide, .dropdown.list{left:16px; right:16px; width:auto;}
+        header.hero .inner{padding:26px 16px 26px;}
+        .kpis{grid-template-columns:1fr;}
+        .tool .body{padding:18px 16px 20px;}
+        .tree-pane, .score-pane{padding:16px 16px 18px;}
+        .lad{grid-template-columns:10px 90px 1fr; gap:8px;}
+        footer{padding:28px 16px 36px;}
+      }
     </style>
 </head>
 <body>
 
-    <header class="site-header">
-        <a href="index.html" class="logo">
-            <img src="favicon.jpg" alt="Earth BioGenome Project Logo">
-            <span>EBP Dashboard</span>
+    <div class="topbar">
+      <div class="inner">
+        <a class="logo" href="index.html">
+          <img src="./favicon.jpg" alt="">
+          <span>Earth BioGenome</span>
         </a>
+        <div class="search-wrap">
+          <div class="search">
+            <span aria-hidden="true"><i class="fas fa-magnifying-glass"></i></span>
+            <input id="searchInput" type="search" placeholder="Search reports and tools…" aria-label="Search reports and tools" autocomplete="off" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="results" aria-activedescendant="">
+            <span class="kbd">/</span>
+          </div>
+          <div class="results" id="results" role="listbox" aria-label="Search results"></div>
+        </div>
+        <!-- Built from config.js at load — see buildNav(). There is no hand-written
+             list of pages anywhere on this page, so adding a report to config.js
+             adds it to both the nav and the search index at once. -->
+        <nav class="topnav" id="topnav" aria-label="Main"></nav>
+      </div>
+    </div>
+
+
+    <header class="hero">
+      <canvas class="bg" id="heroBg" aria-hidden="true"></canvas>
+      <div class="inner wrap">
+        <div class="hero-eyebrow">Phase I · the mission in one line</div>
+        <!-- Every number below is fetched from GoaT at page load; the markup ships
+             with no figure in it. See loadHero() / loadScorecard(). -->
+        <h1 class="hero-headline" id="headline">Sequencing the eukaryotic tree of life.</h1>
+
+        <div class="kpis">
+          <div class="kpi">
+            <span class="stripe" style="background:var(--r-species)"></span>
+            <div class="n tnum" id="kpi-species">—</div>
+            <div class="l">Species sequenced by EBP</div>
+            <div class="track"><div class="fill" id="kpi-species-fill" style="width:0; background:var(--green-soft)"><span class="std" id="kpi-species-std" style="width:0"></span></div></div>
+            <div class="cap" id="kpi-species-cap">&nbsp;</div>
+          </div>
+          <div class="kpi">
+            <span class="stripe" style="background:var(--r-family)"></span>
+            <div class="n tnum" id="kpi-family">—</div>
+            <div class="l">Families with at least one EBP assembly</div>
+            <div class="track"><div class="fill" id="kpi-family-fill" style="width:0; background:var(--green-soft)"><span class="std" id="kpi-family-std" style="width:0"></span></div></div>
+            <div class="cap" id="kpi-family-cap">&nbsp;</div>
+          </div>
+        </div>
+
+        <!-- The tree is the same page the nav links to — pages/phylotree.html in an
+             iframe, unmodified — and it is not fetched until the button is pressed.
+             Its GoaT payload is ~230x this page's entire JSON and it needs about
+             1.1 MB of libraries on top, so eager-loading it would make every
+             visitor pay for a view most do not want. No size is written into the
+             copy below: the only figure in the pane is the live order count, which
+             is what keeps every number on this page checkable when it is read. -->
+        <div class="treecard">
+          <div class="tree-pane">
+            <div class="pane-h">The tree of life <span class="tag">LIVE · ON REQUEST</span></div>
+            <div class="tree-stage" id="treeStage">
+              <div class="tree-prompt" id="treePrompt">
+                <span class="tree-ic" aria-hidden="true"><i class="fas fa-circle-nodes"></i></span>
+                <p class="tree-ask" id="treeAsk">Every eukaryotic order with at least one EBP assembly, as a live zoomable phylogeny.</p>
+                <button class="tree-load" id="treeLoad" type="button">Load the tree</button>
+              </div>
+            </div>
+            <div class="tree-cap">Orange marks clades holding at least one assembly under the EBP BioProject; tap a node for its taxon record. <a id="treeOpen" href="./pages/phylotree.html">Open the full page ↗</a></div>
+          </div>
+          <div class="score-pane">
+            <div class="pane-h">Taxonomic milestone scorecard</div>
+            <p class="score-sub">Breadth of coverage at each rank: taxa holding at least one EBP assembly, against every eukaryotic taxon at that rank in GoaT.</p>
+            <div class="score" id="score"></div>
+          </div>
+        </div>
+      </div>
     </header>
 
-    <!-- Portfolio copy only. This block does not exist in EarthBiogenome/dashboard
-         and must not be carried back there: on the official site the same sentence
-         would be false. -->
-    <p class="portfolio-note">
-        This is a portfolio copy of work built for the Earth BioGenome Project, not the
-        official EBP service. The official dashboard is at
-        <a href="https://earthbiogenome.github.io/dashboard/">earthbiogenome.github.io/dashboard</a>.
-    </p>
-
-    <section class="progress-section">
-        <div class="progress-inner">
-            <div class="progress-header">
-                <h1 class="progress-headline">EBP Phase I Progress</h1>
-                <div class="progress-legend">
-                    <span class="legend-item"><span class="legend-swatch legend-swatch-quality"></span>Meeting EBP standard</span>
-                    <span class="legend-item"><span class="legend-swatch legend-swatch-total"></span>Total EBP assemblies</span>
-                </div>
-            </div>
-
-            <div class="progress-chart">
-                <div class="progress-label">
-                    <i class="fas fa-dna"></i>
-                    <span>Species</span>
-                </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar-wrapper">
-                        <div class="progress-bar">
-                            <div class="progress-completed" id="progress-completed" style="width: 0%;" data-tooltip="Loading…">
-                                <div class="progress-completed-gloss"></div>
-                                <div class="progress-quality" id="progress-quality" style="width: 0%;" data-tooltip=""></div>
-                            </div>
-                            <div class="progress-incomplete" id="progress-incomplete" data-tooltip=""></div>
-                        </div>
-                    </div>
-                    <div class="progress-axis" id="progress-axis">
-                        <div class="progress-axis-line"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="progress-chart">
-                <div class="progress-label">
-                    <i class="fas fa-layer-group"></i>
-                    <span>Families</span>
-                </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar-wrapper">
-                        <div class="progress-bar">
-                            <div class="progress-completed" id="progress-family-completed" style="width: 0%;" data-tooltip="Loading…">
-                                <div class="progress-completed-gloss"></div>
-                                <div class="progress-quality" id="progress-family-quality" style="width: 0%;" data-tooltip=""></div>
-                            </div>
-                            <div class="progress-incomplete" id="progress-family-incomplete" data-tooltip=""></div>
-                        </div>
-                    </div>
-                    <div class="progress-axis" id="progress-family-axis">
-                        <div class="progress-axis-line"></div>
-                    </div>
-                    <p class="progress-footnote">Target is half of all INSDC-registered families</p>
-                </div>
-            </div>
+    <div class="wrap">
+      <section>
+        <div class="sec-h">
+          <h2>Two tools</h2>
+          <span class="sub">One shared backend · they take a species list and answer a question, rather than displaying a standing dataset</span>
         </div>
-    </section>
+        <div class="tools" id="tools">
 
-    <main>
-        <div class="catalog">
-            <p class="catalog-heading">Explore Visualizations</p>
-            <div id="content-container"></div>
+          <!-- PRIORITIZATION -->
+          <article class="tool prio" id="card-prio">
+            <div class="accent"></div>
+            <div class="body">
+              <div class="txt">
+                <div class="head">
+                  <span class="ic" aria-hidden="true"><i class="fas fa-bullseye"></i></span>
+                  <div>
+                    <h3 class="tt">Species prioritization <span class="badge">Novelty</span></h3>
+                    <p class="qq">“Is my species list worth sequencing?”</p>
+                  </div>
+                </div>
+                <p class="desc">Screen a list → each species labelled by <b>taxonomic novelty</b> (would it be a phylogenetic first?) and by what the network is already doing, so the two can be filtered separately.</p>
+                <div class="foot" id="foot-prio"></div>
+              </div>
+              <!-- The mockup previewed one list's novelty distribution (ARIDE, 308
+                   species). That is a fact about one confidential list, there is no
+                   public endpoint behind it, and a home page has no list — so what
+                   ships is the tool's LABEL VOCABULARY instead. It is a legend, not
+                   a dataset: nothing here is a count, so nothing here can go stale
+                   or be read as a network-level figure. -->
+              <figure class="preview">
+                <figcaption class="pl">Novelty labels · what the tool assigns each species</figcaption>
+                <div class="ladder">
+                  <div class="lad"><span class="sw" style="background:var(--r-phylum)"></span><span class="lb">Highest_P</span><span class="ds">First in its phylum</span></div>
+                  <div class="lad"><span class="sw" style="background:var(--r-class)"></span><span class="lb">Highest_C</span><span class="ds">First in its class</span></div>
+                  <div class="lad"><span class="sw" style="background:var(--r-order)"></span><span class="lb">Highest_O</span><span class="ds">First in its order</span></div>
+                  <div class="lad"><span class="sw" style="background:var(--r-family)"></span><span class="lb">Highest_F</span><span class="ds">First in its family</span></div>
+                  <div class="lad"><span class="sw" style="background:var(--r-genus)"></span><span class="lb">Highest_G</span><span class="ds">First in its genus</span></div>
+                  <div class="lad"><span class="sw" style="background:#94a3b8"></span><span class="lb">High_S</span><span class="ds">No assembly, but not a first at any rank</span></div>
+                  <div class="lad"><span class="sw" style="background:var(--paper-mute)"></span><span class="lb">Already_Covered</span><span class="ds">An assembly already exists</span></div>
+                </div>
+              </figure>
+            </div>
+          </article>
+
+          <!-- DUPLICATION -->
+          <article class="tool dup" id="card-dup">
+            <div class="accent"></div>
+            <div class="body">
+              <div class="txt">
+                <div class="head">
+                  <span class="ic" aria-hidden="true"><i class="fas fa-shuffle"></i></span>
+                  <div>
+                    <h3 class="tt">Cross-project duplication <span class="badge">Coordination</span></h3>
+                    <p class="qq">“Is another project already sequencing these?”</p>
+                  </div>
+                </div>
+                <p class="desc">For one project, <b>who else has touched each species</b> and how far they have taken it — coordinate before sequencing in parallel.</p>
+                <div class="foot" id="foot-dup"></div>
+              </div>
+              <!-- Filled live from /api/duplication/{project} when a backend exists
+                   for this deployment, and left as the legend alone when one does
+                   not. Labelled with the project and the report's generated date,
+                   because it is one project's figures and not the network's. -->
+              <div class="preview">
+                <div class="pl" id="heat-label">Cross-project overlap · loading…</div>
+                <table class="mini-heat" id="miniHeat" aria-describedby="heat-label"></table>
+                <div class="heat-msg" id="heat-msg" hidden></div>
+                <div class="status-legend">
+                  <div class="sl-scale">
+                    <i style="background:var(--s-not)"></i><i style="background:var(--s-collected)"></i><i style="background:var(--s-datagen)"></i><i style="background:var(--s-progress)"></i><i style="background:var(--s-published)"></i>
+                  </div>
+                  <div class="sl-ends"><b>Not started</b><span>sample → data → assembly →</span><b>Published</b></div>
+                  <div class="sl-note">GoaT <code>sequencing_status</code> stages, left → right. Further right = <b>closer to publication</b>; a project stuck far left is stalled, not near done.</div>
+                </div>
+              </div>
+            </div>
+          </article>
+
         </div>
-    </main>
+      </section>
+
+    </div>
 
     <footer>
-        <p>© 2026 THE EARTH BIOGENOME PROJECT</p>
+      <div>Data source: <a href="https://goat.genomehubs.org" target="_blank" rel="noopener noreferrer">Genomes on a Tree (GoaT)</a> · used with permission.</div>
+      <div>© 2026 THE EARTH BIOGENOME PROJECT</div>
     </footer>
 
     <script src="config.js"></script>
@@ -597,343 +512,633 @@
          free — no request is made until a page calls it. -->
     <script src="./pages/services_backend.js"></script>
     <script>
-        // GA4 Event Tracking Functions
-        function trackEvent(eventName, parameters = {}) {
-            if (typeof gtag !== 'undefined') {
-                gtag('event', eventName, parameters);
-            }
-        }
+    (function(){
+      'use strict';
 
-        const sessionStartTime = Date.now();
+      /* ═══════════════════════════════════════════════════════════════════
+         Is there a backend for THIS deployment?
 
-        function trackVisualizationClick(category, name, file) {
-            trackEvent('visualization_click', {
-                event_category: 'dashboard_interaction',
-                event_label: name,
-                custom_parameter_1: category,
-                custom_parameter_2: 'html_visualization',
-                file_path: file,
-                value: 1
-            });
-        }
+         `backendBase()` returns localhost when the page is served locally and
+         BACKEND_BASE_PRODUCTION otherwise — empty in EarthBiogenome/dashboard
+         until the EBP launch. Asking it, rather than repeating the hostname
+         here, is what makes setting that one constant the only edit needed to
+         turn the two tool cards live (decision 14). If the client failed to
+         load at all, treat the backend as absent: better a card that says
+         "not yet" than a link to a page whose own client is missing.
 
-        let hoverTimeout;
-        function trackHover(category, name) {
-            clearTimeout(hoverTimeout);
-            hoverTimeout = setTimeout(() => {
-                trackEvent('visualization_hover', {
-                    event_category: 'user_engagement',
-                    event_label: name,
-                    custom_parameter_1: category,
-                    value: 1
-                });
-            }, 500);
-        }
+         Everything gated on this: both tool cards, the two Tools entries in
+         the nav, the search index's treatment of them, and the live
+         duplication preview.
+         ═══════════════════════════════════════════════════════════════════ */
+      var backendConfigured = typeof EBPBackend !== 'undefined' && !!EBPBackend.backendBase();
 
-        function trackCategoryView(categoryName) {
-            trackEvent('category_view', {
-                event_category: 'dashboard_navigation',
-                event_label: categoryName,
-                value: 1
-            });
-        }
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      function $(id){ return document.getElementById(id); }
+      function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+      function num(n){ return Number(n).toLocaleString('en-US'); }
 
-        window.addEventListener('beforeunload', function() {
-            const sessionDuration = Math.round((Date.now() - sessionStartTime) / 1000);
-            trackEvent('session_duration', {
-                event_category: 'user_engagement',
-                event_label: 'dashboard_session',
-                value: sessionDuration
-            });
+      /* ───────────── GoaT queries ─────────────
+         The species and arc queries are the ones this page has always run; the
+         two ebp_standard_criteria queries likewise. They are GoaT v2, which
+         allows cross-origin requests from the browser (v3 does not yet — see
+         C.2 in the integration checklist). Nothing here is cached or written
+         down: if GoaT is unreachable the figure says so rather than falling
+         back to a stored number. */
+      var GOAT = {
+        species:      'https://goat.genomehubs.org/api/v2/search?query=bioproject%3DPRJNA533106%20AND%20tax_rank%28species%29&result=taxon&includeEstimates=true&taxonomy=ncbi&size=1',
+        speciesStd:   'https://goat.genomehubs.org/api/v2/search?result=taxon&query=tax_rank%28species%29%20AND%20bioproject%3DPRJNA533106%20AND%20ebp_standard_criteria&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B1%5D=ebp_standard_criteria&size=1',
+        familyStd:    'https://goat.genomehubs.org/api/v2/search?result=taxon&query=tax_rank%28family%29%20AND%20bioproject%3DPRJNA533106%20AND%20ebp_standard_criteria&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B1%5D=ebp_standard_criteria&size=1',
+        /* One call, six ranks. `x` = taxa at that rank carrying an EBP assembly,
+           `y` = every eukaryotic taxon at that rank in GoaT. This single request
+           answers the whole scorecard AND the family KPI. */
+        ebpArc:       'https://goat.genomehubs.org/api/v2/report?report=arc&x=assembly_span%20AND%20bioproject%3DPRJNA533106&rank=phylum%2Cclass%2Corder%2Cfamily%2Cgenus%2Cspecies&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&caption=EBP%20taxa&taxonomy=ncbi&result=taxon&queryId=8EWp2aVcZB'
+      };
+      var PHASE_I_SPECIES_GOAL = 10000;   /* the published EBP Phase I goal */
+
+      function getJSON(url){
+        return fetch(url).then(function(r){
+          if(!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
         });
+      }
+      function hits(d){ return (d && d.status && typeof d.status.hits === 'number') ? d.status.hits : null; }
 
-        let maxScrollDepth = 0;
-        window.addEventListener('scroll', function() {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            const windowHeight = window.innerHeight;
-            const documentHeight = document.documentElement.scrollHeight;
-            const scrollDepth = Math.round((scrollTop + windowHeight) / documentHeight * 100);
+      /* ───────────── hero + scorecard ───────────── */
+      var RANKS = [
+        {key:'phylum', name:'Phylum', plural:'phyla',    colour:'var(--r-phylum)'},
+        {key:'class',  name:'Class',  plural:'classes',  colour:'var(--r-class)'},
+        {key:'order',  name:'Order',  plural:'orders',   colour:'var(--r-order)'},
+        {key:'family', name:'Family', plural:'families', colour:'var(--r-family)'}
+      ];
 
-            if (scrollDepth > maxScrollDepth) {
-                maxScrollDepth = scrollDepth;
-                if (scrollDepth >= 25 && scrollDepth < 50 && maxScrollDepth < 50) {
-                    trackEvent('scroll_depth', { event_category: 'user_engagement', event_label: '25_percent', value: 25 });
-                } else if (scrollDepth >= 50 && scrollDepth < 75 && maxScrollDepth < 75) {
-                    trackEvent('scroll_depth', { event_category: 'user_engagement', event_label: '50_percent', value: 50 });
-                } else if (scrollDepth >= 75 && scrollDepth < 100 && maxScrollDepth < 100) {
-                    trackEvent('scroll_depth', { event_category: 'user_engagement', event_label: '75_percent', value: 75 });
-                } else if (scrollDepth >= 100) {
-                    trackEvent('scroll_depth', { event_category: 'user_engagement', event_label: '100_percent', value: 100 });
-                }
-            }
-        });
+      function setBar(fillId, stdId, value, total, stdValue){
+        var pct = total > 0 ? Math.min(value / total * 100, 100) : 0;
+        var fill = $(fillId);
+        /* width of the inner segment is expressed against the OUTER bar, which is
+           itself `pct` of the track — so the standard-meeting slice reads as a
+           share of what has been sequenced, not of the goal. */
+        var stdPct = value > 0 && stdValue != null ? Math.min(stdValue / value * 100, 100) : 0;
+        /* Set synchronously. The CSS transition still animates it where the browser
+           chooses to, but the WIDTH IS THE FIGURE — it must never depend on a frame
+           callback that may not run (headless capture, a background tab at load).
+           A rAF that never fires draws a measured number as an empty bar. */
+        fill.style.width = pct.toFixed(2) + '%';
+        if(stdId) $(stdId).style.width = stdPct.toFixed(2) + '%';
+        return pct;
+      }
 
-        function trackDeviceInfo() {
-            const deviceInfo = {
-                screen_resolution: `${screen.width}x${screen.height}`,
-                viewport_size: `${window.innerWidth}x${window.innerHeight}`,
-                color_depth: screen.colorDepth,
-                pixel_ratio: window.devicePixelRatio || 1,
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                language: navigator.language,
-                platform: navigator.platform,
-                connection_type: navigator.connection ? navigator.connection.effectiveType : 'unknown'
-            };
-            trackEvent('device_info', {
-                event_category: 'technical_metrics',
-                event_label: 'device_specifications',
-                ...deviceInfo
+      function loadHero(){
+        var pSpecies = getJSON(GOAT.species).then(hits).catch(function(){ return null; });
+        var pStd     = getJSON(GOAT.speciesStd).then(hits).catch(function(){ return null; });
+        var pFamStd  = getJSON(GOAT.familyStd).then(hits).catch(function(){ return null; });
+        var pArc     = getJSON(GOAT.ebpArc).then(function(d){
+          var arcs = d && d.report && d.report.report && d.report.report.arc;
+          if(!Array.isArray(arcs)) throw new Error('no arc');
+          var out = {};
+          arcs.forEach(function(a){ out[a.rank] = {x:Number(a.x)||0, y:Number(a.y)||0}; });
+          return out;
+        }).catch(function(){ return null; });
+
+        Promise.all([pSpecies, pStd, pFamStd, pArc]).then(function(r){
+          var species = r[0], speciesStd = r[1], famStd = r[2], arc = r[3];
+          var family = arc && arc.family ? arc.family.x : null;
+          /* The Phase I family target is half of all eukaryotic families known to
+             GoaT — the same definition the previous home page used, computed from
+             the same response rather than written down. */
+          var familyTarget = arc && arc.family ? Math.max(1, Math.round(arc.family.y / 2)) : null;
+
+          /* headline */
+          if(species != null && family != null){
+            $('headline').innerHTML =
+              'Sequenced <span class="n tnum">' + num(species) + '</span> species toward ' +
+              '<span class="tnum">' + num(PHASE_I_SPECIES_GOAL) + '</span> — ' +
+              '<span class="n tnum">' + num(family) + '</span> families now covered.';
+          }
+
+          /* species KPI */
+          if(species != null){
+            $('kpi-species').textContent = num(species);
+            var pct = setBar('kpi-species-fill', 'kpi-species-std', species, PHASE_I_SPECIES_GOAL, speciesStd);
+            $('kpi-species-cap').innerHTML = '<b>' + pct.toFixed(1) + '%</b> of the Phase I goal of ' +
+              num(PHASE_I_SPECIES_GOAL) +
+              (speciesStd != null ? ' · <b>' + num(speciesStd) + '</b> meet the EBP standard' : '');
+          } else { $('kpi-species-cap').textContent = 'GoaT unavailable'; }
+
+          /* family KPI */
+          if(family != null && familyTarget != null){
+            $('kpi-family').textContent = num(family);
+            var fpct = setBar('kpi-family-fill', 'kpi-family-std', family, familyTarget, famStd);
+            $('kpi-family-cap').innerHTML = '<b>' + fpct.toFixed(1) + '%</b> of the Phase I target of ' +
+              num(familyTarget) + ' (half of all eukaryotic families)' +
+              (famStd != null ? ' · <b>' + num(famStd) + '</b> meet the EBP standard' : '');
+          } else { $('kpi-family-cap').textContent = 'GoaT unavailable'; }
+
+          /* scorecard */
+          if(arc){
+            var html = '';
+            RANKS.forEach(function(rk){
+              var a = arc[rk.key];
+              if(!a || !a.y) return;
+              var p = a.x / a.y * 100;
+              html += '<div class="rank-row">' +
+                        '<span class="rank-dot" style="background:' + rk.colour + '"></span>' +
+                        '<div class="rank-body">' +
+                          '<div class="rank-top"><span class="rank-name">' + rk.name + '</span>' +
+                            '<span class="rank-frac"><b>' + num(a.x) + '</b> / ' + num(a.y) + '</span></div>' +
+                          '<div class="rank-track"><div class="rank-fill" data-w="' + p.toFixed(1) + '" style="background:' + rk.colour + '"></div></div>' +
+                          '<div class="rank-pct">' + p.toFixed(1) + '% of eukaryotic ' + rk.plural + ' reached</div>' +
+                        '</div>' +
+                      '</div>';
             });
-        }
-
-        window.addEventListener('load', function() {
-            setTimeout(() => {
-                if (window.performance && window.performance.timing) {
-                    const timing = window.performance.timing;
-                    const loadTime = timing.loadEventEnd - timing.navigationStart;
-                    const domContentLoaded = timing.domContentLoadedEventEnd - timing.navigationStart;
-                    trackEvent('page_performance', {
-                        event_category: 'technical_metrics',
-                        event_label: 'load_time',
-                        page_load_time: loadTime,
-                        dom_content_loaded: domContentLoaded,
-                        value: Math.round(loadTime / 1000)
-                    });
-                }
-                trackDeviceInfo();
-            }, 1000);
-        });
-
-        // Build catalog from config
-        const container = document.getElementById('content-container');
-
-        /* Is there a backend for THIS deployment?
-           `backendBase()` returns localhost when the page is served locally and
-           BACKEND_BASE_PRODUCTION otherwise — empty until Phase B provisions a
-           hostname. Asking it, rather than repeating the hostname here, is what
-           makes setting that one constant the only edit needed to turn the two
-           tool cards live. If the client failed to load at all, treat the
-           backend as absent: better a card that says "not yet" than a link to a
-           page whose own client is missing. */
-        const backendConfigured = typeof EBPBackend !== 'undefined' && !!EBPBackend.backendBase();
-
-        pages.forEach(category => {
-            trackCategoryView(category.category);
-
-            const categoryDiv = document.createElement('div');
-            categoryDiv.classList.add('category');
-
-            const titleH2 = document.createElement('h2');
-            titleH2.classList.add('category-title');
-            titleH2.textContent = category.category;
-            categoryDiv.appendChild(titleH2);
-
-            const linksContainer = document.createElement('div');
-            linksContainer.classList.add('links-container');
-
-            category.pages.forEach(page => {
-                // A tool page with no backend behind it is not a link. See the
-                // .link.unavailable rule above for why it is not merely dimmed.
-                const unavailable = page.requiresBackend && !backendConfigured;
-
-                const link = document.createElement(unavailable ? 'div' : 'a');
-                link.classList.add('link');
-                if (unavailable) {
-                    link.classList.add('unavailable');
-                    link.title = page.description;
-                } else {
-                    link.href = page.file;
-                    link.target = '_blank';
-                    link.title = page.description;
-
-                    link.addEventListener('click', () => trackVisualizationClick(category.category, page.name, page.file));
-                    link.addEventListener('mouseenter', () => trackHover(category.category, page.name));
-                    link.addEventListener('focus', () => {
-                        trackEvent('visualization_focus', {
-                            event_category: 'accessibility',
-                            event_label: page.name,
-                            custom_parameter_1: category.category,
-                            value: 1
-                        });
-                    });
-                }
-
-                const iconWrapper = document.createElement('div');
-                iconWrapper.classList.add('link-icon');
-                const icon = document.createElement('i');
-                icon.className = `fas ${page.icon}`;
-                iconWrapper.appendChild(icon);
-                link.appendChild(iconWrapper);
-
-                const content = document.createElement('div');
-                content.classList.add('link-content');
-                const title = document.createElement('div');
-                title.classList.add('link-title');
-                title.textContent = page.name;
-                const description = document.createElement('div');
-                description.classList.add('link-description');
-                description.textContent = page.description;
-                content.appendChild(title);
-
-                if (unavailable) {
-                    const badge = document.createElement('span');
-                    badge.classList.add('link-badge');
-                    badge.textContent = 'Coming soon';
-                    content.appendChild(badge);
-                }
-
-                content.appendChild(description);
-                link.appendChild(content);
-
-                if (!unavailable) {
-                    const arrow = document.createElement('i');
-                    arrow.classList.add('fas', 'fa-arrow-right', 'link-arrow');
-                    link.appendChild(arrow);
-                }
-
-                linksContainer.appendChild(link);
+            $('score').innerHTML = html;
+            /* Same rule as setBar(): the width is the measurement, so it is applied
+               directly rather than from inside a frame callback. */
+            document.querySelectorAll('.rank-fill').forEach(function(el){
+              el.style.width = (el.dataset.w || 0) + '%';
             });
+          } else {
+            $('score').innerHTML = '<p class="heat-msg">The GoaT report did not load, so no coverage figures are shown. Reload to try again.</p>';
+          }
 
-            categoryDiv.appendChild(linksContainer);
-            container.appendChild(categoryDiv);
+          /* The tree draws orders, so the prompt says how many there are — from the
+             arc call already made above, not from a second query and not from a
+             number written down here. */
+          setTreeCount(arc && arc.order ? arc.order.x : null);
         });
+      }
 
-        trackEvent('dashboard_loaded', {
-            event_category: 'dashboard',
-            event_label: 'content_ready',
-            categories_count: pages.length,
-            total_visualizations: pages.reduce((sum, cat) => sum + cat.pages.length, 0),
-            value: 1
+      /* ───────── the tree pane (click to load) ─────────
+         pages/phylotree.html is already live and already zoomable, so this embeds
+         it rather than reimplementing it — one source of truth for the tree, and
+         its `height:100vh` container stays sealed inside the frame.
+
+         Why a button and not an eager load, measured 2026-09-12: the tree's GoaT
+         `report=tree` response is 9.97 MB and took 6.7 s, against 44.2 KB across
+         all four of this page's own GoaT calls — about 230x the data — and it
+         needs d3 (618 KB), phylotree.js (479 KB), underscore, services.js and
+         jQuery from a CDN before it can draw anything. Nobody pays that unless
+         they ask for it.
+
+         GoaT-ONLY: the tree never touches the backend, so nothing here is gated on
+         `backendConfigured`. It renders identically in EarthBiogenome/dashboard
+         with BACKEND_BASE_PRODUCTION still empty. */
+      var TREE_FILE_ENDS = 'phylotree.html';
+
+      function treeHref(){
+        /* Same rule as the nav: the path comes from config.js, so a rename there
+           reaches the nav, the search index, this link and the iframe at once.
+           The literal is a fallback for config.js failing to load, not a second
+           catalogue — it lists no page the catalogue does not. */
+        var entry = toolEntry(TREE_FILE_ENDS);
+        return (entry && entry.file) ? entry.file : './pages/' + TREE_FILE_ENDS;
+      }
+
+      function setTreeCount(orders){
+        var ask = $('treeAsk');
+        if(!ask) return;
+        /* Degrade to the sentence without the figure rather than to a stale one:
+           if the arc call failed there is no order count to show, and inventing
+           one is the thing this page exists not to do. */
+        ask.innerHTML = orders != null
+          ? '<b>' + num(orders) + '</b> eukaryotic orders hold at least one EBP assembly. See them as a live, zoomable phylogeny.'
+          : 'Every eukaryotic order with at least one EBP assembly, as a live zoomable phylogeny.';
+      }
+
+      /* ── fitting the embedded tree ──
+         Three presentational adjustments, made by reaching INTO the frame rather
+         than by editing pages/phylotree.html: that page is the single source of
+         truth for the tree, it is deployed and verified, and both of these are
+         true only of the embed. Same origin — both are served from /ebp/ — so
+         its document is reachable. Nothing here changes a datum; the tree, the
+         query and the colours are the page's own. Every failure mode is benign:
+         if the document is unreachable or an element is ever renamed, the frame
+         simply renders as it does on its own page.
+
+         (1) RADIAL ONLY on the landing page (Fang, 2026-09-12). Radial is already
+             the default — phylotree.html renders with radial=true and ships the
+             Radial button selected — so this hides the Linear/Radial control
+             rather than changing what is drawn. Both layouts stay available on
+             the full page the caption links to.
+
+         (2) A viewBox, so the whole tree is in the pane. phylotree.js writes
+             width/height attributes (~2011x1974) and NO viewBox, so `width:100%`
+             clips the canvas instead of scaling it — which is why the page shows
+             the top-left corner of the disc at every window size, its own
+             included. Giving the svg a viewBox of exactly the width and height it
+             already declares changes no geometry; it only lets the existing
+             `width:100%` scale rather than crop, so the radial disc reads as a
+             disc. Labels are illegible at pane size by design: the shape is the
+             point, and zoom and the full page are both one gesture away. */
+      function fitEmbeddedTree(frame){
+        try{
+          var doc = frame.contentDocument;
+          if(!doc) return;
+
+          var style = doc.createElement('style');
+          style.textContent =
+            '.btns{display:none!important;}' +
+            /* Chrome (3): the page's own title, footer and 1px black border are
+               all chrome the PANE already provides — it has a header, a caption
+               and a rounded border of its own, so embedding them draws each twice.
+               Removing the frame's footer does not drop the GoaT attribution: the
+               home page's own footer carries "Data source: Genomes on a Tree
+               (GoaT) · used with permission", and the caption names the
+               BioProject. All three remain on the full page. */
+            '#tree_title{display:none!important;}' +
+            '#footer{display:none!important;}' +
+            '#tree_container{border:0!important;}' +
+            '.container{padding-bottom:0!important;}' +
+            '#tree_content{width:100%!important; height:100%!important;}' +
+            '#tree_content svg{width:100%!important; height:100%!important;}';
+          (doc.head || doc.documentElement).appendChild(style);
+
+          /* The svg does not exist until the GoaT round trip returns and
+             phylotree draws, which is well after the frame's load event. Watch
+             for it rather than guessing at a delay, and stop once it is fitted. */
+          var stop = Date.now() + 120000;
+          var timer = setInterval(function(){
+            var svg = doc.querySelector('#tree_content svg');
+            if(svg){
+              var w = parseFloat(svg.getAttribute('width')),
+                  h = parseFloat(svg.getAttribute('height'));
+              if(w > 0 && h > 0 && !svg.getAttribute('viewBox')){
+                svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+                svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+              }
+              clearInterval(timer);
+            } else if(Date.now() > stop){
+              clearInterval(timer);
+            }
+          }, 250);
+        }catch(e){ /* leave the frame exactly as its own page renders it */ }
+      }
+
+      function buildTreePane(){
+        var stage = $('treeStage'), prompt = $('treePrompt'),
+            btn = $('treeLoad'), open = $('treeOpen');
+        if(!stage || !prompt || !btn) return;
+
+        var href = treeHref();
+        if(open) open.href = href;
+
+        btn.addEventListener('click', function(){
+          if(stage.getAttribute('data-loaded')) return;
+          stage.setAttribute('data-loaded', '1');
+          btn.disabled = true;
+          btn.textContent = 'Loading the tree…';
+
+          var frame = document.createElement('iframe');
+          frame.title = 'Phylogenomic tree of orders with at least one species sequenced by EBP';
+          /* The prompt covers the frame until the frame has a document to show;
+             the tree then paints inside it a few seconds later, under its own
+             title bar, which is its own progress indication. */
+          frame.addEventListener('load', function(){
+            prompt.hidden = true;
+            fitEmbeddedTree(frame);
+          });
+          frame.src = href;
+          stage.appendChild(frame);
         });
+      }
 
-        // Progress data
-        const PHASE_I_GOAL = 10000;
-        const SPECIES_API_URL = "https://goat.genomehubs.org/api/v2/search?query=bioproject%3DPRJNA533106%20AND%20tax_rank%28species%29&result=taxon&includeEstimates=true&taxonomy=ncbi&size=1";
-        const EBP_ARC_URL = "https://goat.genomehubs.org/api/v2/report?report=arc&x=assembly_span%20AND%20bioproject%3DPRJNA533106&rank=phylum%2Cclass%2Corder%2Cfamily%2Cgenus%2Cspecies&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&caption=EBP%20taxa&taxonomy=ncbi&result=taxon&queryId=8EWp2aVcZB";
-        const INSDC_ARC_URL = "https://goat.genomehubs.org/api/v2/report?report=arc&x=assembly_span&rank=phylum%2Cclass%2Corder%2Cfamily%2Cgenus%2Cspecies&includeEstimates=true&excludeAncestral%5B0%5D=assembly_span&excludeMissing%5B0%5D=assembly_span&caption=INSDC%20taxa&taxonomy=ncbi&result=taxon&queryId=R8LGXM94GW";
-        const SPECIES_QUALITY_API_URL = "https://goat.genomehubs.org/api/v2/search?result=taxon&query=tax_rank%28species%29%20AND%20bioproject%3DPRJNA533106%20AND%20ebp_standard_criteria&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B1%5D=ebp_standard_criteria&size=1";
-        const FAMILY_QUALITY_API_URL = "https://goat.genomehubs.org/api/v2/search?result=taxon&query=tax_rank%28family%29%20AND%20bioproject%3DPRJNA533106%20AND%20ebp_standard_criteria&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B1%5D=ebp_standard_criteria&size=1";
+      /* ───────────── duplication preview (live) ─────────────
+         One project's report, labelled as one project's report. There is no
+         network-wide overlap endpoint, so this names DTOL and the date the
+         report was generated rather than implying a network figure. Report 2
+         is "active elsewhere, no assembly yet" — the case where coordination
+         is still possible, which is the card's whole argument. */
+      var PREVIEW_PROJECT = 'dtol';
+      var PREVIEW_PROJECT_LABEL = 'Darwin Tree of Life';
+      var STATUS_COLOUR = {
+        not_started:'--s-not',
+        sample_collected:'--s-collected', sample_acquired:'--s-collected',
+        data_generation:'--s-datagen',
+        in_assembly:'--s-progress', in_progress:'--s-progress', open:'--s-progress',
+        insdc_open:'--s-published', published:'--s-published'
+      };
+      var STATUS_LABEL = {
+        not_started:'not started', sample_collected:'sample coll.', sample_acquired:'sample acq.',
+        data_generation:'data gen.', in_assembly:'in assembly', in_progress:'in progress',
+        open:'open', insdc_open:'in INSDC', published:'published'
+      };
+      function cvar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
 
-        function createAxisTicks(axisContainerId, max, tickValues) {
-            const axisContainer = document.getElementById(axisContainerId);
-            if (!axisContainer) return;
-            axisContainer.querySelectorAll('.progress-axis-tick').forEach(el => el.remove());
-            tickValues.forEach(value => {
-                const tick = document.createElement('div');
-                tick.classList.add('progress-axis-tick');
-                tick.style.left = `${(value / max) * 100}%`;
-                const label = document.createElement('span');
-                label.classList.add('progress-axis-label');
-                label.textContent = value.toLocaleString();
-                tick.appendChild(label);
-                axisContainer.appendChild(tick);
+      function heatMessage(msg){
+        $('miniHeat').innerHTML = '';
+        var el = $('heat-msg');
+        el.textContent = msg;
+        el.hidden = false;
+      }
+
+      function loadDuplicationPreview(){
+        if(!backendConfigured){
+          $('heat-label').textContent = 'Cross-project overlap';
+          heatMessage('No backend is configured for this deployment, so no report can be shown. The stage ramp below is the scale the tool reads against.');
+          return;
+        }
+        $('heat-label').textContent = 'Cross-project overlap · loading…';
+        getJSON(EBPBackend.backendBase() + '/api/duplication/' + PREVIEW_PROJECT).then(function(d){
+          var rep = d && d.report_2;
+          if(!rep || !rep.matrix || !rep.project_columns) throw new Error('unexpected shape');
+
+          /* top 4 partner projects, in the order the backend ranked them */
+          var cols = rep.project_columns.slice(0, 4);
+          /* rows: the statuses that actually carry a value, so an empty row never
+             reads as a measured zero */
+          var rows = (rep.status_order || []).filter(function(s){
+            var r = rep.matrix[s] || {};
+            return cols.some(function(c){ return Number(r[c]) > 0; });
+          });
+          if(!cols.length || !rows.length) throw new Error('no cells');
+
+          var mx = 0;
+          rows.forEach(function(s){ cols.forEach(function(c){ var v = Number((rep.matrix[s]||{})[c]) || 0; if(v > mx) mx = v; }); });
+          mx = mx || 1;
+
+          function mix(varName, t){
+            var hex = cvar(varName) || '#6b8375';
+            var r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+            return 'rgba(' + r + ',' + g + ',' + b + ',' + (0.16 + 0.68 * t).toFixed(3) + ')';
+          }
+
+          var html = '<thead><tr><th class="rh"></th>';
+          cols.forEach(function(c){ html += '<th>' + esc(c.toUpperCase()) + '</th>'; });
+          html += '</tr></thead><tbody>';
+          rows.forEach(function(s){
+            html += '<tr><th class="rh">' + esc(STATUS_LABEL[s] || s) + '</th>';
+            cols.forEach(function(c){
+              var v = Number((rep.matrix[s]||{})[c]) || 0;
+              if(!v){ html += '<td class="z">·</td>'; }
+              else { html += '<td style="background:' + mix(STATUS_COLOUR[s] || '--s-not', v / mx) + '">' + num(v) + '</td>'; }
             });
+            html += '</tr>';
+          });
+          html += '</tbody>';
+          $('miniHeat').innerHTML = html;
+          $('heat-msg').hidden = true;
+
+          var when = d.generated_date ? ' · generated ' + esc(d.generated_date) : '';
+          $('heat-label').innerHTML = 'Example · ' + esc(PREVIEW_PROJECT.toUpperCase()) +
+            ' <span class="src">active elsewhere, no assembly yet' + when + '</span>';
+
+          var total = d.stored && d.stored.total_species;
+          if(total){
+            var el = document.getElementById('dup-stat');
+            if(el) el.innerHTML = '<b>' + num(total) + '</b> ' + esc(PREVIEW_PROJECT_LABEL) +
+              ' species overlap another project';
+          }
+        }).catch(function(){
+          $('heat-label').textContent = 'Cross-project overlap';
+          heatMessage('The report did not load. Open the tool for the live view.');
+        });
+      }
+
+      /* ───────────── the two tool cards ─────────────
+         Both derive entirely from config.js (name, description, file) and from
+         `backendConfigured`. No hand-written copy names either page. */
+      function toolEntry(fileEnds){
+        var found = null;
+        (typeof pages !== 'undefined' ? pages : []).forEach(function(cat){
+          (cat.pages || []).forEach(function(p){
+            if(p.file && p.file.indexOf(fileEnds) > -1) found = p;
+          });
+        });
+        return found;
+      }
+
+      function buildToolCard(cardId, footId, fileEnds, statId){
+        var card = $(cardId), foot = $(footId);
+        var entry = toolEntry(fileEnds);
+        if(!card || !foot) return;
+
+        if(statId){
+          var stat = document.createElement('span');
+          stat.className = 'stat';
+          stat.id = statId;
+          foot.appendChild(stat);
         }
 
-        async function fetchSpeciesCount() {
-            try {
-                const response = await fetch(SPECIES_API_URL);
-                if (!response.ok) throw new Error('HTTP error: ' + response.status);
-                const data = await response.json();
-                const speciesCount = (data.status && data.status.hits) ? data.status.hits : 0;
-                if (speciesCount === 0) throw new Error('Zero hits returned');
-                updateProgressBar(speciesCount);
-            } catch (error) {
-                console.error('Error fetching species count:', error);
-                // Retry once after 3 seconds
-                setTimeout(async () => {
-                    try {
-                        const response = await fetch(SPECIES_API_URL);
-                        if (!response.ok) throw new Error('HTTP error: ' + response.status);
-                        const data = await response.json();
-                        const speciesCount = (data.status && data.status.hits) ? data.status.hits : 0;
-                        if (speciesCount > 0) {
-                            updateProgressBar(speciesCount);
-                        } else {
-                            document.getElementById('progress-completed').setAttribute('data-tooltip', 'Data unavailable');
-                            createAxisTicks('progress-axis', PHASE_I_GOAL, [0, 2000, 4000, 6000, 8000, 10000]);
-                        }
-                    } catch (retryError) {
-                        console.error('Retry failed:', retryError);
-                        document.getElementById('progress-completed').setAttribute('data-tooltip', 'Data unavailable');
-                        createAxisTicks('progress-axis', PHASE_I_GOAL, [0, 2000, 4000, 6000, 8000, 10000]);
-                    }
-                }, 3000);
+        if(entry && !(entry.requiresBackend && !backendConfigured)){
+          card.classList.add('live');
+          var a = document.createElement('a');
+          a.className = 'open';
+          a.href = entry.file;
+          a.innerHTML = 'Open ' + esc(entry.name) + ' <span class="arr" aria-hidden="true">→</span>';
+          foot.appendChild(a);
+        } else {
+          card.classList.add('off');
+          var badge = card.querySelector('.badge');
+          if(badge){
+            var soon = document.createElement('span');
+            soon.className = 'soon';
+            soon.textContent = 'Coming soon';
+            badge.parentNode.insertBefore(soon, badge.nextSibling);
+          }
+          var note = document.createElement('span');
+          note.className = 'offnote';
+          note.textContent = 'No backend is configured for this deployment yet.';
+          foot.appendChild(note);
+        }
+      }
+
+      /* ───────────── nav and search, both from config.js ─────────────
+         SHORT_LABEL renames a category for the top bar (config.js's "Assembly
+         Progress" reads as "Report" there). A category it does not know keeps its
+         own name, so a new one in config.js still appears rather than silently
+         vanishing.
+
+         The top-bar menus are now the ONLY route to the report pages — the
+         "All reports" grid below the tool cards was removed on request
+         2026-09-12. Nothing else lists them, so a report missing from
+         config.js is unreachable, not merely unlisted. */
+      var SHORT_LABEL = {
+        'Assembly progress': 'Report',
+        'Network visualization': 'Network',
+        'Sequencing coordination toolset': 'Tools'
+      };
+      var TOOL_CATEGORY = 'Sequencing coordination toolset';
+
+      function catalogue(){ return (typeof pages !== 'undefined' && Array.isArray(pages)) ? pages : []; }
+      function isOff(p){ return !!(p.requiresBackend && !backendConfigured); }
+
+      function buildNav(){
+        var nav = $('topnav');
+        if(!nav) return;
+        var html = '';
+        catalogue().forEach(function(cat){
+          var label = SHORT_LABEL[cat.category] || cat.category;
+          var rich = cat.category === TOOL_CATEGORY;
+          html += '<div class="nav-menu">' +
+                    '<span class="n" tabindex="0" role="button" aria-haspopup="true">' + esc(label) +
+                      ' <span class="caret" aria-hidden="true">▾</span></span>' +
+                    '<div class="dropdown ' + (rich ? 'wide' : 'list') + '">';
+          (cat.pages || []).forEach(function(p){
+            var off = isOff(p);
+            if(rich){
+              var cls = p.file.indexOf('prioritization') > -1 ? 'prio' : 'dup';
+              var inner = '<span class="di" aria-hidden="true"><i class="fas ' + esc(p.icon || 'fa-circle') + '"></i></span>' +
+                          '<div><div class="dt">' + esc(p.name) +
+                            (off ? '<span class="soon">Soon</span>' : '') + '</div>' +
+                          '<div class="dd">' + esc(p.description || '') + '</div></div>';
+              html += off
+                ? '<div class="dd-item off ' + cls + '">' + inner + '</div>'
+                : '<a class="dd-item ' + cls + '" href="' + esc(p.file) + '">' + inner + '</a>';
+            } else {
+              html += '<a class="dd-link" href="' + esc(p.file) + '">' +
+                        '<span class="dli" aria-hidden="true"><i class="fas ' + esc(p.icon || 'fa-circle') + '"></i></span>' +
+                        esc(p.name) + '</a>';
             }
-        }
+          });
+          html += '</div></div>';
+        });
+        nav.innerHTML = html;
+      }
 
-        function updateProgressBar(count) {
-            const percentage = Math.min((count / PHASE_I_GOAL) * 100, 100);
-            const completedEl = document.getElementById('progress-completed');
-            completedEl.style.width = `${percentage}%`;
-            completedEl.setAttribute('data-tooltip', count.toLocaleString());
-            document.getElementById('progress-incomplete').setAttribute('data-tooltip', `Target: ${PHASE_I_GOAL.toLocaleString()}`);
-            createAxisTicks('progress-axis', PHASE_I_GOAL, [0, 2000, 4000, 6000, 8000, 10000]);
-            fetchSpeciesQualityCount(count);
-        }
 
-        async function fetchSpeciesQualityCount(ebpCount) {
-            try {
-                const response = await fetch(SPECIES_QUALITY_API_URL);
-                if (!response.ok) throw new Error('HTTP error: ' + response.status);
-                const data = await response.json();
-                const qualityCount = (data.status && data.status.hits) ? data.status.hits : 0;
-                const qualityPercentage = ebpCount > 0 ? Math.min((qualityCount / ebpCount) * 100, 100) : 0;
-                const qualityEl = document.getElementById('progress-quality');
-                qualityEl.style.width = `${qualityPercentage}%`;
-                qualityEl.setAttribute('data-tooltip', qualityCount.toLocaleString());
-            } catch (error) {
-                console.error('Error fetching species quality count:', error);
+      /* ───────────── search ─────────────
+         Indexes config.js and nothing else. The mockup also showed Species and
+         Projects groups fed by a "data spine" /api/search — that endpoint does
+         not exist, so those groups are not built here rather than demonstrated
+         with invented rows. Grouping, keyboard navigation and "/" are kept. */
+      var searchInput = $('searchInput'), resultsEl = $('results');
+      var optionEls = [], activeIdx = -1;
+
+      function hl(text, q){
+        var t = esc(text);
+        if(!q) return t;
+        var i = text.toLowerCase().indexOf(q);
+        if(i < 0) return t;
+        return esc(text.slice(0,i)) + '<mark>' + esc(text.slice(i, i+q.length)) + '</mark>' + esc(text.slice(i+q.length));
+      }
+
+      function runSearch(q){
+        q = q.trim().toLowerCase();
+        if(!q){ closeResults(); resultsEl.innerHTML = ''; return; }
+        var html = '', total = 0, oi = 0;
+        catalogue().forEach(function(cat){
+          var items = (cat.pages || []).filter(function(p){
+            return (p.name + ' ' + (p.description || '')).toLowerCase().indexOf(q) > -1;
+          });
+          if(!items.length) return;
+          total += items.length;
+          html += '<div class="res-group"><div class="res-gh">' + esc(cat.category) + '</div>';
+          items.forEach(function(p){
+            var off = isOff(p);
+            var id = 'opt-' + (oi++);
+            var inner = '<span class="ri" aria-hidden="true"><i class="fas ' + esc(p.icon || 'fa-circle') + '"></i></span>' +
+                        '<div><div class="rt">' + hl(p.name, q) + '</div>' +
+                        (p.description ? '<div class="rd">' + hl(p.description, q) + '</div>' : '') + '</div>' +
+                        (off ? '<span class="rmeta"><span class="rchip">Coming soon</span></span>' : '');
+            html += off
+              ? '<div class="res-item" id="' + id + '" role="option" aria-selected="false" aria-disabled="true">' + inner + '</div>'
+              : '<a class="res-item" id="' + id + '" role="option" aria-selected="false" href="' + esc(p.file) + '">' + inner + '</a>';
+          });
+          html += '</div>';
+        });
+        if(!total){
+          html = '<div class="res-empty">No matches for “' + esc(q) + '”. Try a report or tool name.</div>';
+        } else {
+          html += '<div class="res-foot"><b>Reports and tools</b> come from the site catalogue. <span style="opacity:.8">↑↓ to navigate · Enter to open</span></div>';
+        }
+        resultsEl.innerHTML = html;
+        openResults();
+        optionEls = [].slice.call(resultsEl.querySelectorAll('.res-item'));
+        activeIdx = -1; setActive(-1);
+        optionEls.forEach(function(el){
+          el.addEventListener('mousemove', function(){
+            var i = optionEls.indexOf(el);
+            if(i !== activeIdx){ activeIdx = i; setActive(i); }
+          });
+        });
+      }
+
+      function openResults(){ resultsEl.classList.add('on'); searchInput.setAttribute('aria-expanded','true'); }
+      function closeResults(){
+        resultsEl.classList.remove('on');
+        searchInput.setAttribute('aria-expanded','false');
+        searchInput.setAttribute('aria-activedescendant','');
+        activeIdx = -1;
+      }
+      function setActive(i){
+        optionEls.forEach(function(el){ el.classList.remove('active'); el.setAttribute('aria-selected','false'); });
+        if(i < 0 || i >= optionEls.length){ searchInput.setAttribute('aria-activedescendant',''); return; }
+        var el = optionEls[i];
+        el.classList.add('active');
+        el.setAttribute('aria-selected','true');
+        searchInput.setAttribute('aria-activedescendant', el.id);
+        el.scrollIntoView({block:'nearest'});
+      }
+
+      if(searchInput){
+        searchInput.addEventListener('input', function(){ runSearch(this.value); });
+        searchInput.addEventListener('focus', function(){ if(this.value.trim()) runSearch(this.value); });
+        document.addEventListener('click', function(e){ if(!e.target.closest('.search-wrap')) closeResults(); });
+        searchInput.addEventListener('keydown', function(e){
+          var open = resultsEl.classList.contains('on');
+          if(e.key === 'Escape'){ this.value = ''; closeResults(); this.blur(); return; }
+          if(!open || !optionEls.length) return;
+          if(e.key === 'ArrowDown'){ e.preventDefault(); activeIdx = (activeIdx+1) % optionEls.length; setActive(activeIdx); }
+          else if(e.key === 'ArrowUp'){ e.preventDefault(); activeIdx = (activeIdx-1+optionEls.length) % optionEls.length; setActive(activeIdx); }
+          else if(e.key === 'Enter'){
+            if(activeIdx >= 0 && optionEls[activeIdx].tagName === 'A'){ e.preventDefault(); optionEls[activeIdx].click(); }
+          }
+        });
+        document.addEventListener('keydown', function(e){
+          if(e.key === '/' && document.activeElement !== searchInput &&
+             !/^(INPUT|TEXTAREA)$/.test((document.activeElement || {}).tagName || '')){
+            e.preventDefault(); searchInput.focus();
+          }
+        });
+      }
+
+      /* ───────────── hero background (decoration, not a chart) ───────────── */
+      (function heroBg(){
+        var bg = $('heroBg');
+        if(!bg || reduce) return;
+        var ctx, W, H, nodes;
+        function size(){ bg.width = bg.offsetWidth; bg.height = bg.offsetHeight; W = bg.width; H = bg.height; }
+        size();
+        if(!W || !H) return;
+        ctx = bg.getContext('2d');
+        var ranks = ['--r-phylum','--r-class','--r-order','--r-family','--r-genus'].map(cvar);
+        nodes = [];
+        for(var i = 0; i < 40; i++){
+          nodes.push({x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.4+0.5,
+                      c:ranks[i % ranks.length], vx:(Math.random()-0.5)*0.08, vy:(Math.random()-0.5)*0.08});
+        }
+        (function frame(){
+          ctx.clearRect(0,0,W,H);
+          for(var i = 0; i < nodes.length; i++){
+            var a = nodes[i];
+            for(var j = i+1; j < nodes.length; j++){
+              var b = nodes[j], dx = a.x-b.x, dy = a.y-b.y, d = Math.sqrt(dx*dx+dy*dy);
+              if(d < 92){
+                ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+                ctx.strokeStyle = 'rgba(13,122,71,' + (0.10*(1-d/92)) + ')';
+                ctx.lineWidth = 0.6; ctx.stroke();
+              }
             }
-        }
+          }
+          nodes.forEach(function(n){
+            ctx.beginPath(); ctx.arc(n.x,n.y,n.r,0,7);
+            ctx.fillStyle = n.c; ctx.globalAlpha = 0.28; ctx.fill(); ctx.globalAlpha = 1;
+            n.x += n.vx; n.y += n.vy;
+            if(n.x < 0 || n.x > W) n.vx *= -1;
+            if(n.y < 0 || n.y > H) n.vy *= -1;
+          });
+          requestAnimationFrame(frame);
+        })();
+        window.addEventListener('resize', size);
+      })();
 
-        async function fetchFamilyCounts() {
-            try {
-                const [ebpRes, insdcRes] = await Promise.all([
-                    fetch(EBP_ARC_URL).then(r => r.ok ? r.json() : null),
-                    fetch(INSDC_ARC_URL).then(r => r.ok ? r.json() : null)
-                ]);
-                const ebpFamily   = ebpRes?.report?.report?.arc?.find(item => item.rank === 'family');
-                const insdcFamily = insdcRes?.report?.report?.arc?.find(item => item.rank === 'family');
-                const ebpCount    = Math.max(0, Number(ebpFamily?.x) || 0);
-                const insdcTotal  = Math.max(0, Number(insdcFamily?.y) || 10359);
-                const totalCount  = Math.max(1, Math.round(insdcTotal / 2));
-                updateFamilyProgressBar(ebpCount, totalCount);
-                fetchFamilyQualityCount(ebpCount, totalCount);
-            } catch (error) {
-                console.error('Error fetching family counts:', error);
-                document.getElementById('progress-family-completed').setAttribute('data-tooltip', 'Data unavailable');
-            }
-        }
-
-        function updateFamilyProgressBar(ebpCount, totalCount) {
-            const total = Math.max(totalCount, 1);
-            const percentage = Math.min((ebpCount / total) * 100, 100);
-            const completedEl = document.getElementById('progress-family-completed');
-            completedEl.style.width = `${percentage}%`;
-            completedEl.setAttribute('data-tooltip', ebpCount.toLocaleString());
-            document.getElementById('progress-family-incomplete').setAttribute('data-tooltip', `Target: ${total.toLocaleString()}`);
-            const tickValues = [0, 1000, 2000, 3000, 4000, 5000];
-            createAxisTicks('progress-family-axis', total, tickValues);
-        }
-
-        async function fetchFamilyQualityCount(ebpCount, totalCount) {
-            try {
-                const response = await fetch(FAMILY_QUALITY_API_URL);
-                if (!response.ok) throw new Error('HTTP error: ' + response.status);
-                const data = await response.json();
-                const qualityCount = (data.status && data.status.hits) ? data.status.hits : 0;
-                const qualityPercentage = ebpCount > 0 ? Math.min((qualityCount / ebpCount) * 100, 100) : 0;
-                const qualityEl = document.getElementById('progress-family-quality');
-                qualityEl.style.width = `${qualityPercentage}%`;
-                qualityEl.setAttribute('data-tooltip', qualityCount.toLocaleString());
-            } catch (error) {
-                console.error('Error fetching family quality count:', error);
-            }
-        }
-
-        fetchSpeciesCount();
-        fetchFamilyCounts();
+      /* ───────────── go ───────────── */
+      buildNav();
+      buildToolCard('card-prio', 'foot-prio', 'prioritization.html', null);
+      buildToolCard('card-dup',  'foot-dup',  'duplication.html', 'dup-stat');
+      buildTreePane();
+      loadHero();
+      loadDuplicationPreview();
+    })();
     </script>
 </body>
 </html>
