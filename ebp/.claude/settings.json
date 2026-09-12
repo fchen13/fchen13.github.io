@@ -1,0 +1,56 @@
+{
+  "cleanupPeriodDays": 180,
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:goat.genomehubs.org)",
+      "WebFetch(domain:www.earthbiogenome.org)",
+      "Bash(gh api repos/EarthBiogenome/dashboard/pages)",
+      "WebFetch(domain:earthbiogenome.github.io)",
+      "Bash(gh pr view --json number,headRepository)",
+      "Bash(where gh)",
+      "Bash(claude mcp add github -- npx -y @modelcontextprotocol/server-github)",
+      "Bash(claude mcp list)",
+      "Edit(/.claude/skills/style-check/**)",
+      "Bash(node -e ' *)",
+      "Bash(node -e \"require\\('fs'\\).readFileSync\\('pages/progress_affiliates_nodes.html','utf8'\\)\")",
+      "Bash(node --check pages/progress_affiliates_nodes_extracted.js)",
+      "Bash(python3 -)",
+      "PowerShell(Start-Process \"./pages/progress_affiliates_nodes.html\")",
+      "Bash(git fetch *)",
+      "Bash(git merge *)",
+      "Bash(git push *)",
+      "Bash(grep -iE '\\\\.\\(csv|png\\)$')",
+      "Skill(run)",
+      "Skill(run:*)",
+      "Bash(chromium-cli --help)",
+      "Bash(npx --yes playwright --version)",
+      "Bash(node -e \"require\\('playwright'\\)\")",
+      "Bash(npm ls *)",
+      "Bash(cat /tmp/static_server.log; which python3 python 2>&1)",
+      "Read(//tmp/**)",
+      "Read(//c/tmp/**)",
+      "Bash(node -e \"require.resolve\\('playwright'\\)\")",
+      "Bash(pkill -f \"serve -l 8123\")",
+      "Bash(where chromium-cli *)",
+      "Bash(grep -n \"id=\\\\\"footer\\\\\"\\\\|</div>\\\\s*$\" \"pages/progress_affiliates_nodes.html\")",
+      "Bash(curl -s \"https://goat.genomehubs.org/api/v2/report?report=histogram&x=tax_tree%282759%29%20AND%20long_list%20AND%20bioproject%3DPRJNA533106&rank=species&includeEstimates=false&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&xOpts=%2C%2C55%2C%2CEBP%20Affiliate&taxonomy=ncbi&result=taxon\" -H \"User-Agent: Mozilla/5.0\")"
+    ],
+    "additionalDirectories": [
+      ".claude/skills/style-check",
+      "C:\\Users\\fchen13\\AppData\\Local\\Temp\\pw_test"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "INPUT=$(cat); FILE=$(echo \"$INPUT\" | python -c \"import sys,json; d=json.load(sys.stdin); ti=d.get('tool_input',{}); print(ti.get('file_path',ti.get('notebook_path','')))\" 2>/dev/null); [ -n \"$FILE\" ] && case \"$FILE\" in *.py) python -m py_compile \"$FILE\" && echo \"Python syntax OK: $FILE\";; esac"
+          }
+        ]
+      }
+    ]
+  }
+}

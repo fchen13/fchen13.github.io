@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="copyright" content="Data source: Genomes on a Tree (GoaT). Used with permission." />
+    <meta name="author" content="Fang Chen" />
+    <title>EBP Contribution to Assemblies Meeting EBP Metrics</title>
+    <script src="../config.js"></script>
+    <script src="./echarts.min.js"></script>
+    <script src="./utils.js"></script>
+    <script src="./services.js"></script>
+    <script>
+      // Module-level state for downloads
+      let topChartInstance = null;
+      let bottomChartInstance = null;
+      let rawChartData = null; // { ranks, ebpData, nonEbpData }
+
+      // Initialize top chart (Phylum, Class, Order)
+      function initTopChart(data, annimationDelay) {
+        console.log('Initializing top chart with data:', data);
+        const chartDom = document.getElementById("topChartContainer");
+        const myChart = echarts.init(chartDom);
+        const option = {
+          title: {
+            text: 'Genome Assemblies Meeting EBP-standard Metrics',
+            left: 'center',
+            top: -5,
+            textStyle: {
+              fontSize: 20,
+              fontWeight: 'bold'
+            }
+          },
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            },
+            formatter: function(params) {
+              const ebp = params[0].value;
+              const nonEbp = params[1].value;
+              const total = ebp + nonEbp;
+              const ebpPercentage = ((ebp / total) * 100).toFixed(1);
+              const nonEbpPercentage = ((nonEbp / total) * 100).toFixed(1);
+              return `<b>${params[0].name}</b><br/>` +
+                     `Total counts: ${total}<br/>` +
+                     `EBP contribution: ${ebp} (${ebpPercentage}%)<br/>` +
+                     `Non-EBP contribution: ${nonEbp} (${nonEbpPercentage}%)`;
+            },
+            textStyle: {
+              fontSize: 14
+            },
+            extraCssText: 'box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);'
+          },
+          legend: {
+            data: [
+              {
+                name: 'EBP Contribution',
+                itemStyle: {
+                  color: '#2E7D8F'  // Deeper, more saturated teal color matching the image
+                }
+              }, 
+              {
+                name: 'Non-EBP Contribution',
+                itemStyle: {
+                  color: '#7CBDD3'  // More saturated lighter teal color matching the image
+                }
+              }
+            ],
+            top: 35,
+            textStyle: {
+              fontSize: 14,
+              fontWeight: 'bold'
+            }
+          },
+          grid: {
+            left: '10%',    
+            right: '15%',   
+            bottom: '0%',
+            top: '25%',     
+            containLabel: true
+          },
+          xAxis: {
+            type: 'value',
+            min: 0,
+            max: 'dataMax',
+            position: 'bottom',  // Position x-axis at the bottom
+            interval: 100,  // Set tick interval to 100
+            axisLine: { show: true },
+            axisLabel: {
+              formatter: function(value) {
+                // Only show values that are multiples of 100
+                if (value % 100 === 0) {
+                  return value;
+                }
+                return '';  // Hide non-multiple values
+              },
+              margin: 10,
+              fontSize: 14,
+            },
+            splitLine: {
+              show: false
+            },
+            axisTick: {
+              show: true,
+              alignWithLabel: true
+            }
+          },
+          yAxis: {
+            type: 'category',
+            data: ['Order', 'Class', 'Phylum'],
+            axisLine: { show: true },
+            axisTick: { show: false },
+            axisLabel: {
+              fontSize: 14,
+              fontWeight: 'bold',
+              margin: 16
+            }
+          },
+          series: data
+        };
+
+        myChart.setOption(option);
+        return myChart;
+      }
+
+      // Initialize bottom chart (Family, Genus, Species)
+      function initBottomChart(data, annimationDelay) {
+        console.log('Initializing bottom chart with data:', data);
+        const chartDom = document.getElementById("bottomChartContainer");
+        const myChart = echarts.init(chartDom);
+        const option = {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            },
+            formatter: function(params) {
+              const ebp = params[0].value;
+              const nonEbp = params[1].value;
+              const total = ebp + nonEbp;
+              const ebpPercentage = ((ebp / total) * 100).toFixed(1);
+              const nonEbpPercentage = ((nonEbp / total) * 100).toFixed(1);
+              return `<b>${params[0].name}</b><br/>` +
+                     `Total counts: ${total}<br/>` +
+                     `EBP contribution: ${ebp} (${ebpPercentage}%)<br/>` +
+                     `Non-EBP contribution: ${nonEbp} (${nonEbpPercentage}%)`;
+            },
+            textStyle: {
+              fontSize: 14
+            },
+            extraCssText: 'box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);'
+          },
+          grid: {
+            left: '10%',    
+            right: '15%',   
+            bottom: '10%',
+            top: '10%',     
+            containLabel: true
+          },
+          xAxis: {
+            type: 'value',
+            min: 0,
+            max: 'dataMax',
+            position: 'bottom',  // Position x-axis at the bottom
+            interval: 1000,  // Set tick interval to 1000
+            axisLine: { show: true },
+            axisLabel: {
+              formatter: function(value) {
+                // Only show values that are multiples of 1000
+                if (value % 1000 === 0) {
+                  return value;
+                }
+                return '';  // Hide non-multiple values
+              },
+              margin: 10,
+              fontSize: 14,
+            },
+            splitLine: {
+              show: false
+            },
+            axisTick: {
+              show: true,
+              alignWithLabel: true
+            }
+          },
+          yAxis: {
+            type: 'category',
+            data: ['Species', 'Genus', 'Family'],
+            axisLine: { show: true },
+            axisTick: { show: false },
+            axisLabel: {
+              fontSize: 14,
+              fontWeight: 'bold',
+              margin: 16
+            }
+          },
+          series: data
+        };
+
+        myChart.setOption(option);
+        return myChart;
+      }
+
+      function getGraphicOption(type, data) {
+        if(type == 'text') {
+          return {
+              type: 'text',
+              z: 100,
+              left: 0,
+              top: 0,
+              style: {
+                text: `${data.text}`,
+                textAlign: 'center',
+                textVerticalAlign: 'middle',
+                fontSize: 10,
+                fill: data.color
+              }
+          }
+        } else if(type == 'rect') {
+          return {
+            type: "rect",
+            left: 0,
+            top: 0,
+            shape: {
+              width: 16,
+              height: 10,
+              r: 3,
+            },
+            style: {
+              fill: data.color,
+              stroke: null,
+            },
+            silent: true,
+          }
+        }
+      }
+
+      function initLegendChart(legends) {
+        // Empty function as we're not showing statistics for now
+      }
+
+      window.onload = function () {
+        console.log('Window loaded, starting data fetch...');
+        
+        // Define URLs for Total Counts with Assemblies Meeting EBP Metrics
+        const ranks6 = ['phylum', 'class', 'order', 'family', 'genus', 'species'];
+        const totalUrls = ranks6.map(rank =>
+          `https://goat.genomehubs.org/api/v2/search?result=taxon&query=tax_rank%28${rank}%29%20AND%20ebp_standard_criteria&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=ebp_standard_criteria&size=1`
+        );
+
+        // Define URLs for EBP contributions
+        const ebpUrls = ranks6.map(rank =>
+          `https://goat.genomehubs.org/api/v2/search?result=taxon&query=tax_rank%28${rank}%29%20AND%20bioproject%3DPRJNA533106%20AND%20ebp_standard_criteria&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B1%5D=ebp_standard_criteria&size=1`
+        );
+
+        const annimationDelay = 2000; //ms
+
+        // Fetch and process data
+        Promise.all([
+          Promise.all(totalUrls.map(url => fetch(url).then(res => res.json()))),
+          Promise.all(ebpUrls.map(url => fetch(url).then(res => res.json())))
+        ])
+        .then(([totalResults, ebpResults]) => {
+          console.log('Total Results:', totalResults);
+          console.log('EBP Results:', ebpResults);
+          
+          const ebpData = [];
+          const nonEbpData = [];
+          const ranks = ['Species', 'Genus', 'Family', 'Order', 'Class', 'Phylum'];
+          
+          ranks.forEach((rank, index) => {
+            // Get total count and EBP count
+            const total = totalResults[5-index].status.hits;
+            const ebp = ebpResults[5-index].status.hits;
+            const nonEbp = total - ebp;  // Calculate non-EBP count
+            
+            console.log(`Rank: ${rank}, Total: ${total}, EBP: ${ebp}, Non-EBP: ${nonEbp}`);
+            
+            ebpData.push(ebp);
+            nonEbpData.push(nonEbp);
+          });
+
+          // Split data for top panel (Phylum, Class, Order) - indices 5, 4, 3
+          const topEbpData = [ebpData[3], ebpData[4], ebpData[5]];  // Order, Class, Phylum
+          const topNonEbpData = [nonEbpData[3], nonEbpData[4], nonEbpData[5]];  // Order, Class, Phylum
+          
+          // Split data for bottom panel (Family, Genus, Species) - indices 2, 1, 0
+          const bottomEbpData = [ebpData[0], ebpData[1], ebpData[2]];  // Species, Genus, Family
+          const bottomNonEbpData = [nonEbpData[0], nonEbpData[1], nonEbpData[2]];  // Species, Genus, Family
+
+          function createSeriesData(ebpDataArray, nonEbpDataArray) {
+            return [
+              {
+                name: 'EBP Contribution',
+                type: 'bar',
+                stack: 'total',
+                itemStyle: {
+                  color: '#2E7D8F',  // Deeper, more saturated teal color matching the image
+                  borderColor: 'transparent',
+                  borderWidth: 0
+                },
+                label: {
+                  show: true,  // Enable numbers and percentages display
+                  position: 'inside',
+                  align: 'center',
+                  verticalAlign: 'middle',
+                  color: '#ffffff',  // White text for better contrast on dark background
+                  formatter: function(params) {
+                    const total = params.value + nonEbpDataArray[params.dataIndex];
+                    const percentage = ((params.value / total) * 100).toFixed(1);
+                    return `{a|${params.value}}\n{b|(${percentage}%)}`;
+                  },
+                  rich: {
+                    a: {
+                      fontSize: 14,
+                      lineHeight: 20,
+                      fontWeight: 'bold',
+                      align: 'center',
+                      fontFamily: 'Arial, sans-serif',
+                      color: '#ffffff'
+                    },
+                    b: {
+                      fontSize: 12,
+                      lineHeight: 18,
+                      fontWeight: 'normal',
+                      align: 'center',
+                      fontFamily: 'Arial, sans-serif',
+                      color: '#ffffff'
+                    }
+                  }
+                },
+                data: ebpDataArray
+              },
+              {
+                name: 'Non-EBP Contribution',
+                type: 'bar',
+                stack: 'total',
+                itemStyle: {
+                  color: '#7CBDD3',  // More saturated lighter teal color matching the image
+                  borderColor: 'transparent',
+                  borderWidth: 0
+                },
+                label: {
+                  show: true,  // Enable numbers and percentages display
+                  position: 'inside',
+                  align: 'center',
+                  verticalAlign: 'middle',
+                  color: '#ffffff',  // Dark text for better contrast on light background
+                  formatter: function(params) {
+                    const total = params.value + ebpDataArray[params.dataIndex];
+                    const percentage = ((params.value / total) * 100).toFixed(1);
+                    return `{a|${params.value}}\n{b|(${percentage}%)}`;
+                  },
+                  rich: {
+                    a: {
+                      fontSize: 14,
+                      lineHeight: 20,
+                      fontWeight: 'bold',
+                      align: 'center',
+                      fontFamily: 'Arial, sans-serif',
+                      color: '#ffffff'
+                    },
+                    b: {
+                      fontSize: 12,
+                      lineHeight: 18,
+                      fontWeight: 'normal',
+                      align: 'center',
+                      fontFamily: 'Arial, sans-serif',
+                      color: '#ffffff'
+                    }
+                  }
+                },
+                data: nonEbpDataArray
+              }
+            ];
+          }
+
+          const topSeries = createSeriesData(topEbpData, topNonEbpData);
+          const bottomSeries = createSeriesData(bottomEbpData, bottomNonEbpData);
+
+          console.log('Top series data:', topSeries);
+          console.log('Bottom series data:', bottomSeries);
+          
+          // Store raw data for CSV export
+          rawChartData = { ranks, ebpData, nonEbpData };
+
+          return {
+            topData: topSeries,
+            bottomData: bottomSeries,
+            legends: []
+          };
+        })
+        .then(({ topData, bottomData, legends }) => {
+          console.log('Initializing charts with data');
+          // Draw charts
+          topChartInstance = initTopChart(topData, annimationDelay);
+          bottomChartInstance = initBottomChart(bottomData, annimationDelay);
+          initLegendChart(legends);
+
+          // Show download buttons
+          document.getElementById('downloadButtonsCombined').style.display = 'flex';
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      };
+    </script>
+    <style>
+      .charts-container {
+        width: 80%;
+        margin: 0px auto 45px auto;
+      }
+      
+      #topChartContainer {
+        width: 100%;
+        height: 280px;
+        margin-bottom: 0;
+        margin-top: 20px;
+      }
+      
+      #bottomChartContainer {
+        width: 100%;
+        height: 280px;
+        margin-top: 0;
+      }
+      
+      #legendContainer {
+        display: none;
+      }
+      
+      /* Add container padding to prevent footer overlap */
+      .container {
+        padding-bottom: 30px;
+      }
+
+      /* Notes section */
+      .notes-section {
+        width: 80%;
+        margin: 0 auto 80px auto;
+        padding: 12px 18px;
+        background: #f8f9fa;
+        border-left: 3px solid #aaa;
+        border-radius: 4px;
+        font-size: 14px;
+        color: #555;
+        line-height: 1.6;
+      }
+
+      .notes-section p {
+        margin: 0 0 6px 0;
+      }
+
+      .notes-section p:last-child {
+        margin-bottom: 0;
+      }
+
+      .notes-section a {
+        color: #0563C1;
+        text-decoration: underline;
+      }
+
+      .notes-section a:hover {
+        color: #003d8f;
+      }
+
+      /* Download buttons */
+      .download-buttons {
+        display: none;
+        justify-content: center;
+        gap: 15px;
+        margin: 10px 0 -20px 0;
+      }
+      .download-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 40px;
+        padding: 0 20px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #1E293B;
+        background-color: #ffffff;
+        border: 1px solid #CBD5E1;
+        border-radius: 25px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        cursor: pointer;
+        transition: background-color 0.15s;
+      }
+      .download-btn:hover { background-color: #F1F5F9; }
+      .download-btn.csv-btn svg { fill: #16a34a; }
+      .download-btn svg { width: 16px; height: 16px; fill: #1E293B; }
+
+      /* Footer styles */
+      #footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: rgba(248, 249, 250, 0.95);
+        color: #333;
+        text-align: center;
+        padding: 5px;
+        z-index: 9999;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="charts-container">
+        <div id="topChartContainer"></div>
+        <div id="bottomChartContainer"></div>
+        <div class="download-buttons" id="downloadButtonsCombined">
+          <button type="button" class="download-btn" id="downloadChartCombinedBtn">
+            <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+            Download Chart
+          </button>
+          <button type="button" class="download-btn csv-btn" id="downloadCSVCombinedBtn">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+            Download Data (CSV)
+          </button>
+        </div>
+      </div>
+      <div id="legendContainer"></div>
+      <div class="notes-section">
+      <p><strong>Notes:</strong> This chart shows the number of taxa at each taxonomic rank for which at least one genome assembly in
+      GoaT meets the proxy EBP quality thresholds. The EBP standard criteria shown here reflect GoaT's relaxed interpretation
+      of EBP assembly standards, based on available data. This assessment uses a subset of the metrics recommended in the EBP
+      Scientific Subcommittee's <a href="https://www.earthbiogenome.org/report-on-assembly-standards" target="_blank">Report
+        on Assembly Standards</a>, specifically: contig and scaffold N50, and the percentage of sequences
+      assigned to chromosomes. Counts here therefore represent a subset of assemblies that partially fulfil EBP standards, not
+      a fully certified assessment. See the <a
+        href="https://github.com/genomehubs/goat-data/wiki/5.1-Earth-Biogenome-Project-(EBP)-FAQs#how-are-ebp-standard-criteria-and-dates-calculated"
+        target="_blank">GoaT FAQs</a> for details on how these categories are calculated.</p>
+      <p><strong>EBP contribution</strong> refers to taxa where at least one qualifying assembly is directly linked to the EBP
+        umbrella (PRJNA533106). <strong>Non-EBP contribution</strong> is the remainder &mdash; taxa where the quality
+        threshold is met exclusively by assemblies from non-EBP projects.</p>
+      </div>
+    </div>
+    <div id="footer">
+        <div id="copyright">Data source: <a href="https://goat.genomehubs.org" target="_blank" rel="noopener noreferrer">Genomes on a Tree (GoaT)</a>. Used with permission.</div>
+    </div>
+
+    <script>
+      // Download both charts stacked into one PNG
+      function downloadCombinedChart() {
+        if (!topChartInstance || !bottomChartInstance) {
+          alert('Charts not available. Please wait for data to load.');
+          return;
+        }
+        const topURL = topChartInstance.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: 'transparent' });
+        const bottomURL = bottomChartInstance.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: 'transparent' });
+
+        const topImg = new Image();
+        topImg.onload = function() {
+          const bottomImg = new Image();
+          bottomImg.onload = function() {
+            const combined = document.createElement('canvas');
+            combined.width = Math.max(topImg.width, bottomImg.width);
+            combined.height = topImg.height + bottomImg.height;
+            const ctx = combined.getContext('2d');
+            ctx.drawImage(topImg, 0, 0);
+            ctx.drawImage(bottomImg, 0, topImg.height);
+            const url = combined.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `EBP_Metrics_${new Date().toISOString().split('T')[0]}.png`;
+            link.href = url;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          };
+          bottomImg.src = bottomURL;
+        };
+        topImg.src = topURL;
+      }
+
+      // Download all 6 ranks in one CSV: Phylum → Species
+      function downloadCombinedCSV() {
+        if (!rawChartData) {
+          alert('Data not available. Please wait for data to load.');
+          return;
+        }
+        const { ranks, ebpData, nonEbpData } = rawChartData;
+        const header = 'Rank,EBP_Count,NonEBP_Count,Total,EBP_pct';
+        let csvContent = header + '\n';
+
+        // Order: Phylum(5), Class(4), Order(3), Family(2), Genus(1), Species(0)
+        [5, 4, 3, 2, 1, 0].forEach(i => {
+          const ebp = ebpData[i];
+          const nonEbp = nonEbpData[i];
+          const total = ebp + nonEbp;
+          const pct = total > 0 ? (ebp / total * 100).toFixed(2) : '0.00';
+          csvContent += `${ranks[i]},${ebp},${nonEbp},${total},${pct}\n`;
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = `EBP_Metrics_${new Date().toISOString().split('T')[0]}.csv`;
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('downloadChartCombinedBtn').addEventListener('click', downloadCombinedChart);
+        document.getElementById('downloadCSVCombinedBtn').addEventListener('click', downloadCombinedCSV);
+      });
+    </script>
+  </body>
+</html>

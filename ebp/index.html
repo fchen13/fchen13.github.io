@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="./favicon.jpg">
+    <title>Earth BioGenome Project - Dashboard</title>
+
+    <!-- The upstream dashboard loads Google Analytics 4 here (property
+         G-N9WF546FSK, which feeds the weekly CSVs in web-analytics/).
+         Removed in this portfolio copy on purpose: its traffic would arrive
+         in EBP's own figures as EBP dashboard traffic, and nothing after the
+         fact can separate the two. Do not restore it here. -->
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg:            #ffffff;
+            --bg-alt:        #f4f6f4;
+            --bg-card:       #ffffff;
+            --bg-card-hover: #f7faf8;
+            --accent:        #0d7a47;
+            --accent-light:  #e5f3ec;
+            --accent-mid:    #16a34a;
+            --text:          #111827;
+            --text-dim:      #4b5563;
+            --text-muted:    #9ca3af;
+            --border:        #e5e7eb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ── Header ─────────────────────────────────────── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border);
+            padding: 0.9rem 2rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text);
+            gap: 0.75rem;
+        }
+
+        .logo img { height: 38px; }
+
+        .logo span {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.01em;
+        }
+
+        /* ── Progress Section ────────────────────────────── */
+        .progress-section {
+            background: var(--bg-alt);
+            border-bottom: 1px solid var(--border);
+            padding: 2.25rem 2rem 2rem;
+        }
+
+        .progress-inner {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .progress-header {
+            margin-bottom: 2rem;
+        }
+
+        .progress-headline {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 0.3rem;
+            text-align: center;
+        }
+
+        .progress-subline {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        .progress-legend {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 0.6rem;
+        }
+
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.82rem;
+            color: var(--text-dim);
+        }
+
+        .legend-swatch {
+            width: 11px;
+            height: 11px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .legend-swatch-total {
+            background: linear-gradient(135deg, #5fae80 0%, #6fbb8d 100%);
+        }
+
+        .legend-swatch-quality {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 100%);
+        }
+
+        /* ── Progress Charts ─────────────────────────────── */
+        .progress-chart {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .progress-chart + .progress-chart {
+            margin-top: 1.5rem;
+        }
+
+        .progress-label {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text);
+            min-width: 100px;
+            height: 44px;
+        }
+
+        .progress-label i {
+            font-size: 1.3rem;
+            color: var(--accent);
+        }
+
+        .progress-bar-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .progress-bar-wrapper { position: relative; }
+
+        .progress-bar {
+            display: flex;
+            height: 44px;
+            background: #d8e6de;
+            border-radius: 8px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .progress-completed {
+            background: linear-gradient(135deg, #5fae80 0%, #6fbb8d 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 0;
+            max-width: 100%;
+            position: relative;
+            cursor: default;
+            border-radius: 8px 0 0 8px;
+        }
+
+        .progress-completed-gloss {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 100%);
+            border-radius: 8px 0 0 0;
+            pointer-events: none;
+        }
+
+        .progress-quality {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 100%);
+            transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 2px 0 8px rgba(13, 122, 71, 0.3);
+            cursor: default;
+        }
+
+        /* ── Bar segment tooltips ─────────────────────────── */
+        .progress-completed[data-tooltip]::before,
+        .progress-quality[data-tooltip]::before,
+        .progress-incomplete[data-tooltip]::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            color: var(--text);
+            font-size: 0.78rem;
+            font-weight: 600;
+            white-space: nowrap;
+            padding: 4px 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+            z-index: 5;
+        }
+
+        .progress-completed[data-tooltip]::after,
+        .progress-quality[data-tooltip]::after,
+        .progress-incomplete[data-tooltip]::after {
+            content: '';
+            position: absolute;
+            bottom: calc(100% + 4px);
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: #fff;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+            z-index: 5;
+        }
+
+        .progress-completed[data-tooltip]:hover::before,
+        .progress-completed[data-tooltip]:hover::after {
+            opacity: 1;
+        }
+
+        .progress-completed:has(.progress-quality:hover)::before,
+        .progress-completed:has(.progress-quality:hover)::after {
+            opacity: 0;
+        }
+
+        .progress-quality[data-tooltip]:hover::before,
+        .progress-quality[data-tooltip]:hover::after {
+            opacity: 1;
+        }
+
+        .progress-incomplete[data-tooltip]:hover::before,
+        .progress-incomplete[data-tooltip]:hover::after {
+            opacity: 1;
+        }
+
+        .progress-incomplete { background: transparent; flex: 1; position: relative; cursor: default; }
+
+        .progress-axis {
+            position: relative;
+            height: 35px;
+        }
+
+        .progress-axis-line {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: #bbb;
+        }
+
+        .progress-axis-tick {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: absolute;
+            transform: translateX(-50%);
+            top: 0;
+        }
+
+        .progress-axis-tick::before {
+            content: '';
+            width: 1px;
+            height: 8px;
+            background-color: #999;
+        }
+
+        .progress-axis-label {
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        .progress-footnote {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            opacity: 0.7;
+            text-align: right;
+            margin: 2px 0 0 0;
+            font-style: italic;
+        }
+
+        /* ── Catalog ─────────────────────────────────────── */
+        .catalog {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 3rem 2rem 4rem;
+        }
+
+        .catalog-heading {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .category {
+            margin-bottom: 2.75rem;
+        }
+
+        .category-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .category-title::before {
+            content: '';
+            display: block;
+            width: 3px;
+            height: 1.05rem;
+            background: var(--accent);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .links-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 0.875rem;
+        }
+
+        .link {
+            display: flex;
+            align-items: flex-start;
+            padding: 1.1rem 1.2rem;
+            background: var(--bg-card);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text);
+            border: 1px solid var(--border);
+            gap: 0.9rem;
+            transition: background 0.18s, border-color 0.18s, box-shadow 0.18s, transform 0.18s;
+        }
+
+        .link:hover {
+            background: var(--bg-card-hover);
+            border-color: #a3c9b5;
+            box-shadow: 0 4px 16px rgba(13, 122, 71, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .link-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 7px;
+            background: var(--accent-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .link-icon i {
+            font-size: 0.95rem;
+            color: var(--accent);
+        }
+
+        .link-content { flex: 1; min-width: 0; }
+
+        .link-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.25rem;
+            line-height: 1.35;
+        }
+
+        .link-description {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            line-height: 1.45;
+        }
+
+        .link-arrow {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            align-self: center;
+            flex-shrink: 0;
+            transition: color 0.18s, transform 0.18s;
+        }
+
+        .link:hover .link-arrow {
+            color: var(--accent);
+            transform: translateX(3px);
+        }
+
+        /* ── A tool with no backend behind it yet ─────────────
+           Rendered as a <div>, not an <a>: until Phase B sets
+           BACKEND_BASE_PRODUCTION the page behind these two can only say "no
+           backend is configured", so a link here would be a dead end dressed as
+           a working tool. Muted, no hover, no arrow. The "Coming soon" badge is
+           the whole of what it says: the card states that the tool is not ready,
+           and deliberately does NOT explain why on a public page. */
+        .link.unavailable {
+            background: var(--bg-alt);
+            border-style: dashed;
+            cursor: default;
+        }
+
+        .link.unavailable:hover {
+            background: var(--bg-alt);
+            border-color: var(--border);
+            box-shadow: none;
+            transform: none;
+        }
+
+        .link.unavailable .link-icon { background: var(--border); }
+        .link.unavailable .link-icon i { color: var(--text-muted); }
+        .link.unavailable .link-title { color: var(--text-dim); }
+
+        /* Its own row, not a chip appended to the title: the two titles are
+           different lengths, so inline it sat beside the first and wrapped below
+           the second — the same state rendered two ways on adjacent cards. */
+        .link-badge {
+            display: inline-block;
+            margin: 0.3rem 0 0.15rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            background: var(--accent-light);
+            color: var(--accent);
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        /* ── Footer ──────────────────────────────────────── */
+        footer {
+            border-top: 1px solid var(--border);
+            text-align: center;
+            padding: 1.25rem 1rem;
+            font-size: 0.73rem;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+
+        /* ── Responsive ──────────────────────────────────── */
+        @media (max-width: 640px) {
+            .progress-section { padding: 1.75rem 1.25rem 1rem; }
+            .progress-headline { font-size: 1.3rem; }
+            .progress-chart { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+            .progress-label { height: auto; min-width: unset; }
+            .progress-bar-container { width: 100%; }
+            .progress-bar { height: 38px; }
+            .progress-completed { font-size: 0.9rem; }
+            .progress-axis-label { font-size: 0.75rem; }
+            .links-container { grid-template-columns: 1fr; }
+            .catalog { padding: 2rem 1.25rem 3rem; }
+            .site-header { padding: 0.75rem 1.25rem; }
+            .portfolio-note { padding: 0.6rem 1.25rem; font-size: 0.8rem; }
+        }
+
+        /* Portfolio copy only — absent from EarthBiogenome/dashboard. */
+        .portfolio-note {
+            background: var(--accent-light);
+            border-bottom: 1px solid var(--border);
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            padding: 0.7rem 2rem;
+            text-align: center;
+        }
+        .portfolio-note a { color: var(--accent); }
+    </style>
+</head>
+<body>
+
+    <header class="site-header">
+        <a href="index.html" class="logo">
+            <img src="favicon.jpg" alt="Earth BioGenome Project Logo">
+            <span>EBP Dashboard</span>
+        </a>
+    </header>
+
+    <!-- Portfolio copy only. This block does not exist in EarthBiogenome/dashboard
+         and must not be carried back there: on the official site the same sentence
+         would be false. -->
+    <p class="portfolio-note">
+        This is a portfolio copy of work built for the Earth BioGenome Project, not the
+        official EBP service. The official dashboard is at
+        <a href="https://earthbiogenome.github.io/dashboard/">earthbiogenome.github.io/dashboard</a>.
+    </p>
+
+    <section class="progress-section">
+        <div class="progress-inner">
+            <div class="progress-header">
+                <h1 class="progress-headline">EBP Phase I Progress</h1>
+                <div class="progress-legend">
+                    <span class="legend-item"><span class="legend-swatch legend-swatch-quality"></span>Meeting EBP standard</span>
+                    <span class="legend-item"><span class="legend-swatch legend-swatch-total"></span>Total EBP assemblies</span>
+                </div>
+            </div>
+
+            <div class="progress-chart">
+                <div class="progress-label">
+                    <i class="fas fa-dna"></i>
+                    <span>Species</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-bar">
+                            <div class="progress-completed" id="progress-completed" style="width: 0%;" data-tooltip="Loading…">
+                                <div class="progress-completed-gloss"></div>
+                                <div class="progress-quality" id="progress-quality" style="width: 0%;" data-tooltip=""></div>
+                            </div>
+                            <div class="progress-incomplete" id="progress-incomplete" data-tooltip=""></div>
+                        </div>
+                    </div>
+                    <div class="progress-axis" id="progress-axis">
+                        <div class="progress-axis-line"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-chart">
+                <div class="progress-label">
+                    <i class="fas fa-layer-group"></i>
+                    <span>Families</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-bar">
+                            <div class="progress-completed" id="progress-family-completed" style="width: 0%;" data-tooltip="Loading…">
+                                <div class="progress-completed-gloss"></div>
+                                <div class="progress-quality" id="progress-family-quality" style="width: 0%;" data-tooltip=""></div>
+                            </div>
+                            <div class="progress-incomplete" id="progress-family-incomplete" data-tooltip=""></div>
+                        </div>
+                    </div>
+                    <div class="progress-axis" id="progress-family-axis">
+                        <div class="progress-axis-line"></div>
+                    </div>
+                    <p class="progress-footnote">Target is half of all INSDC-registered families</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main>
+        <div class="catalog">
+            <p class="catalog-heading">Explore Visualizations</p>
+            <div id="content-container"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 THE EARTH BIOGENOME PROJECT</p>
+    </footer>
+
+    <script src="config.js"></script>
+    <!-- Loaded for one reason: `EBPBackend.backendBase()` is the single source of
+         truth for whether a backend exists for this deployment, and the two tool
+         cards below are only real if one does. Defining the client is side-effect
+         free — no request is made until a page calls it. -->
+    <script src="./pages/services_backend.js"></script>
+    <script>
+        // GA4 Event Tracking Functions
+        function trackEvent(eventName, parameters = {}) {
+            if (typeof gtag !== 'undefined') {
+                gtag('event', eventName, parameters);
+            }
+        }
+
+        const sessionStartTime = Date.now();
+
+        function trackVisualizationClick(category, name, file) {
+            trackEvent('visualization_click', {
+                event_category: 'dashboard_interaction',
+                event_label: name,
+                custom_parameter_1: category,
+                custom_parameter_2: 'html_visualization',
+                file_path: file,
+                value: 1
+            });
+        }
+
+        let hoverTimeout;
+        function trackHover(category, name) {
+            clearTimeout(hoverTimeout);
+            hoverTimeout = setTimeout(() => {
+                trackEvent('visualization_hover', {
+                    event_category: 'user_engagement',
+                    event_label: name,
+                    custom_parameter_1: category,
+                    value: 1
+                });
+            }, 500);
+        }
+
+        function trackCategoryView(categoryName) {
+            trackEvent('category_view', {
+                event_category: 'dashboard_navigation',
+                event_label: categoryName,
+                value: 1
+            });
+        }
+
+        window.addEventListener('beforeunload', function() {
+            const sessionDuration = Math.round((Date.now() - sessionStartTime) / 1000);
+            trackEvent('session_duration', {
+                event_category: 'user_engagement',
+                event_label: 'dashboard_session',
+                value: sessionDuration
+            });
+        });
+
+        let maxScrollDepth = 0;
+        window.addEventListener('scroll', function() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            const scrollDepth = Math.round((scrollTop + windowHeight) / documentHeight * 100);
+
+            if (scrollDepth > maxScrollDepth) {
+                maxScrollDepth = scrollDepth;
+                if (scrollDepth >= 25 && scrollDepth < 50 && maxScrollDepth < 50) {
+                    trackEvent('scroll_depth', { event_category: 'user_engagement', event_label: '25_percent', value: 25 });
+                } else if (scrollDepth >= 50 && scrollDepth < 75 && maxScrollDepth < 75) {
+                    trackEvent('scroll_depth', { event_category: 'user_engagement', event_label: '50_percent', value: 50 });
+                } else if (scrollDepth >= 75 && scrollDepth < 100 && maxScrollDepth < 100) {
+                    trackEvent('scroll_depth', { event_category: 'user_engagement', event_label: '75_percent', value: 75 });
+                } else if (scrollDepth >= 100) {
+                    trackEvent('scroll_depth', { event_category: 'user_engagement', event_label: '100_percent', value: 100 });
+                }
+            }
+        });
+
+        function trackDeviceInfo() {
+            const deviceInfo = {
+                screen_resolution: `${screen.width}x${screen.height}`,
+                viewport_size: `${window.innerWidth}x${window.innerHeight}`,
+                color_depth: screen.colorDepth,
+                pixel_ratio: window.devicePixelRatio || 1,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                language: navigator.language,
+                platform: navigator.platform,
+                connection_type: navigator.connection ? navigator.connection.effectiveType : 'unknown'
+            };
+            trackEvent('device_info', {
+                event_category: 'technical_metrics',
+                event_label: 'device_specifications',
+                ...deviceInfo
+            });
+        }
+
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if (window.performance && window.performance.timing) {
+                    const timing = window.performance.timing;
+                    const loadTime = timing.loadEventEnd - timing.navigationStart;
+                    const domContentLoaded = timing.domContentLoadedEventEnd - timing.navigationStart;
+                    trackEvent('page_performance', {
+                        event_category: 'technical_metrics',
+                        event_label: 'load_time',
+                        page_load_time: loadTime,
+                        dom_content_loaded: domContentLoaded,
+                        value: Math.round(loadTime / 1000)
+                    });
+                }
+                trackDeviceInfo();
+            }, 1000);
+        });
+
+        // Build catalog from config
+        const container = document.getElementById('content-container');
+
+        /* Is there a backend for THIS deployment?
+           `backendBase()` returns localhost when the page is served locally and
+           BACKEND_BASE_PRODUCTION otherwise — empty until Phase B provisions a
+           hostname. Asking it, rather than repeating the hostname here, is what
+           makes setting that one constant the only edit needed to turn the two
+           tool cards live. If the client failed to load at all, treat the
+           backend as absent: better a card that says "not yet" than a link to a
+           page whose own client is missing. */
+        const backendConfigured = typeof EBPBackend !== 'undefined' && !!EBPBackend.backendBase();
+
+        pages.forEach(category => {
+            trackCategoryView(category.category);
+
+            const categoryDiv = document.createElement('div');
+            categoryDiv.classList.add('category');
+
+            const titleH2 = document.createElement('h2');
+            titleH2.classList.add('category-title');
+            titleH2.textContent = category.category;
+            categoryDiv.appendChild(titleH2);
+
+            const linksContainer = document.createElement('div');
+            linksContainer.classList.add('links-container');
+
+            category.pages.forEach(page => {
+                // A tool page with no backend behind it is not a link. See the
+                // .link.unavailable rule above for why it is not merely dimmed.
+                const unavailable = page.requiresBackend && !backendConfigured;
+
+                const link = document.createElement(unavailable ? 'div' : 'a');
+                link.classList.add('link');
+                if (unavailable) {
+                    link.classList.add('unavailable');
+                    link.title = page.description;
+                } else {
+                    link.href = page.file;
+                    link.target = '_blank';
+                    link.title = page.description;
+
+                    link.addEventListener('click', () => trackVisualizationClick(category.category, page.name, page.file));
+                    link.addEventListener('mouseenter', () => trackHover(category.category, page.name));
+                    link.addEventListener('focus', () => {
+                        trackEvent('visualization_focus', {
+                            event_category: 'accessibility',
+                            event_label: page.name,
+                            custom_parameter_1: category.category,
+                            value: 1
+                        });
+                    });
+                }
+
+                const iconWrapper = document.createElement('div');
+                iconWrapper.classList.add('link-icon');
+                const icon = document.createElement('i');
+                icon.className = `fas ${page.icon}`;
+                iconWrapper.appendChild(icon);
+                link.appendChild(iconWrapper);
+
+                const content = document.createElement('div');
+                content.classList.add('link-content');
+                const title = document.createElement('div');
+                title.classList.add('link-title');
+                title.textContent = page.name;
+                const description = document.createElement('div');
+                description.classList.add('link-description');
+                description.textContent = page.description;
+                content.appendChild(title);
+
+                if (unavailable) {
+                    const badge = document.createElement('span');
+                    badge.classList.add('link-badge');
+                    badge.textContent = 'Coming soon';
+                    content.appendChild(badge);
+                }
+
+                content.appendChild(description);
+                link.appendChild(content);
+
+                if (!unavailable) {
+                    const arrow = document.createElement('i');
+                    arrow.classList.add('fas', 'fa-arrow-right', 'link-arrow');
+                    link.appendChild(arrow);
+                }
+
+                linksContainer.appendChild(link);
+            });
+
+            categoryDiv.appendChild(linksContainer);
+            container.appendChild(categoryDiv);
+        });
+
+        trackEvent('dashboard_loaded', {
+            event_category: 'dashboard',
+            event_label: 'content_ready',
+            categories_count: pages.length,
+            total_visualizations: pages.reduce((sum, cat) => sum + cat.pages.length, 0),
+            value: 1
+        });
+
+        // Progress data
+        const PHASE_I_GOAL = 10000;
+        const SPECIES_API_URL = "https://goat.genomehubs.org/api/v2/search?query=bioproject%3DPRJNA533106%20AND%20tax_rank%28species%29&result=taxon&includeEstimates=true&taxonomy=ncbi&size=1";
+        const EBP_ARC_URL = "https://goat.genomehubs.org/api/v2/report?report=arc&x=assembly_span%20AND%20bioproject%3DPRJNA533106&rank=phylum%2Cclass%2Corder%2Cfamily%2Cgenus%2Cspecies&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&caption=EBP%20taxa&taxonomy=ncbi&result=taxon&queryId=8EWp2aVcZB";
+        const INSDC_ARC_URL = "https://goat.genomehubs.org/api/v2/report?report=arc&x=assembly_span&rank=phylum%2Cclass%2Corder%2Cfamily%2Cgenus%2Cspecies&includeEstimates=true&excludeAncestral%5B0%5D=assembly_span&excludeMissing%5B0%5D=assembly_span&caption=INSDC%20taxa&taxonomy=ncbi&result=taxon&queryId=R8LGXM94GW";
+        const SPECIES_QUALITY_API_URL = "https://goat.genomehubs.org/api/v2/search?result=taxon&query=tax_rank%28species%29%20AND%20bioproject%3DPRJNA533106%20AND%20ebp_standard_criteria&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B1%5D=ebp_standard_criteria&size=1";
+        const FAMILY_QUALITY_API_URL = "https://goat.genomehubs.org/api/v2/search?result=taxon&query=tax_rank%28family%29%20AND%20bioproject%3DPRJNA533106%20AND%20ebp_standard_criteria&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B1%5D=ebp_standard_criteria&size=1";
+
+        function createAxisTicks(axisContainerId, max, tickValues) {
+            const axisContainer = document.getElementById(axisContainerId);
+            if (!axisContainer) return;
+            axisContainer.querySelectorAll('.progress-axis-tick').forEach(el => el.remove());
+            tickValues.forEach(value => {
+                const tick = document.createElement('div');
+                tick.classList.add('progress-axis-tick');
+                tick.style.left = `${(value / max) * 100}%`;
+                const label = document.createElement('span');
+                label.classList.add('progress-axis-label');
+                label.textContent = value.toLocaleString();
+                tick.appendChild(label);
+                axisContainer.appendChild(tick);
+            });
+        }
+
+        async function fetchSpeciesCount() {
+            try {
+                const response = await fetch(SPECIES_API_URL);
+                if (!response.ok) throw new Error('HTTP error: ' + response.status);
+                const data = await response.json();
+                const speciesCount = (data.status && data.status.hits) ? data.status.hits : 0;
+                if (speciesCount === 0) throw new Error('Zero hits returned');
+                updateProgressBar(speciesCount);
+            } catch (error) {
+                console.error('Error fetching species count:', error);
+                // Retry once after 3 seconds
+                setTimeout(async () => {
+                    try {
+                        const response = await fetch(SPECIES_API_URL);
+                        if (!response.ok) throw new Error('HTTP error: ' + response.status);
+                        const data = await response.json();
+                        const speciesCount = (data.status && data.status.hits) ? data.status.hits : 0;
+                        if (speciesCount > 0) {
+                            updateProgressBar(speciesCount);
+                        } else {
+                            document.getElementById('progress-completed').setAttribute('data-tooltip', 'Data unavailable');
+                            createAxisTicks('progress-axis', PHASE_I_GOAL, [0, 2000, 4000, 6000, 8000, 10000]);
+                        }
+                    } catch (retryError) {
+                        console.error('Retry failed:', retryError);
+                        document.getElementById('progress-completed').setAttribute('data-tooltip', 'Data unavailable');
+                        createAxisTicks('progress-axis', PHASE_I_GOAL, [0, 2000, 4000, 6000, 8000, 10000]);
+                    }
+                }, 3000);
+            }
+        }
+
+        function updateProgressBar(count) {
+            const percentage = Math.min((count / PHASE_I_GOAL) * 100, 100);
+            const completedEl = document.getElementById('progress-completed');
+            completedEl.style.width = `${percentage}%`;
+            completedEl.setAttribute('data-tooltip', count.toLocaleString());
+            document.getElementById('progress-incomplete').setAttribute('data-tooltip', `Target: ${PHASE_I_GOAL.toLocaleString()}`);
+            createAxisTicks('progress-axis', PHASE_I_GOAL, [0, 2000, 4000, 6000, 8000, 10000]);
+            fetchSpeciesQualityCount(count);
+        }
+
+        async function fetchSpeciesQualityCount(ebpCount) {
+            try {
+                const response = await fetch(SPECIES_QUALITY_API_URL);
+                if (!response.ok) throw new Error('HTTP error: ' + response.status);
+                const data = await response.json();
+                const qualityCount = (data.status && data.status.hits) ? data.status.hits : 0;
+                const qualityPercentage = ebpCount > 0 ? Math.min((qualityCount / ebpCount) * 100, 100) : 0;
+                const qualityEl = document.getElementById('progress-quality');
+                qualityEl.style.width = `${qualityPercentage}%`;
+                qualityEl.setAttribute('data-tooltip', qualityCount.toLocaleString());
+            } catch (error) {
+                console.error('Error fetching species quality count:', error);
+            }
+        }
+
+        async function fetchFamilyCounts() {
+            try {
+                const [ebpRes, insdcRes] = await Promise.all([
+                    fetch(EBP_ARC_URL).then(r => r.ok ? r.json() : null),
+                    fetch(INSDC_ARC_URL).then(r => r.ok ? r.json() : null)
+                ]);
+                const ebpFamily   = ebpRes?.report?.report?.arc?.find(item => item.rank === 'family');
+                const insdcFamily = insdcRes?.report?.report?.arc?.find(item => item.rank === 'family');
+                const ebpCount    = Math.max(0, Number(ebpFamily?.x) || 0);
+                const insdcTotal  = Math.max(0, Number(insdcFamily?.y) || 10359);
+                const totalCount  = Math.max(1, Math.round(insdcTotal / 2));
+                updateFamilyProgressBar(ebpCount, totalCount);
+                fetchFamilyQualityCount(ebpCount, totalCount);
+            } catch (error) {
+                console.error('Error fetching family counts:', error);
+                document.getElementById('progress-family-completed').setAttribute('data-tooltip', 'Data unavailable');
+            }
+        }
+
+        function updateFamilyProgressBar(ebpCount, totalCount) {
+            const total = Math.max(totalCount, 1);
+            const percentage = Math.min((ebpCount / total) * 100, 100);
+            const completedEl = document.getElementById('progress-family-completed');
+            completedEl.style.width = `${percentage}%`;
+            completedEl.setAttribute('data-tooltip', ebpCount.toLocaleString());
+            document.getElementById('progress-family-incomplete').setAttribute('data-tooltip', `Target: ${total.toLocaleString()}`);
+            const tickValues = [0, 1000, 2000, 3000, 4000, 5000];
+            createAxisTicks('progress-family-axis', total, tickValues);
+        }
+
+        async function fetchFamilyQualityCount(ebpCount, totalCount) {
+            try {
+                const response = await fetch(FAMILY_QUALITY_API_URL);
+                if (!response.ok) throw new Error('HTTP error: ' + response.status);
+                const data = await response.json();
+                const qualityCount = (data.status && data.status.hits) ? data.status.hits : 0;
+                const qualityPercentage = ebpCount > 0 ? Math.min((qualityCount / ebpCount) * 100, 100) : 0;
+                const qualityEl = document.getElementById('progress-family-quality');
+                qualityEl.style.width = `${qualityPercentage}%`;
+                qualityEl.setAttribute('data-tooltip', qualityCount.toLocaleString());
+            } catch (error) {
+                console.error('Error fetching family quality count:', error);
+            }
+        }
+
+        fetchSpeciesCount();
+        fetchFamilyCounts();
+    </script>
+</body>
+</html>

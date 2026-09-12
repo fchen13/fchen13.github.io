@@ -1,0 +1,430 @@
+name: Collect Repository Analytics Data
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly on Mondays at 2 AM UTC (safer for 14-day API limit)
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  collect-traffic-data:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      actions: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ebp-main
+          token: ${{ secrets.TRAFFIC_TOKEN }}
+          fetch-depth: 0
+      
+      - name: Sync with remote branch
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action - Traffic Collector"
+          echo "📍 Current branch: $(git branch --show-current)"
+          echo "📍 Remote ref: ${{ github.ref_name }}"
+          git pull origin ebp-main || echo "No remote changes to pull"
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+      
+      - name: Create traffic collector script
+        run: |
+          cat > collect_traffic.py << 'EOF'
+          #!/usr/bin/env python3
+          import os
+          import json
+          import csv
+          import requests
+          from datetime import datetime, timezone, timedelta
+          from pathlib import Path
+          import sys
+          
+          class GitHubTrafficCollector:
+              def __init__(self, token: str, owner: str, repo: str):
+                  self.token = token
+                  self.owner = owner
+                  self.repo = repo
+                  self.base_url = "https://api.github.com"
+                  self.data_dir = Path("repo-analytics")
+                  self.headers = {
+                      "Authorization": f"token {token}",
+                      "Accept": "application/vnd.github.v3+json",
+                      "User-Agent": "GitHub-Traffic-Collector"
+                  }
+              
+              def setup_data_directory(self):
+                  self.data_dir.mkdir(exist_ok=True)
+                  print(f"✓ Data directory ready: {self.data_dir}")
+              
+              def make_api_request(self, endpoint: str) -> dict:
+                  url = f"{self.base_url}/repos/{self.owner}/{self.repo}/{endpoint}"
+                  try:
+                      response = requests.get(url, headers=self.headers, timeout=30)
+                      response.raise_for_status()
+                      return response.json()
+                  except requests.exceptions.RequestException as e:
+                      print(f"✗ API request failed for {endpoint}: {e}")
+                      raise
+              
+              def compute_weekly_totals(self, daily_entries, week_start, week_end):
+                  """Compute weekly totals from daily GA data (inclusive week start/end)."""
+                  total_count = 0
+                  total_uniques = 0
+                  
+                  for entry in daily_entries or []:
+                      timestamp = entry.get("timestamp")
+                      if not timestamp:
+                          continue
+                      
+                      try:
+                          entry_date = datetime.strptime(timestamp[:10], "%Y-%m-%d").date()
+                      except ValueError:
+                          continue
+                      
+                      if week_start <= entry_date <= week_end:
+                          total_count += entry.get("count", 0)
+                          total_uniques += entry.get("uniques", 0)
+                  
+                  return total_count, total_uniques
+              
+              def collect_traffic_data(self) -> dict:
+                  # Calculate previous week's Monday (completed week)
+                  today = datetime.now(timezone.utc)
+                  days_since_monday = today.weekday()  # 0=Monday, 6=Sunday  
+                  previous_monday = today - timedelta(days=days_since_monday + 7)
+                  previous_sunday = previous_monday + timedelta(days=6)
+                  target_week = previous_monday.strftime("%Y-W%U")
+                  
+                  print(f"📊 Collecting traffic data for {self.owner}/{self.repo}")
+                  print(f"🎯 Target week: {target_week} (completed week starting {previous_monday.strftime('%Y-%m-%d')})")
+                  try:
+                      views_data = self.make_api_request("traffic/views")
+                      clones_data = self.make_api_request("traffic/clones")
+                      
+                      week_start_date = previous_monday.date()
+                      week_end_date = previous_sunday.date()
+                      
+                      weekly_views_count, weekly_views_uniques = self.compute_weekly_totals(
+                          views_data.get("views", []),
+                          week_start_date,
+                          week_end_date
+                      )
+                      weekly_clones_count, weekly_clones_uniques = self.compute_weekly_totals(
+                          clones_data.get("clones", []),
+                          week_start_date,
+                          week_end_date
+                      )
+                      
+                      traffic_data = {
+                          "collected_at": datetime.now(timezone.utc).isoformat(),
+                          "date": previous_monday.strftime("%Y-%m-%d"),
+                          "repository": f"{self.owner}/{self.repo}",
+                          "views": {
+                              "count": weekly_views_count,
+                              "uniques": weekly_views_uniques,
+                              "rolling_14_day_count": views_data.get("count", 0),
+                              "rolling_14_day_uniques": views_data.get("uniques", 0),
+                              "daily_data": views_data.get("views", [])
+                          },
+                          "clones": {
+                              "count": weekly_clones_count,
+                              "uniques": weekly_clones_uniques,
+                              "rolling_14_day_count": clones_data.get("count", 0),
+                              "rolling_14_day_uniques": clones_data.get("uniques", 0),
+                              "daily_data": clones_data.get("clones", [])
+                          }
+                      }
+                      
+                      print(f"✓ Views (weekly): {traffic_data['views']['count']} total, {traffic_data['views']['uniques']} unique")
+                      print(f"  ↳ Rolling 14-day window: {traffic_data['views']['rolling_14_day_count']} total, {traffic_data['views']['rolling_14_day_uniques']} unique")
+                      print(f"✓ Clones (weekly): {traffic_data['clones']['count']} total, {traffic_data['clones']['uniques']} unique")
+                      print(f"  ↳ Rolling 14-day window: {traffic_data['clones']['rolling_14_day_count']} total, {traffic_data['clones']['rolling_14_day_uniques']} unique")
+                      
+                      return traffic_data
+                      
+                  except Exception as e:
+                      print(f"✗ Failed to collect traffic data: {e}")
+                      raise
+              
+              def save_weekly_json(self, data: dict):
+                  """Save weekly data to consolidated JSON file"""
+                  date_str = data["date"]
+                  week_str = datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y-W%U")
+                  
+                  # Create week data structure
+                  week_data = {
+                      "collection_info": {
+                          "week": week_str,
+                          "collection_date": date_str,
+                          "collected_at": data["collected_at"],
+                          "repository": data["repository"]
+                      },
+                      "traffic_data": {
+                          "views": data["views"],
+                          "clones": data["clones"]
+                      }
+                  }
+                  
+                  # Load or create consolidated file
+                  consolidated_file = self.data_dir / "traffic_data_all.json"
+                  
+                  if consolidated_file.exists():
+                      with open(consolidated_file, 'r', encoding='utf-8') as f:
+                          consolidated = json.load(f)
+                  else:
+                      consolidated = {
+                          "metadata": {
+                              "description": "Consolidated weekly traffic data for EBP Dashboard Repository",
+                              "total_weeks": 0,
+                              "date_range": {},
+                              "last_updated": ""
+                          },
+                          "weeks": []
+                      }
+                  
+                  # Check if this week already exists (update) or is new (append)
+                  existing_week_index = None
+                  for i, week in enumerate(consolidated['weeks']):
+                      if week['collection_info']['week'] == week_str:
+                          existing_week_index = i
+                          break
+                  
+                  if existing_week_index is not None:
+                      consolidated['weeks'][existing_week_index] = week_data
+                      print(f"🔄 Updated existing week {week_str} in consolidated file")
+                  else:
+                      consolidated['weeks'].append(week_data)
+                      print(f"➕ Added new week {week_str} to consolidated file")
+                  
+                  # Sort weeks by week number
+                  consolidated['weeks'].sort(key=lambda x: x['collection_info']['week'])
+                  
+                  # Update metadata
+                  consolidated['metadata']['total_weeks'] = len(consolidated['weeks'])
+                  consolidated['metadata']['last_updated'] = datetime.now(timezone.utc).isoformat()
+                  
+                  if consolidated['weeks']:
+                      consolidated['metadata']['date_range'] = {
+                          "first_week": consolidated['weeks'][0]['collection_info']['week'],
+                          "last_week": consolidated['weeks'][-1]['collection_info']['week'],
+                          "first_collection": consolidated['weeks'][0]['collection_info']['collection_date'],
+                          "last_collection": consolidated['weeks'][-1]['collection_info']['collection_date']
+                      }
+                  
+                  # Save consolidated file
+                  try:
+                      with open(consolidated_file, 'w', encoding='utf-8') as f:
+                          json.dump(consolidated, f, indent=2, ensure_ascii=False)
+                      print(f"✓ Weekly data saved to consolidated file: {consolidated_file}")
+                  except IOError as e:
+                      print(f"✗ Failed to save JSON file: {e}")
+                      raise
+              
+              def update_summary_csv(self, data: dict):
+                  csv_file = self.data_dir / "weekly_summary.csv"
+                  date_obj = datetime.strptime(data["date"], "%Y-%m-%d")
+                  week_str = date_obj.strftime("%Y-W%U")
+                  file_exists = csv_file.exists()
+                  
+                  # Check for duplicates and update if exists
+                  rows = []
+                  week_found = False
+                  
+                  if file_exists:
+                      with open(csv_file, 'r', encoding='utf-8') as f:
+                          reader = csv.DictReader(f)
+                          for row in reader:
+                              if row['week'] == week_str:
+                                  # Update existing week
+                                  row['collection_date'] = data['date']
+                                  row['views_count'] = data['views']['count']
+                                  row['views_uniques'] = data['views']['uniques']
+                                  row['clones_count'] = data['clones']['count']
+                                  row['clones_uniques'] = data['clones']['uniques']
+                                  row['collected_at'] = data['collected_at']
+                                  week_found = True
+                                  print(f"⚠️  Week {week_str} already exists, updating...")
+                              rows.append(row)
+                  
+                  # Add new week if not found
+                  if not week_found:
+                      rows.append({
+                          'week': week_str,
+                          'collection_date': data['date'],
+                          'views_count': data['views']['count'],
+                          'views_uniques': data['views']['uniques'],
+                          'clones_count': data['clones']['count'],
+                          'clones_uniques': data['clones']['uniques'],
+                          'collected_at': data['collected_at']
+                      })
+                  
+                  # Write back to file
+                  try:
+                      with open(csv_file, 'w', newline='', encoding='utf-8') as f:
+                          fieldnames = ['week', 'collection_date', 'views_count', 'views_uniques', 
+                                       'clones_count', 'clones_uniques', 'collected_at']
+                          writer = csv.DictWriter(f, fieldnames=fieldnames)
+                          writer.writeheader()
+                          writer.writerows(rows)
+                      
+                      action = "updated" if week_found else "added"
+                      print(f"✓ Weekly summary CSV {action}: {csv_file}")
+                      
+                  except IOError as e:
+                      print(f"✗ Failed to update CSV file: {e}")
+                      raise
+              
+              def collect_and_store(self):
+                  try:
+                      self.setup_data_directory()
+                      traffic_data = self.collect_traffic_data()
+                      self.save_weekly_json(traffic_data)
+                      self.update_summary_csv(traffic_data)
+                      print("🎉 Weekly traffic data collection completed successfully!")
+                      return True
+                  except Exception as e:
+                      print(f"💥 Collection failed: {e}")
+                      return False
+          
+          def main():
+              token = os.getenv('GITHUB_TOKEN')
+              owner = os.getenv('REPO_OWNER')
+              repo = os.getenv('REPO_NAME')
+              
+              if not all([token, owner, repo]):
+                  print("✗ Missing required environment variables")
+                  sys.exit(1)
+              
+              collector = GitHubTrafficCollector(token, owner, repo)
+              success = collector.collect_and_store()
+              sys.exit(0 if success else 1)
+          
+          if __name__ == "__main__":
+              main()
+          EOF
+          
+          chmod +x collect_traffic.py
+      
+      - name: Run traffic data collection
+        env:
+          GITHUB_TOKEN: ${{ secrets.TRAFFIC_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: python collect_traffic.py
+      
+      - name: Create README for repo analytics
+        run: |
+          if [ ! -f repo-analytics/README.md ]; then
+            cat > repo-analytics/README.md << 'EOF'
+          # Weekly Traffic Data
+          
+          This directory contains automatically collected GitHub traffic data for this repository.
+          
+          ## Files
+          
+          - `weekly_summary.csv`: Weekly summary of views and clones
+          - `traffic_data_all.json`: Consolidated detailed traffic data (all weeks)
+          
+          ## Data Collection
+          
+          - **Frequency**: Weekly on Mondays at 2:00 AM UTC (collects previous completed week)
+          - **Source**: GitHub Traffic API
+          - **Retention**: GitHub only provides 14 days of traffic data, so we collect it weekly to build historical records
+          - **Coverage**: Each collection captures the full 14-day rolling window available at that time
+          
+          ## Data Format
+          
+          ### Weekly Summary CSV
+          ```
+          week,collection_date,views_count,views_uniques,clones_count,clones_uniques,collected_at
+          2025-W03,2025-01-19,156,45,23,8,2025-01-19T02:00:00Z
+          ```
+          
+          ### Weekly JSON
+          Contains detailed breakdown including individual day data from the 14-day rolling window available at collection time.
+          
+          ## Usage
+          
+          You can analyze this data with any tool that supports CSV/JSON:
+          - Excel/Google Sheets for basic analysis
+          - Python pandas for more complex analysis
+          - Any data visualization tool
+          
+          ## Notes
+          
+          - Weekly collection ensures no data loss while avoiding daily commits
+          - Each week's data represents the 14-day window available at collection time
+          - Week numbers follow ISO standard (Sunday as start of week)
+          
+          Last updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          EOF
+          fi
+      
+      - name: Check for changes and commit
+        run: |
+          git add repo-analytics/
+          
+          if git diff --cached --quiet; then
+            echo "⚠️ No changes to commit - this may indicate an issue with data collection"
+            echo "no_changes=true" >> $GITHUB_ENV
+          else
+            CURRENT_DATE=$(date -u +"%Y-%m-%d")
+            WEEK_NUM=$(date -u +"%Y-W%U")
+            git commit -m "📊 Update weekly traffic data - ${WEEK_NUM} (${CURRENT_DATE})"
+            echo "✅ Changes committed successfully"
+            echo "no_changes=false" >> $GITHUB_ENV
+          fi
+      
+      - name: Push changes
+        if: env.no_changes != 'true'
+        run: |
+          echo "🚀 Pushing changes to ebp-main..."
+          git push origin ebp-main
+          if [ $? -eq 0 ]; then
+            echo "✅ Push successful"
+          else
+            echo "❌ Push failed"
+            exit 1
+          fi
+      
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Weekly Repository Analytics Collection Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f repo-analytics/weekly_summary.csv ]; then
+            echo "✅ Weekly repository analytics collected and stored successfully" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Latest Entry" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            tail -1 repo-analytics/weekly_summary.csv >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Push Status" >> $GITHUB_STEP_SUMMARY
+            if [ "${{ env.no_changes }}" == "true" ]; then
+              echo "⚠️ No changes detected - possible collection issue" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "✅ Changes committed and pushed to ebp-main" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Collection Schedule" >> $GITHUB_STEP_SUMMARY
+            echo "- **Frequency**: Weekly on Mondays at 2:00 AM UTC" >> $GITHUB_STEP_SUMMARY
+            echo "- **Next collection**: $(date -d 'next monday 2:00' -u)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Failed to create weekly traffic data" >> $GITHUB_STEP_SUMMARY
+          fi

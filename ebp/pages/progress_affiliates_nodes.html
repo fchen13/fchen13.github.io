@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="copyright" content="Data source: Genomes on a Tree (GoaT). Used with permission." />
+    <meta name="author" content="Fang Chen" />
+    <title>EBP Affiliate Progress</title>
+    <script src="../config.js"></script>
+    <script src="./echarts.min.js"></script>
+    <script src="./utils.js"></script>
+    <script src="./services.js"></script>
+    <script src="./projectsList.js"></script>
+    <script src="./ergaList.js"></script>
+    <style>
+        #chartContainer1,
+        #chartContainer1b,
+        #chartContainer2 {
+            height: 90vh;  /* Increased height for better vertical proportion */
+            width: 85%;    /* Increased width for smaller screens */
+            min-width: 600px;  /* Ensure minimum width */
+            margin: 20px auto;
+        }
+        #chartContainer1 {
+            margin-bottom: -60px;  /* Pull hint/buttons up under the slider */
+        }
+        #chartContainer1b {
+            margin-top: 0px;
+            margin-bottom: -60px;  /* Match EBP: remove empty strip below slider */
+        }
+        #chartContainer2 {
+            margin-top: 0px;
+            margin-bottom: -60px;  /* Match EBP: remove empty strip below ERGA slider */
+        }
+        /* Add container padding to prevent footer overlap */
+        .container {
+          padding-bottom: 0px;  /* Increased to ensure disclaimer is visible above footer */
+        }
+        /* Notes section */
+        .chartNote {
+          width: 85%;
+          max-width: 1400px;
+          margin: 0 auto 80px auto;
+          padding: 12px 18px;
+          background: #f8f9fa;
+          border-left: 3px solid #aaa;
+          border-radius: 4px;
+          font-size: 14px;
+          color: #555;
+          line-height: 1.6;
+        }
+        .chartNote p {
+          margin: 0 0 6px 0;
+        }
+        .chartNote p:last-child {
+          margin-bottom: 0;
+        }
+        /* Footer styles */
+        #footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: rgba(248, 249, 250, 0.95);
+            color: #333;
+            text-align: center;
+            padding: 5px;
+            z-index: 9999;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+            font-size: 14px;
+        }
+        /* Loading indicator styles */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 90vh;
+            font-family: Arial, sans-serif;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .progress-text {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .error-message {
+            color: #e74c3c;
+            background-color: #fdeaea;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px auto;
+            max-width: 600px;
+            text-align: center;
+        }
+        /* Details drawer — slides in from the right edge of the viewport instead
+           of pushing the main chart layout around. Fixed position means the
+           overview bars, slider, and download buttons never shift or jump. */
+        .details-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 35vw;
+            min-width: 340px;
+            max-width: 600px;
+            height: 100vh;
+            background-color: #fff;
+            border-left: 1px solid #e0e0e0;
+            box-shadow: -4px 0 16px rgba(0, 0, 0, 0.12);
+            transform: translateX(100%);
+            transition: transform 0.35s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+        .details-panel.active {
+            transform: translateX(0);
+        }
+        .details-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            background-color: #f8f9fa;
+            flex: 0 0 auto;
+        }
+        .details-panel-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+        .details-panel-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+            padding: 0 5px;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+        .details-panel-close:hover {
+            color: #e74c3c;
+        }
+        .details-panel-body {
+            flex: 1 1 auto;
+            padding: 10px;
+            min-height: 0;
+        }
+        .details-panel-body .drilldown-chart {
+            width: 100%;
+            height: 100%;
+        }
+        .no-data-message {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            font-size: 16px;
+            color: #666;
+        }
+        /* Clickable bar hint */
+        .click-hint {
+            text-align: center;
+            font-size: 13px;
+            color: #444;
+            margin-top: 12px;
+            margin-bottom: 20px;
+            pointer-events: none;
+        }
+        /* Download buttons container */
+        .download-buttons {
+            display: none;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 0px;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 100;
+        }
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 40px;
+            padding: 0 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1E293B;
+            background-color: #ffffff;
+            border: 1px solid #CBD5E1;
+            border-radius: 25px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: background-color 0.15s;
+            position: relative;
+            z-index: 101;
+            pointer-events: auto;
+        }
+        .download-btn:hover {
+            background-color: #F1F5F9;
+        }
+        .download-btn.csv-btn svg {
+            fill: #16a34a;
+        }
+        .download-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: #1E293B;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+   <div id="chartContainer1">
+     <div class="loading">
+       <div class="spinner"></div>
+       <div class="progress-text">Fetching data...</div>
+     </div>
+   </div>
+   <div class="click-hint" id="clickHint1" style="display: none;">Tip: click any project bar to view its annual assembly breakdown, or scroll the slider to view more projects.</div>
+   <div class="download-buttons" id="downloadButtons1">
+     <button type="button" class="download-btn" id="downloadChart1Btn">
+       <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+       Download Chart
+     </button>
+     <button type="button" class="download-btn csv-btn" id="downloadCSV1Btn">
+       <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+       Download Data (CSV)
+     </button>
+   </div>
+   <div id="chartContainer1b">
+     <div class="loading">
+       <div class="spinner"></div>
+       <div class="progress-text">Fetching data...</div>
+     </div>
+   </div>
+   <div class="click-hint" id="clickHint1b" style="display: none;">Tip: click any project bar to view its annual assembly breakdown, or scroll the slider to view more projects.</div>
+   <div class="download-buttons" id="downloadButtons1b">
+     <button type="button" class="download-btn" id="downloadChart1bBtn">
+       <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+       Download Chart
+     </button>
+     <button type="button" class="download-btn csv-btn" id="downloadCSV1bBtn">
+       <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+       Download Data (CSV)
+     </button>
+   </div>
+   <div id="chartContainer2">
+     <div class="loading">
+       <div class="spinner"></div>
+       <div class="progress-text">Fetching data...</div>
+     </div>
+   </div>
+   <div class="click-hint" id="clickHint2" style="display: none;">Tip: click any project bar to view its annual assembly breakdown, or scroll the slider to view more projects.</div>
+   <div class="download-buttons" id="downloadButtons2">
+     <button type="button" class="download-btn" id="downloadChart2Btn">
+       <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+       Download Chart
+     </button>
+     <button type="button" class="download-btn csv-btn" id="downloadCSV2Btn">
+       <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+       Download Data (CSV)
+     </button>
+   </div>
+   <!-- Notes -->
+   <div id="disclaimer" class="chartNote">
+     <p><strong>Notes:</strong> Some assemblies appear across multiple projects, reflecting the collaborative nature of the global research community. Projects without a BioProject ID are not listed.</p>
+   </div>
+   
+   <!-- <div id="chartContainer2">
+     <div class="loading">
+       <div class="spinner"></div>
+       <div class="progress-text">Loading genome size data...</div>
+     </div>
+   </div>
+   <div id="chartContainer3">
+     <div class="loading">
+       <div class="spinner"></div>
+       <div class="progress-text">Loading assembly span data...</div>
+     </div>
+   </div> -->
+
+    <div id="footer">
+        <div id="copyright">Data source: <a href="https://goat.genomehubs.org" target="_blank" rel="noopener noreferrer">Genomes on a Tree (GoaT)</a>. Used with permission.</div>
+    </div>
+    </div>
+
+    <!-- Shared details drawer — slides in from the right edge for whichever
+         chart's bar was clicked; only one project can be inspected at a time. -->
+    <div class="details-panel" id="detailsPanel">
+      <div class="details-panel-header">
+        <h3 class="details-panel-title" id="detailsPanelTitle">Annual Species Count</h3>
+        <button class="details-panel-close" onclick="closeDetailsPanel()">&times;</button>
+      </div>
+      <div class="details-panel-body">
+        <div class="drilldown-chart" id="drilldownChart"></div>
+      </div>
+    </div>
+
+    <script>
+        let chartInstance1 = null
+        let chartInstance1b = null
+        let chartInstance2 = null
+        // One drill-down chart instance per details panel (1, 1b, 2), keyed by the
+        // same suffix used in their DOM ids, so all three can stay open independently.
+        let drilldownChartInstance = null;
+
+        // Store annual data per project for drill-down
+        const projectAnnualData = {};
+        // Separate annual data for species meeting EBP standard criteria (used for chart 1b CSV export)
+        const projectAnnualDataEbpStandard = {};
+
+        // Store chart data for CSV export
+        let chart1Data = { categories: [], series: [] };
+        let chart1bData = { categories: [], series: [] };
+        let chart2Data = { categories: [], series: [] };
+
+      // Cache for API responses
+      const apiCache = new Map();
+
+      // Enhanced fetch with caching and error handling
+      async function fetchDataWithCache(url, retries = 3) {
+        if (apiCache.has(url)) {
+          return apiCache.get(url);
+        }
+
+        for (let i = 0; i < retries; i++) {
+          try {
+            const response = await fetch(url);
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            apiCache.set(url, data);
+            return data;
+          } catch (error) {
+            if (i === retries - 1) throw error;
+            await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); // Exponential backoff
+          }
+        }
+      }
+
+      // Show error message
+      function showError(containerId, message) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = `<div class="error-message">Error: ${message}</div>`;
+      }
+
+      // Fetch the per-assembly-level species counts for a single project via a
+      // single-bucket GoaT histogram report scoped to its exact bioproject ID
+      // (same x=bioproject=ID pattern progress_Phylum.html uses for the EBP-wide
+      // total). This is NOT the same as bucketing many projects at once by the
+      // "long_list" attribute — long_list is a non-exclusive "target list"
+      // membership field (a species can appear on multiple projects' lists), so
+      // bucketing on it double-counts species and inflates totals. Scoping by the
+      // literal bioproject field matches the species actually deposited under
+      // that project, which is what the original per-project full-record fetch
+      // computed.
+      async function fetchProjectAssemblyCounts(projectId, extraQuery = '') {
+        const levels = ['contig', 'scaffold', 'chromosome', 'complete genome'];
+        const empty = {};
+        levels.forEach(level => { empty[level] = 0; });
+        if (!projectId) return empty;
+
+        let excludeMissing = 'excludeMissing%5B0%5D=bioproject';
+        if (extraQuery.includes('ebp_standard_criteria')) {
+          excludeMissing += '&excludeMissing%5B1%5D=ebp_standard_criteria';
+        }
+        const url = `https://goat.genomehubs.org/api/v2/report?report=histogram&x=bioproject%3D${projectId}%20AND%20tax_tree%282759%29${extraQuery}&rank=species&result=taxon&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&excludeAncestral%5B0%5D=bioproject&${excludeMissing}&xOpts=${projectId}%2C%2C1%2C%2C&taxonomy=ncbi&includeEstimates=true`;
+
+        const res = await fetchDataWithCache(url);
+        const byCat = res?.report?.report?.histogram?.histograms?.byCat || {};
+        const counts = {};
+        levels.forEach(level => { counts[level] = (byCat[level] || [])[0] || 0; });
+        return counts;
+      }
+
+      // Build a {assemblyLevel: [counts]} map across a canonical project list by
+      // fetching each project's single-bucket histogram in small parallel batches.
+      // Each request is a lightweight pre-aggregated count (no species records
+      // downloaded), so this stays far faster than the original per-project
+      // paginated full-record fetch while keeping the same per-project, bioproject-
+      // exact semantics (and correct totals).
+      async function buildCategoryCounts(projectMap, allowedProjects, extraQuery = '') {
+        const levels = ['contig', 'scaffold', 'chromosome', 'complete genome'];
+        const byCatFiltered = {};
+        levels.forEach(level => { byCatFiltered[level] = []; });
+
+        const batchSize = 8;
+        for (let i = 0; i < allowedProjects.length; i += batchSize) {
+          const batch = allowedProjects.slice(i, i + batchSize);
+          const results = await Promise.all(
+            batch.map(name => fetchProjectAssemblyCounts(projectMap[name], extraQuery))
+          );
+          results.forEach(counts => {
+            levels.forEach(level => byCatFiltered[level].push(counts[level]));
+          });
+        }
+        return byCatFiltered;
+      }
+
+      window.onload = async function () {
+        try {
+          // Canonical project lists (all configured projects with a bioproject ID), so
+          // zero-count projects still show up with 0 — matching prior behavior.
+          const validCategories = Object.entries(projectsList)
+            .filter(([, id]) => id && id.trim() !== '')
+            .map(([name]) => name);
+          const ergaValidCategories = Object.entries(ergaList)
+            .filter(([, id]) => id && id.trim() !== '')
+            .map(([name]) => name);
+
+          // Three batched sets of lightweight per-project histogram calls replace
+          // what used to be one paginated full-species-record fetch PER PROJECT
+          // (×3 chart variants). Each call pre-aggregates counts server-side for a
+          // single project, so we get the same totals the bar charts need without
+          // ever downloading individual species records.
+          const [speciesCounts, ebpStandardSpeciesCounts, ergaSpeciesCounts] = await Promise.all([
+            buildCategoryCounts(projectsList, validCategories),
+            buildCategoryCounts(projectsList, validCategories, '%20AND%20ebp_standard_criteria'),
+            buildCategoryCounts(ergaList, ergaValidCategories)
+          ]);
+
+          // ===== Chart 1: EBP Affiliates =====
+          const { series } = getDefaultStackedBarData({ report: { report: { yLabel: "Count of Species", histogram: { histograms: { byCat: speciesCounts, buckets: [] } } } } });
+          chartInstance1 = initEchart({series: series, categories: validCategories}, 'chartContainer1', 'Count of Species');
+          document.getElementById('clickHint1').style.display = 'block';
+          document.getElementById('downloadButtons1').style.display = 'flex';
+
+          // ===== Chart 1b: EBP Standard =====
+          const { series: ebpStandardSeries } = getDefaultStackedBarData({ report: { report: { yLabel: "Count of Species", histogram: { histograms: { byCat: ebpStandardSpeciesCounts, buckets: [] } } } } });
+          chartInstance1b = initEchart({series: ebpStandardSeries, categories: validCategories}, 'chartContainer1b', 'Count of Species', undefined, true);
+          document.getElementById('clickHint1b').style.display = 'block';
+          document.getElementById('downloadButtons1b').style.display = 'flex';
+
+          // ===== Chart 2: ERGA Umbrella =====
+          const { series: ergaSeries } = getDefaultStackedBarData({ report: { report: { yLabel: "Count of Species", histogram: { histograms: { byCat: ergaSpeciesCounts, buckets: [] } } } } });
+          chartInstance2 = initEchart({series: ergaSeries, categories: ergaValidCategories}, 'chartContainer2', 'Count of Species', 'ERGA Umbrella');
+          document.getElementById('clickHint2').style.display = 'block';
+          document.getElementById('downloadButtons2').style.display = 'flex';
+
+          // Per-project annual (year × assembly-level) breakdowns are only needed for
+          // the drill-down panel and the CSV export — both fetch the underlying
+          // per-species records lazily, on demand, via ensureAnnualDataForProject().
+
+        } catch (error) {
+          console.error('Error loading data:', error);
+          showError('chartContainer1', 'Failed to load data. Please try refreshing the page.');
+          showError('chartContainer1b', 'Failed to load EBP standard data. Please try refreshing the page.');
+          showError('chartContainer2', 'Failed to load ERGA data. Please try refreshing the page.');
+        }
+      };
+
+      // Fetch and cache the per-year, per-assembly-level breakdown for a single
+      // project, used by the drill-down panel and CSV export. Uses a single
+      // GoaT histogram request that buckets by assembly_date (calendar year)
+      // and stacks by assembly_level, server-side — same aggregate-count
+      // pattern as the overview charts, instead of downloading every species
+      // record just to tally them client-side. Cached in projectAnnualData /
+      // projectAnnualDataEbpStandard so repeat clicks/exports don't re-fetch.
+      async function ensureAnnualDataForProject(projectName, isStandard) {
+        const store = isStandard ? projectAnnualDataEbpStandard : projectAnnualData;
+        if (store[projectName]) return store[projectName];
+
+        const projectId = projectsList[projectName] || ergaList[projectName];
+        if (!projectId) {
+          store[projectName] = {};
+          return store[projectName];
+        }
+
+        const extraQuery = isStandard ? '%20AND%20ebp_standard_criteria' : '';
+        let excludeMissing = 'excludeMissing%5B0%5D=bioproject';
+        if (isStandard) {
+          excludeMissing += '&excludeMissing%5B1%5D=ebp_standard_criteria';
+        }
+        const url = `https://goat.genomehubs.org/api/v2/report?report=histogram&x=assembly_date%20AND%20bioproject%3D${projectId}%20AND%20tax_tree%282759%29${extraQuery}&rank=species&result=taxon&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&excludeAncestral%5B0%5D=bioproject&${excludeMissing}&taxonomy=ncbi&includeEstimates=true`;
+
+        const res = await fetchDataWithCache(url);
+        const h = res?.report?.report?.histogram?.histograms;
+        const buckets = h?.buckets || [];
+        const byCat = h?.byCat || {};
+        const levels = ['contig', 'scaffold', 'chromosome', 'complete genome'];
+
+        const annual = {};
+        buckets.forEach((ts, i) => {
+          if (ts === null || ts === undefined) return;
+          const year = String(new Date(ts).getUTCFullYear());
+          const yearCounts = { contig: 0, scaffold: 0, chromosome: 0, 'complete genome': 0 };
+          let yearTotal = 0;
+          levels.forEach(level => {
+            const count = (byCat[level] || [])[i] || 0;
+            yearCounts[level] = count;
+            yearTotal += count;
+          });
+          if (yearTotal > 0) annual[year] = yearCounts;
+        });
+
+        store[projectName] = annual;
+        return annual;
+      }
+
+      // Picks a "nice" tick step (1/2/5 x a power of 10) that yields roughly
+      // `targetTicks` intervals across the given range, so the y-axis always shows
+      // a handful of evenly spaced gridlines instead of just the min/max ends.
+      // Shared by the live dataZoom rescale and the full-chart image export below.
+      function niceInterval(range, targetTicks = 5) {
+        const rawStep = range / targetTicks;
+        const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
+        const normalized = rawStep / magnitude;
+        let niceNormalized;
+        if (normalized <= 1) niceNormalized = 1;
+        else if (normalized <= 2) niceNormalized = 2;
+        else if (normalized <= 5) niceNormalized = 5;
+        else niceNormalized = 10;
+        return niceNormalized * magnitude;
+      }
+
+      function initEchart(data, containerId, yLabel, xAxisLabel, isStandard) {
+        const chartDom = document.getElementById(containerId);
+        const myChart = echarts.init(chartDom);
+        const arr = []
+        const len = data.categories.length
+        for(let i = 0; i < len; i++) {
+          const list = []
+          list.push(data.categories[i])
+
+          for(let j = 0; j < data.series.length; j++) {
+            list.push(data.series[j].data[i])
+          }
+          arr.push(list)
+        }
+
+        // Sort based on total sum of all values
+        arr.sort((a, b) => {
+          let sum1 = 0;
+          let sum2 = 0;
+          // Start from index 1 since index 0 is the category name
+          for(let i = 1; i < a.length; i++) {
+            sum1 += a[i] || 0;
+            sum2 += b[i] || 0;
+          }
+          return sum2 - sum1;
+        });
+
+        // Reconstruct the data arrays after sorting
+        const sortedCategories = [];
+        const sortedData = data.series.map(() => []);
+
+        arr.forEach((item, index) => {
+          sortedCategories.push(item[0]);
+          for(let j = 0; j < data.series.length; j++) {
+            sortedData[j].push(item[j + 1]);
+          }
+        });
+
+        // Update the original data structure
+        data.categories = sortedCategories;
+        data.series.forEach((series, index) => {
+          series.data = sortedData[index];
+        });
+
+        // Snapshot the FULL sorted dataset (including zero-value projects) for CSV export
+        // before we filter zeros out of the rendered chart.
+        if (containerId === 'chartContainer1') {
+          chart1Data = { categories: sortedCategories.slice(), series: JSON.parse(JSON.stringify(data.series)) };
+        } else if (containerId === 'chartContainer1b') {
+          chart1bData = { categories: sortedCategories.slice(), series: JSON.parse(JSON.stringify(data.series)) };
+        } else if (containerId === 'chartContainer2') {
+          chart2Data = { categories: sortedCategories.slice(), series: JSON.parse(JSON.stringify(data.series)) };
+        }
+
+        // Filter out projects whose total across all assembly levels is zero — chart only.
+        // The CSV snapshot above still includes every project.
+        const keepIndex = [];
+        for (let i = 0; i < data.categories.length; i++) {
+          let rowTotal = 0;
+          for (let j = 0; j < data.series.length; j++) {
+            rowTotal += data.series[j].data[i] || 0;
+          }
+          if (rowTotal > 0) keepIndex.push(i);
+        }
+        data.categories = keepIndex.map(i => sortedCategories[i]);
+        data.series.forEach((series, j) => {
+          series.data = keepIndex.map(i => sortedData[j][i]);
+        });
+
+        // Calculate total count and project count for species chart
+        let totalCount = 0;
+        let projectsWithSpecies = 0;
+        if (containerId === 'chartContainer1' || containerId === 'chartContainer1b' || containerId === 'chartContainer2') {
+          data.series.forEach(series => {
+            series.data.forEach(value => {
+              totalCount += value || 0;
+            });
+          });
+          
+          // Count projects with non-zero species counts
+          for (let i = 0; i < data.categories.length; i++) {
+            let projectTotal = 0;
+            data.series.forEach(series => {
+              projectTotal += series.data[i] || 0;
+            });
+            if (projectTotal > 0) {
+              projectsWithSpecies++;
+            }
+          }
+        }
+
+        const option = {
+          title: containerId === 'chartContainer1' ? {
+            text: '',
+            subtext: `Species count by assembly level | EBP affiliates`,
+            left: 'center',
+            textStyle: {
+              fontSize: 20,
+              fontWeight: 'bold',
+              color: '#000'
+            },
+            subtextStyle: {
+              fontSize: 20,
+              fontWeight: 'bold',
+              color: '#000'  // Match y-axis title color
+            }
+          } : containerId === 'chartContainer1b' ? {
+            text: '',
+            subtext: `Species count meeting EBP standard by assembly level | EBP affiliates`,
+            left: 'center',
+            textStyle: {
+              fontSize: 20,
+              fontWeight: 'bold',
+              color: '#000'
+            },
+            subtextStyle: {
+              fontSize: 20,
+              fontWeight: 'bold',
+              color: '#000'  // Match y-axis title color
+            }
+          } : containerId === 'chartContainer2' ? {
+            text: '',
+            subtext: `Species count by assembly level - ERGA umbrella`,
+            left: 'center',
+            textStyle: {
+              fontSize: 20,
+              fontWeight: 'bold',
+              color: '#000'
+            },
+            subtextStyle: {
+              fontSize: 20,
+              fontWeight: 'bold',
+              color: '#000'  // Match y-axis title color
+            }
+          } : undefined,
+          legend: {
+            show: true,
+            selectedMode: false,
+            data: ['contig', 'scaffold', 'chromosome', 'complete genome'], // Reorder legend items
+            top: containerId === 'chartContainer1' || containerId === 'chartContainer1b' || containerId === 'chartContainer2' ? '10%' : 'top',
+            itemWidth: 14,
+            itemHeight: 10,
+            textStyle: {
+              color: '#000',
+              fontSize: 14,
+              fontWeight: 'bold',
+            }
+          },
+          color: ['#b8860b', '#22a884', '#404387', '#7ad151'], // Colors from progress_Family_Species.html: contig, scaffold, chromosome, complete genome
+          grid: {
+            left: '7%',  // Decreased left margin
+            right: '2%',
+            top: containerId === 'chartContainer1' || containerId === 'chartContainer1b' || containerId === 'chartContainer2' ? '18%' : '8%',  // More space for title in species chart
+            // Fixed pixel margin (not a %) so it doesn't shrink on shorter viewports and
+            // clip 45°-rotated labels for long project names (e.g. "canseq150", "ag100pest").
+            // containLabel still expands this further if a label is taller than expected.
+            bottom: containerId === 'chartContainer1' || containerId === 'chartContainer1b' || containerId === 'chartContainer2' ? 140 : '20%',
+            containLabel: true
+          },
+          yAxis: {
+            type: "value",
+            name: yLabel,
+            nameLocation: 'middle',
+            nameRotate: 90,
+            nameGap: 45,  // Adjust gap to bring label closer
+            nameTextStyle: {
+              fontWeight: 'bold',
+              fontSize: 14,
+            },
+            axisLine: {
+              show: true,
+              lineStyle: {
+                color: "#000",
+                width: 1,
+              },
+            },
+            axisLabel: {
+              show: true,
+              color: "#000",
+              fontSize: 12,
+              margin: 5, // Move labels closer to the axis
+              formatter: function (value) {
+                if (containerId === 'chartContainer1' || containerId === 'chartContainer1b' || containerId === 'chartContainer2') {
+                  return value.toLocaleString(); // Show complete numbers for count of species
+                } else if (containerId === 'chartContainer3') {
+                  return (value / 1e12).toFixed(1) + 'T'; // Convert to T format for genome size and assembly span
+                }
+                return formatNumber(value);
+              }
+            },
+            splitLine: {
+              show: true,
+              lineStyle: {
+                color: '#ccc'
+              }
+            },
+            // Species-count charts leave interval to auto-calculate since their max
+            // is rescaled dynamically by the dataZoom listener below (a fixed interval
+            // would fight with a shrinking max once outlier projects scroll off-screen).
+            interval: containerId === 'chartContainer3' ? 0.5e12 : 'auto', // Set interval to 0.5T for genome size and assembly span
+            minInterval: containerId === 'chartContainer3' ? 0.5e12 : undefined, // Ensure minimum interval of 0.5T for genome size and assembly span
+          },
+          xAxis: {
+            type: "category",
+            data: data.categories, // Filtered (non-zero) project names, sorted by total
+            axisLine: {
+              show: true,
+              lineStyle: {
+                color: "#000",
+                width: 1,
+              },
+              
+            },
+            axisLabel: {
+              show: true,
+              color: "#000",
+              fontSize: (containerId === 'chartContainer1' || containerId === 'chartContainer1b' || containerId === 'chartContainer2') ? 14 : 12,
+              rotate: 45,
+              interval: 0, // Force every project label to render (no auto-skipping)
+              overflow: 'none', // Never truncate long project names at the rotation angle
+              margin: 12, // Consistent gap from the axis line before the label's rotated bounding box
+            },
+            name: (containerId === 'chartContainer1' || containerId === 'chartContainer1b' || containerId === 'chartContainer2') ? '' : (xAxisLabel || "EBP affiliates"), // Hide x-axis name for both charts since it's in the title
+            nameLocation: 'middle', // Place the label in the middle 
+            nameGap: (containerId === 'chartContainer1' || containerId === 'chartContainer1b' || containerId === 'chartContainer2') ? 0 : 80,  // No gap when name is hidden
+            nameTextStyle: (containerId === 'chartContainer1' || containerId === 'chartContainer1b' || containerId === 'chartContainer2') ? {} : {
+              fontWeight: 'bold',
+              fontSize: 14,
+              padding: [10, 0, 0, 0], // Adjust padding to move the label slightly away from the axis
+            },
+            splitLine: {
+              show: false,
+            },
+          },
+          tooltip: {
+            trigger: "axis",
+            position: function (point, params, dom, rect, size) {
+              // Get the chart container width and tooltip dimensions
+              var chartWidth = size.viewSize[0];
+              var tooltipWidth = size.contentSize[0];
+              var tooltipHeight = size.contentSize[1];
+              
+              // Position tooltip close to the mouse with smart positioning
+              // Default: 15px offset from mouse
+              var x = point[0] + 15;
+              var y = point[1] - tooltipHeight / 2;
+              
+              // If tooltip would go off the right edge, position it to the left
+              if (x + tooltipWidth > chartWidth) {
+                x = point[0] - tooltipWidth - 15;
+              }
+              
+              // Keep tooltip within vertical bounds
+              if (y < 0) y = 5;
+              if (y + tooltipHeight > size.viewSize[1]) y = size.viewSize[1] - tooltipHeight - 5;
+              
+              return [x, y];
+            },
+            formatter: function (params) {
+              // Add project name as the first line
+              var projectName = params[0].name;
+              var header = "<strong>" + projectName + "</strong><br/>";
+              
+              var res = params
+                .map(function (item) {
+                  return item.seriesName + ": " + (item.value || 0).toLocaleString();
+                })
+                .join("<br/>");
+
+              // For total calculation
+              var total = 0;
+              params.forEach(function (item) {
+                total += item.value || 0;
+              });
+
+              return header + res + "<br/>Total: " + total.toLocaleString();
+            },
+          },
+          series: data.series,
+          // Slider below the x-axis lets the user scan long project lists without
+          // overlapping labels. Auto-sized: show ~25 bars at a time; if fewer, show all.
+          dataZoom: (containerId === 'chartContainer1' || containerId === 'chartContainer1b' || containerId === 'chartContainer2') ? [
+            {
+              type: 'slider',
+              xAxisIndex: 0,
+              // Both charts keep the slider visible at all times. When every project
+              // already fits inside the default window, the two handles span the full
+              // track (full-filled), signaling there is nothing more to scroll.
+              show: true,
+              // 'filter' (not 'empty') removes hidden bars from layout entirely, so the
+              // visible projects fill the canvas instead of leaving blank space where
+              // scrolled-off outliers (dtol, vgp) used to sit.
+              filterMode: 'filter',
+              startValue: 0,
+              endValue: containerId === 'chartContainer2'
+                ? Math.max(0, data.categories.length - 1)
+                : Math.min(14, Math.max(0, data.categories.length - 1)),
+              height: 20,
+              bottom: 66,
+              brushSelect: false,
+              labelFormatter: ''
+            },
+            {
+              type: 'inside',
+              xAxisIndex: 0,
+              filterMode: 'filter',
+              startValue: 0,
+              endValue: Math.min(24, Math.max(0, data.categories.length - 1)),
+              zoomOnMouseWheel: 'shift',
+              moveOnMouseWheel: true,
+              moveOnMouseMove: false
+            }
+          ] : undefined,
+        };
+        myChart.setOption(option);
+
+        // Rescale the y-axis to the tallest stacked bar currently visible in the
+        // dataZoom window, so scrolling past tall outliers (e.g. dtol, vgp, psyche)
+        // reveals comparable detail for the smaller projects still on screen.
+        // ECharts animates min/max changes on setOption, so this transition is smooth.
+        if (containerId === 'chartContainer1' || containerId === 'chartContainer1b' || containerId === 'chartContainer2') {
+          const stackedTotals = data.categories.map((_, i) => {
+            let total = 0;
+            data.series.forEach(series => { total += series.data[i] || 0; });
+            return total;
+          });
+
+          const rescaleYAxis = () => {
+            const zoomState = myChart.getOption().dataZoom[0];
+            const startIdx = Math.max(0, Math.round(zoomState.startValue));
+            const endIdx = Math.min(stackedTotals.length - 1, Math.round(zoomState.endValue));
+
+            let visibleMax = 0;
+            for (let i = startIdx; i <= endIdx; i++) {
+              if (stackedTotals[i] > visibleMax) visibleMax = stackedTotals[i];
+            }
+
+            const step = niceInterval(visibleMax * 1.1 || 1);
+            const niceMax = Math.max(step, Math.ceil((visibleMax * 1.1) / step) * step);
+
+            myChart.setOption({ yAxis: { max: niceMax, interval: step } });
+          };
+
+          myChart.on('datazoom', rescaleYAxis);
+          rescaleYAxis();
+        }
+
+        // Add click event for drill-down
+        // `isStandard` is captured in the closure so each chart drills into its own
+        // correct data store (chart 1 / ERGA → projectAnnualData, chart 1b →
+        // projectAnnualDataEbpStandard). All three charts share the same right-side
+        // drawer, since only one project is inspected at a time.
+        const _isStandard = !!isStandard;
+        myChart.on('click', function(params) {
+          if (params.name) {
+            showDrilldown(params.name, _isStandard);
+          }
+        });
+
+        // Clicking empty canvas (inside the grid but not on a bar) dismisses
+        // the drawer, same as clicking its close button. `params.target` is
+        // only set when the click actually hit a rendered graphic (a bar);
+        // an empty-canvas click leaves it undefined.
+        myChart.getZr().on('click', function(params) {
+          const pointInPixel = [params.offsetX, params.offsetY];
+          if (!params.target && myChart.containPixel('grid', pointInPixel)) {
+            closeDetailsPanel();
+          }
+        });
+
+        // Change cursor to pointer on bar hover
+        myChart.getZr().on('mousemove', function(params) {
+          const pointInPixel = [params.offsetX, params.offsetY];
+          if (myChart.containPixel('grid', pointInPixel)) {
+            myChart.getZr().setCursorStyle('pointer');
+          } else {
+            myChart.getZr().setCursorStyle('default');
+          }
+        });
+      
+        return myChart
+      }
+
+      const EMPTY_YEAR_COUNTS = Object.freeze({
+        contig: 0,
+        scaffold: 0,
+        chromosome: 0,
+        'complete genome': 0
+      });
+
+      /**
+       * Ensures every consecutive calendar year from min to max exists in a
+       * project's annual map, filling gaps with zero assembly counts.
+       *
+       * @param {Object<string, Object>} annualData  Year-keyed count map.
+       * @returns {{ years: string[], data: Object<string, Object> }}
+       */
+      function padAnnualYearGaps(annualData) {
+        if (!annualData || typeof annualData !== 'object') {
+          return { years: [], data: {} };
+        }
+
+        const numericYears = Object.keys(annualData)
+          .map(y => parseInt(y, 10))
+          .filter(y => !isNaN(y) && y >= 1900 && y <= 2100);
+
+        if (numericYears.length === 0) {
+          return { years: [], data: {} };
+        }
+
+        const minYear = Math.min(...numericYears);
+        const maxYear = Math.max(...numericYears);
+        const paddedData = {};
+        const years = [];
+
+        for (let y = minYear; y <= maxYear; y++) {
+          const key = String(y);
+          years.push(key);
+          const existing = annualData[key] ?? annualData[y];
+          paddedData[key] = existing
+            ? { ...EMPTY_YEAR_COUNTS, ...existing }
+            : { ...EMPTY_YEAR_COUNTS };
+        }
+
+        return { years, data: paddedData };
+      }
+
+      // Show the shared right-side drawer with the annual breakdown for the
+      // clicked project. `isStandard` selects which per-chart annual-data store
+      // to read/populate (projectAnnualData or projectAnnualDataEbpStandard).
+      // Only one project is inspected at a time, so all three overview charts
+      // open the same drawer. The underlying per-species data is fetched lazily
+      // here (cached after the first click) instead of upfront for every project.
+      async function showDrilldown(projectName, isStandard) {
+        // Open the drawer immediately so the slide-in transition isn't blocked
+        // on the network fetch below.
+        const panelWasOpen = document.getElementById('detailsPanel').classList.contains('active');
+        document.getElementById('detailsPanelTitle').textContent = `Annual Species Count - ${projectName}`;
+        document.getElementById('detailsPanel').classList.add('active');
+
+        const annualData = await ensureAnnualDataForProject(projectName, isStandard);
+
+        if (!annualData || Object.keys(annualData).length === 0) {
+          alert(`No annual data available for ${projectName}`);
+          return;
+        }
+
+        const { years: sortedYears, data: paddedData } = padAnnualYearGaps(annualData);
+        if (!sortedYears.length) {
+          alert(`No annual data available for ${projectName}`);
+          return;
+        }
+
+        // Prepare series data from the gap-free paddedData copy.
+        const seriesData = {
+          'contig':          sortedYears.map(year => paddedData[year]['contig'] || 0),
+          'scaffold':        sortedYears.map(year => paddedData[year]['scaffold'] || 0),
+          'chromosome':      sortedYears.map(year => paddedData[year]['chromosome'] || 0),
+          'complete genome': sortedYears.map(year => paddedData[year]['complete genome'] || 0)
+        };
+
+        const chartDom = document.getElementById('drilldownChart');
+
+        // Thin out year labels on longer timelines so they never overlap at a
+        // narrow drawer width — every 2nd or 3rd year, hover tooltip still
+        // reveals the exact year via axis trigger.
+        const yearLabelInterval = sortedYears.length > 12 ? 2 : (sortedYears.length > 8 ? 1 : 0);
+
+        /** Renders the drill-down chart once the drawer's slide-in transition has given it layout dimensions. */
+        function renderDrilldownChart() {
+          // Reuse the existing chart instance so ECharts can diff and animate
+          // each line's points to its new position when switching projects
+          // while the drawer is already open. Only init fresh on first open.
+          if (!drilldownChartInstance) {
+            drilldownChartInstance = echarts.init(chartDom);
+          }
+
+          const option = {
+            title: {
+              text: '',
+              left: 'center',
+              textStyle: {
+                fontSize: 14,
+                fontWeight: 'bold'
+              }
+            },
+            legend: {
+              show: true,
+              selectedMode: false,
+              data: ['contig', 'scaffold', 'chromosome', 'complete genome'],
+              top: '2%',
+              textStyle: {
+                color: '#000',
+                fontSize: 11,
+                fontWeight: 'bold',
+              }
+            },
+            color: ['#b8860b', '#22a884', '#404387', '#7ad151'],
+            // Explicit left padding keeps the rotated y-axis title and its
+            // labels off the drawer's edge instead of jamming against it.
+            grid: {
+              left: '14%',
+              right: '6%',
+              top: '20%',
+              bottom: '14%',
+              containLabel: true
+            },
+            tooltip: {
+              trigger: 'axis',
+              formatter: function(params) {
+                let result = `<strong>Year: ${params[0].name}</strong><br/>`;
+                params.forEach(item => {
+                  result += `${item.marker} ${item.seriesName}: ${(item.value || 0).toLocaleString()}<br/>`;
+                });
+                return result;
+              }
+            },
+            xAxis: {
+              type: 'category',
+              data: sortedYears,
+              boundaryGap: false,
+              axisTick: { alignWithLabel: true },
+              axisLine: {
+                show: true,
+                lineStyle: { color: '#000', width: 1 }
+              },
+              axisLabel: {
+                show: true,
+                // Skip every Nth label on long timelines instead of cramming
+                // every year in at a steep rotation; tooltip still shows the
+                // exact year on hover.
+                interval: yearLabelInterval,
+                rotate: 45,
+                color: '#000',
+                fontSize: 11
+              },
+              name: 'Year',
+              nameLocation: 'middle',
+              nameGap: 30,
+              nameTextStyle: {
+                fontWeight: 'bold',
+                fontSize: 12
+              }
+            },
+            yAxis: {
+              type: 'value',
+              name: 'Count of Species',
+              nameLocation: 'middle',
+              nameRotate: 90,
+              nameGap: 50,
+              nameTextStyle: {
+                fontWeight: 'bold',
+                fontSize: 12
+              },
+              axisLine: {
+                show: true,
+                lineStyle: { color: '#000', width: 1 }
+              },
+              axisLabel: {
+                show: true,
+                color: '#000',
+                fontSize: 11,
+                formatter: value => value.toLocaleString()
+              },
+              splitLine: {
+                show: true,
+                lineStyle: { color: '#ccc' }
+              }
+            },
+            // Independent (non-stacked) lines, not a stacked area chart: with
+            // a stacked area, each upper series' baseline shifts depending on
+            // the thickness of everything beneath it, producing wavy shapes
+            // that make it impossible to read whether a single metric grew or
+            // shrank year over year for diverse-composition projects (e.g.
+            // metainvert, tsi). Plain lines keep every category's true value
+            // on its own baseline.
+            series: [
+              {
+                name: 'contig',
+                type: 'line',
+                stack: null,
+                symbol: 'circle',
+                symbolSize: 5,
+                lineStyle: { width: 2 },
+                data: seriesData['contig'],
+                itemStyle: { color: '#b8860b' }
+              },
+              {
+                name: 'scaffold',
+                type: 'line',
+                stack: null,
+                symbol: 'circle',
+                symbolSize: 5,
+                lineStyle: { width: 2 },
+                data: seriesData['scaffold'],
+                itemStyle: { color: '#22a884' }
+              },
+              {
+                name: 'chromosome',
+                type: 'line',
+                stack: null,
+                symbol: 'circle',
+                symbolSize: 5,
+                lineStyle: { width: 2 },
+                data: seriesData['chromosome'],
+                itemStyle: { color: '#404387' }
+              },
+              {
+                name: 'complete genome',
+                type: 'line',
+                stack: null,
+                symbol: 'circle',
+                symbolSize: 5,
+                lineStyle: { width: 2 },
+                data: seriesData['complete genome'],
+                itemStyle: { color: '#7ad151' }
+              }
+            ]
+          };
+
+          // notMerge: false (the default) lets ECharts diff against the
+          // currently rendered option and animate each line's points to its
+          // new position — so switching projects while the drawer is already
+          // open morphs the lines in place instead of a hard redraw.
+          drilldownChartInstance.setOption(option);
+          drilldownChartInstance.resize();
+        }
+
+        // The drawer's slide-in transition (0.35s) is what actually gives the
+        // chart container its real height on first open. On subsequent clicks
+        // the drawer is already laid out and stays locked in place — only the
+        // title and chart data update — so render immediately.
+        const panelEl = document.getElementById('detailsPanel');
+        if (panelWasOpen) {
+          renderDrilldownChart();
+        } else {
+          panelEl.addEventListener('transitionend', function onExpand(event) {
+            if (event.propertyName !== 'transform') return;
+            panelEl.removeEventListener('transitionend', onExpand);
+            renderDrilldownChart();
+          });
+        }
+      }
+
+      // Collapse the details drawer and dispose its chart.
+      function closeDetailsPanel() {
+        document.getElementById('detailsPanel').classList.remove('active');
+        if (drilldownChartInstance) {
+          drilldownChartInstance.dispose();
+          drilldownChartInstance = null;
+        }
+      }
+
+      window.addEventListener('resize', function() {
+        if (drilldownChartInstance) drilldownChartInstance.resize();
+      });
+
+      // Close the details drawer with Escape.
+      document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+          closeDetailsPanel();
+        }
+      });
+
+      // Download chart as PNG image
+      // Exports the chart as a white-background PNG showing every project, not
+      // just whatever's currently scrolled into view via the dataZoom slider.
+      // The slider/inside zoom are temporarily expanded to the full category
+      // range and the slider is hidden, the y-axis is rescaled to fit the full
+      // (unzoomed) dataset, the image is captured, then the live chart's zoom
+      // and y-axis are restored so the on-screen view is left untouched.
+      function downloadChartImage(chartNum) {
+        const chart = chartNum === 1 ? chartInstance1 : chartNum === '1b' ? chartInstance1b : chartInstance2;
+        const chartName = chartNum === 1 ? 'EBP_Affiliates_Species_Count' : chartNum === '1b' ? 'EBP_Standard_Species_Count' : 'ERGA_Umbrella_Species_Count';
+
+        if (!chart) {
+          alert('Chart not available. Please wait for data to load.');
+          return;
+        }
+
+        const option = chart.getOption();
+        const categories = option.xAxis[0].data;
+        const seriesList = option.series;
+        const sliderDataZoom = option.dataZoom && option.dataZoom[0];
+        const insideDataZoom = option.dataZoom && option.dataZoom[1];
+
+        // Restore-state snapshot for the slider/y-axis we're about to override.
+        const prevSliderRange = sliderDataZoom ? { startValue: sliderDataZoom.startValue, endValue: sliderDataZoom.endValue } : null;
+        const prevInsideRange = insideDataZoom ? { startValue: insideDataZoom.startValue, endValue: insideDataZoom.endValue } : null;
+        const prevYAxisMax = option.yAxis[0].max;
+        const prevYAxisInterval = option.yAxis[0].interval;
+
+        if (sliderDataZoom) {
+          // y-axis max sized to the tallest stacked bar across ALL projects,
+          // not just the currently visible dataZoom window.
+          const stackedTotals = categories.map((_, i) => {
+            let total = 0;
+            seriesList.forEach(s => { total += s.data[i] || 0; });
+            return total;
+          });
+          const visibleMax = Math.max(0, ...stackedTotals);
+          const step = niceInterval(visibleMax * 1.1 || 1);
+          const niceMax = Math.max(step, Math.ceil((visibleMax * 1.1) / step) * step);
+
+          chart.setOption({
+            animation: false,
+            dataZoom: [
+              { startValue: 0, endValue: categories.length - 1, show: false },
+              { startValue: 0, endValue: categories.length - 1 }
+            ],
+            yAxis: { max: niceMax, interval: step }
+          });
+        }
+
+        const url = chart.getDataURL({
+          type: 'png',
+          pixelRatio: 2,
+          backgroundColor: '#ffffff'
+        });
+
+        if (sliderDataZoom) {
+          chart.setOption({
+            animation: false,
+            dataZoom: [
+              { ...prevSliderRange, show: true },
+              prevInsideRange
+            ],
+            yAxis: { max: prevYAxisMax, interval: prevYAxisInterval }
+          });
+          chart.setOption({ animation: true });
+        }
+
+        // Create download link
+        const link = document.createElement('a');
+        link.download = `${chartName}_${new Date().toISOString().split('T')[0]}.png`;
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      // Download data as CSV with annual totals. The per-year breakdown is fetched
+      // lazily (see ensureAnnualDataForProject) — backfill any projects the user
+      // hasn't already drilled into before building the export.
+      async function downloadCSV(chartNum) {
+        const chartData = chartNum === 1 ? chart1Data : chartNum === '1b' ? chart1bData : chart2Data;
+        const chartName = chartNum === 1 ? 'EBP_Affiliates_Species_Data' : chartNum === '1b' ? 'EBP_Standard_Species_Data' : 'ERGA_Umbrella_Species_Data';
+
+        if (!chartData || !chartData.categories || chartData.categories.length === 0) {
+          alert('Data not available. Please wait for data to load.');
+          return;
+        }
+
+        const isStandard = chartNum === '1b';
+        const annualDataSource = isStandard ? projectAnnualDataEbpStandard : projectAnnualData;
+
+        const btnId = chartNum === 1 ? 'downloadCSV1Btn' : chartNum === '1b' ? 'downloadCSV1bBtn' : 'downloadCSV2Btn';
+        const btn = document.getElementById(btnId);
+        const originalLabel = btn ? btn.innerHTML : null;
+        if (btn) {
+          btn.disabled = true;
+          btn.style.opacity = '0.6';
+          btn.lastChild.textContent = ' Preparing…';
+        }
+
+        try {
+          const missingProjects = chartData.categories.filter(p => !annualDataSource[p]);
+          const batchSize = 6;
+          for (let i = 0; i < missingProjects.length; i += batchSize) {
+            const batch = missingProjects.slice(i, i + batchSize);
+            await Promise.all(batch.map(p => ensureAnnualDataForProject(p, isStandard)));
+          }
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.style.opacity = '';
+            btn.innerHTML = originalLabel;
+          }
+        }
+
+        // Collect all unique years from all projects
+        const allYears = new Set();
+        chartData.categories.forEach(projectName => {
+          const annualData = annualDataSource[projectName];
+          if (annualData) {
+            Object.keys(annualData).forEach(year => allYears.add(year));
+          }
+        });
+        // Sort years in descending order (newest first)
+        const sortedYears = Array.from(allYears).sort((a, b) => b - a);
+        
+        // Build CSV content
+        // Header row - Total columns first, then year columns (descending)
+        let headerRow = 'Project,Contig,Scaffold,Chromosome,Complete Genome,Total';
+        sortedYears.forEach(year => {
+          headerRow += `,${year}`;
+        });
+        let csvContent = headerRow + '\n';
+        
+        // Find series by name
+        const findSeriesData = (name) => {
+          const series = chartData.series.find(s => s.name === name);
+          return series ? series.data : [];
+        };
+        
+        const contigData = findSeriesData('contig');
+        const scaffoldData = findSeriesData('scaffold');
+        const chromosomeData = findSeriesData('chromosome');
+        const completeGenomeData = findSeriesData('complete genome');
+        
+        // Data rows
+        chartData.categories.forEach((projectName, index) => {
+          const contig = contigData[index] || 0;
+          const scaffold = scaffoldData[index] || 0;
+          const chromosome = chromosomeData[index] || 0;
+          const completeGenome = completeGenomeData[index] || 0;
+          const total = contig + scaffold + chromosome + completeGenome;
+          
+          // Escape project name if it contains commas
+          const escapedName = projectName.includes(',') ? `"${projectName}"` : projectName;
+          
+          // Start with total counts
+          let row = `${escapedName},${contig},${scaffold},${chromosome},${completeGenome},${total}`;
+          
+          // Add annual totals
+          const annualData = annualDataSource[projectName] || {};
+          sortedYears.forEach(year => {
+            const yearData = annualData[year] || {};
+            const yearTotal = (yearData['contig'] || 0) + (yearData['scaffold'] || 0) + 
+                              (yearData['chromosome'] || 0) + (yearData['complete genome'] || 0);
+            row += `,${yearTotal}`;
+          });
+          
+          csvContent += row + '\n';
+        });
+        
+        // Create and trigger download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = `${chartName}_${new Date().toISOString().split('T')[0]}.csv`;
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
+    </script>
+    
+    <script>
+      // Set up download button listeners after DOM loads
+      document.addEventListener('DOMContentLoaded', function() {
+        // Chart 1 (EBP Affiliates) buttons
+        document.getElementById('downloadChart1Btn').addEventListener('click', function() {
+          downloadChartImage(1);
+        });
+        document.getElementById('downloadCSV1Btn').addEventListener('click', function() {
+          downloadCSV(1);
+        });
+
+        // Chart 1b (EBP Standard) buttons
+        document.getElementById('downloadChart1bBtn').addEventListener('click', function() {
+          downloadChartImage('1b');
+        });
+        document.getElementById('downloadCSV1bBtn').addEventListener('click', function() {
+          downloadCSV('1b');
+        });
+
+        // Chart 2 (ERGA) buttons
+        document.getElementById('downloadChart2Btn').addEventListener('click', function() {
+          downloadChartImage(2);
+        });
+        document.getElementById('downloadCSV2Btn').addEventListener('click', function() {
+          downloadCSV(2);
+        });
+      });
+    </script>
+  </body>
+</html>

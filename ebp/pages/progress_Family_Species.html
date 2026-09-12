@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <meta name="copyright" content="Data source: Genomes on a Tree (GoaT). Used with permission." /> -->
+    <meta name="author" content="Fang Chen" />
+    <title>EBP Progress</title>
+    <script src="../config.js"></script>
+    <script src="./echarts.min.js"></script>
+    <script src="./utils.js"></script>
+    <script src="./services.js"></script>
+    <style>
+      .page-title {
+        text-align: center;
+        font-weight: bold;
+        margin: 5vh 0 0 0 !important;
+        color: #333;
+        letter-spacing: 1px;
+        padding: 0;
+        font-size: 2.0vw;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2vh;
+        padding-bottom: 1vh;
+        margin-top: 5vh;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+      .column {
+        width: 100%;
+        max-width: 700px;
+        min-width: 320px;
+        box-sizing: border-box;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .chart-container {
+        width: 100%;
+        aspect-ratio: 16/9;
+        min-height: 300px;
+        max-height: 70vh;
+        margin: 0 auto 2vh auto;
+        position: relative;
+      }
+
+      /* Footer styles */
+      #footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        left: 0;
+        background-color: rgba(248, 249, 250, 0.95);
+        color: #333;
+        text-align: center;
+        padding: 5px;
+        z-index: 9999;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        font-size: 14px;
+      }
+
+      /* Container for centering and styling */
+      .select-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;  /* Align to bottom for consistent height */
+        margin: 30px 0 20px 0;  /* Increased top margin for more space below title */
+        position: relative;
+        z-index: 1;  /* Ensure it stays above other elements */
+        gap: 40px;  /* Increased gap between dropdown groups */
+      }
+
+      /* Select group styling */
+      .select-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .select-label {
+        font-size: 14px;
+        font-weight: bold;
+        color: #333;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        text-align: center;
+      }
+
+      /* Custom select style */
+      .custom-select {
+        position: relative;
+        display: inline-block;
+        width: 140px;  /* Increased width for better spacing */
+      }
+
+      .select-box {
+        appearance: none;
+        background-color: #ffffff;
+        border: 2px solid #cccccc;
+        border-radius: 8px;
+        padding: 5px 20px;  /* Reduced vertical padding from 10px to 5px */
+        font-size: 16px;
+        color: #333333;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        width: 100%;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+        height: 32px;  /* Added fixed height */
+        line-height: 20px;  /* Added line height for vertical centering */
+      }
+
+      .select-box::after {
+        content: '▼';
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 12px;
+        color: #888888;
+      }
+
+      .select-box:hover,
+      .select-box:focus {
+        border-color: #666666;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Dropdown list */
+      .options-container {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: #ffffff;
+        border: 2px solid #cccccc;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: none;
+        z-index: 999;
+        max-height: 180px;
+        overflow-y: auto;
+      }
+
+      .option {
+        padding: 5px 20px;  /* Reduced padding to match select box */
+        font-size: 16px;
+        color: #333333;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        font-family: Arial, sans-serif;
+        line-height: 20px;  /* Added line height for consistency */
+      }
+
+      .option:hover {
+        background-color: #f0f0f0;
+      }
+
+      /* Show options on click */
+      .custom-select.active .options-container {
+        display: block;
+      }
+
+      @media (max-width: 900px) {
+        .container {
+          flex-direction: column;
+          gap: 2vh;
+        }
+        .column {
+          max-width: 100%;
+        }
+        .page-title {
+          font-size: 4vw;
+        }
+      }
+
+      @media (min-width: 2000px) {
+        .chart-container {
+          max-width: 1200px;
+          max-height: 60vh;
+        }
+        .page-title {
+          font-size: 1.5vw;
+        }
+      }
+
+      /* Download buttons container */
+      .download-buttons {
+        display: none;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 0px;
+        margin-bottom: 10px;
+        position: relative;
+        z-index: 100;
+      }
+      .download-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 40px;
+        padding: 0 20px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #1E293B;
+        background-color: #ffffff;
+        border: 1px solid #CBD5E1;
+        border-radius: 25px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        cursor: pointer;
+        transition: background-color 0.15s;
+        pointer-events: auto;
+      }
+      .download-btn:hover {
+        background-color: #F1F5F9;
+      }
+      .download-btn.csv-btn svg {
+        fill: #16a34a;
+      }
+      .download-btn svg {
+        width: 16px;
+        height: 16px;
+        fill: #1E293B;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 class="page-title">Annual EBP progress</h1>
+    <div class="select-container">
+      <div class="select-group">
+        <label class="select-label">Data Type</label>
+        <div class="custom-select">
+          <div class="select-box">Cumulative</div>
+          <div class="options-container">
+            <div class="option">Cumulative</div>
+            <div class="option">Actual</div>
+            <div class="option">YoY Growth</div>
+          </div>
+        </div>
+      </div>
+      <div class="select-group">
+        <label class="select-label">Start Year</label>
+        <div class="custom-select">
+          <div class="select-box">2018</div>
+          <div class="options-container">
+            <div class="option">2009</div>
+            <div class="option">2010</div>
+            <div class="option">2011</div>
+            <div class="option">2012</div>
+            <div class="option">2013</div>
+            <div class="option">2014</div>
+            <div class="option">2015</div>
+            <div class="option">2016</div>
+            <div class="option">2017</div>
+            <div class="option">2018</div>
+            <div class="option">2019</div>
+            <div class="option">2020</div>
+            <div class="option">2021</div>
+            <div class="option">2022</div>
+            <div class="option">2023</div>
+            <div class="option">2024</div>
+            <div class="option">2025</div>
+            <div class="option">2026</div>
+          </div>
+        </div>
+      </div>
+      <div class="select-group">
+        <label class="select-label">End Year</label>
+        <div class="custom-select">
+          <div class="select-box">2026</div>
+          <div class="options-container">
+            <div class="option">2009</div>
+            <div class="option">2010</div>
+            <div class="option">2011</div>
+            <div class="option">2012</div>
+            <div class="option">2013</div>
+            <div class="option">2014</div>
+            <div class="option">2015</div>
+            <div class="option">2016</div>
+            <div class="option">2017</div>
+            <div class="option">2018</div>
+            <div class="option">2019</div>
+            <div class="option">2020</div>
+            <div class="option">2021</div>
+            <div class="option">2022</div>
+            <div class="option">2023</div>
+            <div class="option">2024</div>
+            <div class="option">2025</div>
+            <div class="option">2026</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="column">
+        <!-- Species Progress -->
+        <!-- <div id="speciesProgressContainer1" class="chart-container"></div>
+        <div id="speciesProgressContainer2" class="chart-container"></div>
+        <div id="speciesProgressContainer3" class="chart-container"></div> -->
+        <div id="speciesProgressContainer" class="chart-container"></div>
+        <div class="download-buttons" id="downloadButtonsSpecies">
+          <button type="button" class="download-btn" id="downloadChartSpeciesBtn">
+            <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+            Download Chart
+          </button>
+          <button type="button" class="download-btn csv-btn" id="downloadCSVSpeciesBtn">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+            Download Data (CSV)
+          </button>
+        </div>
+      </div>
+      <div class="column">
+        <!-- Assembly Span Progress -->
+        <div id="assemblySpanProgressContainer" class="chart-container"></div>
+        <div class="download-buttons" id="downloadButtonsAssemblySpan">
+          <button type="button" class="download-btn" id="downloadChartAssemblySpanBtn">
+            <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+            Download Chart
+          </button>
+          <button type="button" class="download-btn csv-btn" id="downloadCSVAssemblySpanBtn">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+            Download Data (CSV)
+          </button>
+        </div>
+      </div>
+      <div class="column">
+        <!-- Family Progress -->
+        <!-- <div id="familyProgressContainer1" class="chart-container"></div>
+        <div id="familyProgressContainer2" class="chart-container"></div>
+        <div id="familyProgressContainer3" class="chart-container"></div> -->
+        <div id="familyProgressContainer" class="chart-container"></div>
+        <div class="download-buttons" id="downloadButtonsFamily">
+          <button type="button" class="download-btn" id="downloadChartFamilyBtn">
+            <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+            Download Chart
+          </button>
+          <button type="button" class="download-btn csv-btn" id="downloadCSVFamilyBtn">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+            Download Data (CSV)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="footer">
+        <div id="copyright">Data source: <a href="https://goat.genomehubs.org" target="_blank" rel="noopener noreferrer">Genomes on a Tree (GoaT)</a>. Used with permission.</div>
+    </div>
+
+    <script>
+      console.log('=== SCRIPT LOADING ===');
+      const familyDataMap = {}
+      const speciesDataMap = {}
+      const assemblySpanDataMap = {}
+      let activeType = 'Cumulative'
+      let startYear = 2018
+      let endYear = 2026
+      const DATA_START_YEAR = 2009 // Earliest year offered by the Start Year dropdown
+      let familyChart = null
+      let speciesChart = null
+      let assemblySpanChart = null
+      
+      // Test function to run directly in console
+      function testSpeciesAPI() {
+        console.log('Testing species API...');
+        const testUrl = "https://goat.genomehubs.org/api/v2/search?query=bioproject%3DPRJNA533106%20AND%20tax_rank%28species%29&result=taxon&includeEstimates=true&taxonomy=ncbi&size=100&offset=0&fields=assembly_date%2Cassembly_level%2Cassembly_span";
+        
+        return fetch(testUrl)
+          .then(response => {
+            console.log('API Response Status:', response.status);
+            return response.json();
+          })
+          .then(data => {
+            console.log('API Response Data:', data);
+            console.log('Results count:', data.results ? data.results.length : 'No results');
+            if (data.results && data.results.length > 0) {
+              console.log('First result:', data.results[0]);
+              console.log('First result fields:', Object.keys(data.results[0]));
+            }
+            return data;
+          })
+          .catch(error => {
+            console.error('API Error:', error);
+            throw error;
+          });
+      }
+      
+      // Test function for family API
+      function testFamilyAPI() {
+        console.log('Testing family API...');
+        const testUrl = "https://goat.genomehubs.org/api/v2/search?query=bioproject%3DPRJNA533106%20AND%20tax_rank%28family%29&result=taxon&includeEstimates=true&taxonomy=ncbi&size=100&offset=0&fields=assembly_date%2Cassembly_level%2Cassembly_span";
+        
+        return fetch(testUrl)
+          .then(response => {
+            console.log('Family API Response Status:', response.status);
+            return response.json();
+          })
+          .then(data => {
+            console.log('Family API Response Data:', data);
+            console.log('Family results count:', data.results ? data.results.length : 'No results');
+            if (data.results && data.results.length > 0) {
+              console.log('First family result:', data.results[0]);
+              console.log('First family result fields:', Object.keys(data.results[0]));
+            }
+            return data;
+          })
+          .catch(error => {
+            console.error('Family API Error:', error);
+            throw error;
+          });
+      }
+
+      // Cache management functions
+      function clearCache() {
+        localStorage.removeItem('ebp_search_data_v1');
+        console.log('Cache cleared');
+      }
+      
+      // Helper function to get effective start year based on user selection and data availability
+      function getEffectiveStartYear(dataType) {
+        return Math.max(startYear, DATA_START_YEAR);
+      }
+
+      // Helper function to validate year range
+      function validateYearRange() {
+        if (startYear > endYear) {
+          console.warn(`Start year (${startYear}) is greater than end year (${endYear}). Swapping values.`);
+          const temp = startYear;
+          startYear = endYear;
+          endYear = temp;
+          
+          // Update the UI to reflect the swap
+          updateYearDropdowns();
+        }
+      }
+
+      // Prepend zero-value bins so `category` begins at DATA_START_YEAR even when the
+      // Report API omits leading years. Mutates and returns `data`.
+      function padLeadingYears(data, targetStartYear = DATA_START_YEAR) {
+        if (!data || !Array.isArray(data.category) || data.category.length === 0) return data;
+
+        const currentStartYear = data.category[0];
+        const missingYears = currentStartYear - targetStartYear;
+        if (missingYears <= 0) return data;
+
+        const leadingYears = Array.from({ length: missingYears }, (_, i) => targetStartYear + i);
+        data.category = [...leadingYears, ...data.category];
+
+        if (Array.isArray(data.series)) {
+          data.series.forEach(s => {
+            if (Array.isArray(s.data)) {
+              const zeros = Array.from({ length: missingYears }, () => 0);
+              s.data = [...zeros, ...s.data];
+            }
+          });
+        }
+
+        return data;
+      }
+
+      // Helper function to convert actual data to cumulative data
+      function calculateCumulativeFromActual(actualData) {
+        const cumulativeData = {
+          category: actualData.category,
+          series: [],
+          tableName: actualData.tableName.replace('(Actual)', '(Cumulative)')
+        };
+        
+        // For each series (assembly level)
+        actualData.series.forEach(actualSeries => {
+          const cumulativeSeries = {
+            ...actualSeries,
+            data: []
+          };
+          
+          // Calculate cumulative sum
+          let cumSum = 0;
+          actualSeries.data.forEach(value => {
+            cumSum += value;
+            cumulativeSeries.data.push(cumSum);
+          });
+          
+          // Update description with total
+          cumulativeSeries.description = formatNumber(cumSum);
+          cumulativeData.series.push(cumulativeSeries);
+        });
+        
+        return cumulativeData;
+      }
+
+      // Helper function to recalculate cumulative data for filtered year range
+      function recalculateCumulativeForYearRange(actualData, startYear, endYear) {
+        const dataStartYear = (actualData.category && actualData.category.length > 0) ? actualData.category[0] : DATA_START_YEAR;
+        const startIndex = startYear - dataStartYear;
+        const endIndex = endYear - dataStartYear;
+        
+        const cumulativeData = {
+          category: actualData.category.slice(startIndex, endIndex + 1),
+          series: [],
+          tableName: actualData.tableName.replace('(Actual)', '(Cumulative)')
+        };
+        
+        // For each series (assembly level)
+        actualData.series.forEach(actualSeries => {
+          const cumulativeSeries = {
+            ...actualSeries,
+            data: []
+          };
+
+          // Accumulate from the very start of all data so pre-display years are included in totals
+          let cumSum = 0;
+          actualSeries.data.forEach((value, i) => {
+            cumSum += value;
+            if (i >= startIndex && i <= endIndex) {
+              cumulativeSeries.data.push(cumSum);
+            }
+          });
+
+          // Description shows the cumulative total at the last displayed year
+          const lastValue = cumulativeSeries.data[cumulativeSeries.data.length - 1] || 0;
+          cumulativeSeries.description = formatNumber(lastValue);
+          cumulativeData.series.push(cumulativeSeries);
+        });
+        
+        return cumulativeData;
+      }
+
+      // Make them available globally
+      window.testSpeciesAPI = testSpeciesAPI;
+      window.testFamilyAPI = testFamilyAPI;
+      window.clearCache = clearCache;
+      // Function to initialize all three charts after all data is loaded
+      function initializeChartsAfterDataLoaded() {
+        // Check if all three datasets are available
+        if (familyDataMap[activeType] && speciesDataMap[activeType] && assemblySpanDataMap[activeType]) {
+          console.log('All three datasets loaded, initializing charts...');
+
+          speciesChart = initEchart(speciesDataMap[activeType], 'speciesProgressContainer', `Count of Species (${activeType})`);
+          assemblySpanChart = initEchart(assemblySpanDataMap[activeType], 'assemblySpanProgressContainer', `Assembly Span (${activeType})`);
+          familyChart = initEchart(familyDataMap[activeType], 'familyProgressContainer', `Count of Families (${activeType})`);
+
+          hideLoadingIndicator('speciesProgressContainer');
+          hideLoadingIndicator('assemblySpanProgressContainer');
+          hideLoadingIndicator('familyProgressContainer');
+
+          // Show download buttons after all charts are ready
+          document.getElementById('downloadButtonsSpecies').style.display = 'flex';
+          document.getElementById('downloadButtonsAssemblySpan').style.display = 'flex';
+          document.getElementById('downloadButtonsFamily').style.display = 'flex';
+        }
+      }
+
+      // Fetch all species records with assembly_span via paginated Search API
+      async function fetchAllSpeciesForSpan() {
+        const pageSize = 5000;
+        let offset = 0;
+        let allResults = [];
+        let hasMoreData = true;
+
+        while (hasMoreData) {
+          const url = `https://goat.genomehubs.org/api/v2/search?query=bioproject%3DPRJNA533106%20AND%20tax_rank%28species%29&result=taxon&includeEstimates=true&taxonomy=ncbi&size=${pageSize}&offset=${offset}&fields=assembly_date%2Cassembly_level%2Cassembly_span`;
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          const data = await response.json();
+
+          if (data.results && data.results.length > 0) {
+            allResults = allResults.concat(data.results);
+            if (data.results.length >= pageSize) {
+              offset += pageSize;
+            } else {
+              hasMoreData = false;
+            }
+          } else {
+            hasMoreData = false;
+          }
+
+          // Safety cap
+          if (offset > 50000) {
+            console.warn('fetchAllSpeciesForSpan: stopped after 50,000 records');
+            break;
+          }
+        }
+
+        console.log(`fetchAllSpeciesForSpan: loaded ${allResults.length} records`);
+        return allResults;
+      }
+
+      // Build { category, series, tableName } for assembly span from raw Search API results
+      function buildAssemblySpanData(results) {
+        const assemblyLevels = ['contig', 'scaffold', 'chromosome', 'complete genome'];
+        const colors = {
+          'contig': '#b8860b',
+          'scaffold': '#22a884',
+          'chromosome': '#404387',
+          'complete genome': '#7ad151'
+        };
+        const years = Array.from({length: 2026 - DATA_START_YEAR + 1}, (_, i) => DATA_START_YEAR + i);
+
+        // Accumulate span values per level per year
+        const spanByLevelByYear = {};
+        assemblyLevels.forEach(level => {
+          spanByLevelByYear[level] = {};
+          years.forEach(y => { spanByLevelByYear[level][y] = 0; });
+        });
+
+        results.forEach(item => {
+          const fields = item.result.fields;
+          const assemblyLevel = fields.assembly_level;
+          const assemblySpan = fields.assembly_span;
+          const assemblyDate = fields.assembly_date;
+
+          if (!assemblyLevel || !assemblyLevel.value) return;
+          if (!assemblySpan || !assemblySpan.value) return;
+          if (!assemblyDate || !assemblyDate.value) return;
+
+          const level = assemblyLevel.value.toLowerCase();
+          if (!spanByLevelByYear.hasOwnProperty(level)) return;
+
+          const year = new Date(assemblyDate.value).getUTCFullYear();
+          if (year < DATA_START_YEAR || year > 2026) return;
+
+          spanByLevelByYear[level][year] += assemblySpan.value;
+        });
+
+        const series = assemblyLevels.map(level => {
+          const data = years.map(y => spanByLevelByYear[level][y]);
+          const total = data.reduce((sum, v) => sum + v, 0);
+          return {
+            name: level,
+            type: 'bar',
+            stack: 'total',
+            label: { show: false },
+            itemStyle: { color: colors[level] },
+            barGap: '1px',
+            barCategoryGap: '1px',
+            data,
+            description: formatNumber(total)
+          };
+        });
+
+        return { category: years, series, tableName: 'Assembly Span (Actual)' };
+      }
+
+      // Build YoY growth series for assembly span
+      function buildAssemblySpanYoYData(actualData) {
+        const percentSeries = actualData.series.map(s => {
+          const growthData = s.data.map((val, i) => {
+            if (i === 0) return val > 0 ? 100 : 0;
+            const prev = s.data[i - 1];
+            if (prev === 0) return val > 0 ? 100 : 0;
+            return parseFloat(((val - prev) / prev * 100).toFixed(2));
+          });
+          return {
+            ...s,
+            data: growthData,
+            description: formatNumber(0)
+          };
+        });
+        return {
+          category: actualData.category,
+          series: percentSeries,
+          tableName: 'Assembly Span (YoY Growth)'
+        };
+      }
+
+      window.onload = function () {
+        console.log('=== WINDOW.ONLOAD STARTED ===');
+        console.log('Active type:', activeType);
+        
+        // Show loading indicators for all three charts
+        showLoadingIndicator('familyProgressContainer');
+        showLoadingIndicator('speciesProgressContainer');
+        showLoadingIndicator('assemblySpanProgressContainer');
+        
+        // Family Progress - Load data from Report API (matches GoaT exactly)
+        console.log('Starting family data fetch from Report API...');
+        const familyReportUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=assembly_date%20AND%20bioproject%3DPRJNA533106&rank=family&result=taxon&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&taxonomy=ncbi";
+        
+        // Load data from Report API and calculate cumulative from it
+        console.log('Loading family data from Report API...');
+        const familyDataPromise = window.getFamilyReportData(familyReportUrl).then(({defaultData, percentData}) => {
+          console.log('Family report data loaded, calculating cumulative...');
+
+          // Pad leading years so the x-axis starts at DATA_START_YEAR even when the
+          // Report API omits 2009 (and/or 2010). Pad before deriving cumulative data.
+          padLeadingYears(defaultData);
+          padLeadingYears(percentData);
+
+          // Calculate cumulative from actual data
+          const cumulativeData = calculateCumulativeFromActual(defaultData);
+
+          // Store all three data types
+          familyDataMap['Actual'] = defaultData;
+          familyDataMap['YoY Growth'] = percentData;
+          familyDataMap['Cumulative'] = cumulativeData;
+          
+          console.log('Family cumulative data calculated from report data');
+          console.log('Sample cumulative data for verification:', cumulativeData);
+          
+          // Try to initialize charts after family data is loaded
+          initializeChartsAfterDataLoaded();
+        }).catch(error => {
+          console.error('Error loading family report data:', error);
+          // Show error message for family chart
+          showErrorMessage('familyProgressContainer', 'family');
+        });
+
+        // Species Progress - Load data from Report API (matches GoaT exactly)
+        console.log('=== STARTING SPECIES SECTION ===');
+        const speciesReportUrl = "https://goat.genomehubs.org/api/v2/report?report=histogram&x=assembly_date%20AND%20bioproject%3DPRJNA533106&rank=species&result=taxon&cat=assembly_level%3Dcontig%2Cscaffold%2Cchromosome%2Ccomplete%20genome&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&stacked=true&xOpts=%2C%2C1%2C%2CAssembly%20date&taxonomy=ncbi";
+        
+        console.log('Starting species data fetch from Report API...');
+        console.log('Species Report URL:', speciesReportUrl);
+        
+        // Load data from Report API and calculate cumulative from it
+        console.log('Loading species data from Report API...');
+        const speciesDataPromise = window.getSpeciesReportData(speciesReportUrl).then(({defaultData, percentData}) => {
+          console.log('Species report data loaded, calculating cumulative...');
+
+          // Calculate cumulative from actual data
+          const cumulativeData = calculateCumulativeFromActual(defaultData);
+
+          // Store all three data types
+          speciesDataMap['Actual'] = defaultData;
+          speciesDataMap['YoY Growth'] = percentData;
+          speciesDataMap['Cumulative'] = cumulativeData;
+
+          console.log('Species cumulative data calculated from report data');
+          console.log('Sample cumulative data for verification:', cumulativeData);
+
+          // Try to initialize charts after species data is loaded
+          initializeChartsAfterDataLoaded();
+        }).catch(error => {
+          console.error('Error loading species report data:', error);
+          // Hide loading indicator on error and show error message
+          hideLoadingIndicator('speciesProgressContainer');
+          showErrorMessage('speciesProgressContainer', 'species');
+        });
+
+        // Assembly Span Progress - Load via paginated Search API
+        console.log('Starting assembly span data fetch from Search API...');
+        const spanDataPromise = fetchAllSpeciesForSpan().then(results => {
+          console.log('Assembly span data loaded, building chart data...');
+
+          const defaultData = buildAssemblySpanData(results);
+          const percentData = buildAssemblySpanYoYData(defaultData);
+          const cumulativeData = calculateCumulativeFromActual(defaultData);
+
+          assemblySpanDataMap['Actual'] = defaultData;
+          assemblySpanDataMap['YoY Growth'] = percentData;
+          assemblySpanDataMap['Cumulative'] = cumulativeData;
+
+          console.log('Assembly span data ready');
+
+          // Try to initialize charts after assembly span data is loaded
+          initializeChartsAfterDataLoaded();
+        }).catch(error => {
+          console.error('Error loading assembly span data:', error);
+          showErrorMessage('assemblySpanProgressContainer', 'assembly span');
+        });
+      };
+
+      // Helper function to apply consistent ordering to series data
+      function applyConsistentOrdering(seriesData, containerId) {
+        // Define consistent color mapping based on assembly level names
+        const assemblyLevelColors = {
+          'contig': '#b8860b',        // dark amber
+          'scaffold': '#22a884',     // teal
+          'chromosome': '#404387',   // dark blue
+          'complete genome': '#7ad151' // green
+        };
+
+        // Apply consistent colors to series based on their names
+        let seriesWithColors = seriesData.map(series => ({
+          ...series,
+          itemStyle: {
+            color: assemblyLevelColors[series.name] || '#cccccc' // fallback color
+          }
+        }));
+
+        // Both charts now use the same consistent order: contig, scaffold, chromosome, complete genome
+        return seriesWithColors;
+      }
+
+      function checkoutChart(type) {
+        if(activeType === type) return;
+        
+        // All data is now loaded upfront, so just switch views directly
+        switchToView(type);
+      }
+      
+      function checkoutStartYear(year) {
+        const newStartYear = parseInt(year);
+        if(startYear === newStartYear) return;
+
+        startYear = newStartYear;
+        validateYearRange();
+        console.log(`Start year changed to: ${startYear}`);
+
+        // Reinitialize charts with new year range
+        if (familyChart && speciesChart && assemblySpanChart) {
+          switchToView(activeType);
+        }
+      }
+
+      function checkoutEndYear(year) {
+        const newEndYear = parseInt(year);
+        if(endYear === newEndYear) return;
+
+        endYear = newEndYear;
+        validateYearRange();
+        console.log(`End year changed to: ${endYear}`);
+
+        // Reinitialize charts with new year range
+        if (familyChart && speciesChart && assemblySpanChart) {
+          switchToView(activeType);
+        }
+      }
+      
+      function switchToView(type) {
+        const familyOption = familyChart.getOption();
+        const speciesOption = speciesChart.getOption();
+        const assemblySpanOption = assemblySpanChart.getOption();
+        familyOption.yAxis[0].name = `Count of Families (${type})`;
+        speciesOption.yAxis[0].name = `Count of Species (${type})`;
+        assemblySpanOption.yAxis[0].name = `Assembly Span (${type})`;
+
+        // Update activeType before calculating start year
+        activeType = type;
+
+        // Calculate optimal start year for each chart independently
+        const familyStartYear = findOptimalStartYearForData(familyDataMap[type], 'Family');
+        const speciesStartYear = findOptimalStartYearForData(speciesDataMap[type], 'Species');
+        const assemblySpanStartYear = findOptimalStartYearForData(assemblySpanDataMap[type], 'AssemblySpan');
+
+        console.log(`Switching to ${type}: Family starts ${familyStartYear}, Species starts ${speciesStartYear}, AssemblySpan starts ${assemblySpanStartYear}, End year: ${endYear}`);
+
+        // Generate year ranges for each chart using the selected end year
+        const familyYearRange = Array.from({length: endYear - familyStartYear + 1}, (_, i) => familyStartYear + i);
+        const speciesYearRange = Array.from({length: endYear - speciesStartYear + 1}, (_, i) => speciesStartYear + i);
+        const assemblySpanYearRange = Array.from({length: endYear - assemblySpanStartYear + 1}, (_, i) => assemblySpanStartYear + i);
+
+        // Update x-axis data with independent year ranges
+        familyOption.xAxis[0].data = familyYearRange;
+        speciesOption.xAxis[0].data = speciesYearRange;
+        assemblySpanOption.xAxis[0].data = assemblySpanYearRange;
+
+        // Get the appropriate data based on type
+        let familySeries, speciesSeries, assemblySpanSeries;
+
+        if (type === 'Cumulative') {
+          // Recalculate cumulative data for the selected year range
+          const familyCumulativeData = recalculateCumulativeForYearRange(familyDataMap['Actual'], familyStartYear, endYear);
+          const speciesCumulativeData = recalculateCumulativeForYearRange(speciesDataMap['Actual'], speciesStartYear, endYear);
+          const assemblySpanCumulativeData = recalculateCumulativeForYearRange(assemblySpanDataMap['Actual'], assemblySpanStartYear, endYear);
+
+          familySeries = familyCumulativeData.series;
+          speciesSeries = speciesCumulativeData.series;
+          assemblySpanSeries = assemblySpanCumulativeData.series;
+        } else {
+          // For Actual and YoY Growth, trim the existing data
+          familySeries = trimSeriesToStartYear(familyDataMap[type].series, familyStartYear, 'familyProgressContainer', familyDataMap['Actual'].category[0]);
+          speciesSeries = trimSeriesToStartYear(speciesDataMap[type].series, speciesStartYear, 'speciesProgressContainer', speciesDataMap['Actual'].category[0]);
+          assemblySpanSeries = trimSeriesToStartYear(assemblySpanDataMap[type].series, assemblySpanStartYear, 'assemblySpanProgressContainer', assemblySpanDataMap['Actual'].category[0]);
+        }
+
+        // Apply consistent ordering to series data
+        familyOption.series = applyConsistentOrdering(familySeries, 'familyProgressContainer');
+        speciesOption.series = applyConsistentOrdering(speciesSeries, 'speciesProgressContainer');
+        assemblySpanOption.series = applyConsistentOrdering(assemblySpanSeries, 'assemblySpanProgressContainer');
+
+        familyChart.setOption(familyOption);
+        speciesChart.setOption(speciesOption);
+        assemblySpanChart.setOption(assemblySpanOption);
+      }
+      
+      // Helper function to format numbers (used in calculateCumulativeFromActual)
+      function formatNumber(num) {
+        if (typeof num !== 'number') return num;
+        return num.toLocaleString();
+      }
+      
+      // Generic loading indicator functions for both charts
+      function showLoadingIndicator(containerId) {
+        const container = document.getElementById(containerId);
+        if (container) {
+          container.innerHTML = `
+            <div style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              height: 100%;
+              font-family: Arial, sans-serif;
+              color: #333;
+              background-color: #f9f9f9;
+              border-radius: 8px;
+            ">
+              <div style="
+                width: 60px;
+                height: 60px;
+                border: 6px solid #e3e3e3;
+                border-top: 6px solid #3498db;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin-bottom: 20px;
+              "></div>
+              <div style="
+                font-size: 16px;
+                font-weight: normal;
+                color: #666;
+              ">Fetching data...</div>
+            </div>
+            <style>
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            </style>
+          `;
+        }
+      }
+      
+      function hideLoadingIndicator(containerId) {
+        // Don't clear the container - let echarts.init() handle replacing the content
+        // The loading indicator will be automatically replaced when the chart is initialized
+      }
+      
+      function showErrorMessage(containerId, dataType) {
+        const container = document.getElementById(containerId);
+        if (container) {
+          container.innerHTML = `
+            <div style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              height: 100%;
+              font-family: Arial, sans-serif;
+              color: #e74c3c;
+              background-color: #fdf2f2;
+              border-radius: 8px;
+              border: 1px solid #f8d7da;
+            ">
+              <div style="
+                font-size: 18px;
+                margin-bottom: 10px;
+                font-weight: bold;
+              ">Failed to load ${dataType} data</div>
+              <div style="
+                font-size: 14px;
+                color: #721c24;
+                text-align: center;
+              ">Please try refreshing the page</div>
+            </div>
+          `;
+        }
+      }
+
+      // Backward compatibility functions (deprecated)
+      function showSpeciesLoadingIndicator() {
+        showLoadingIndicator('speciesProgressContainer');
+      }
+      
+      function hideSpeciesLoadingIndicator() {
+        hideLoadingIndicator('speciesProgressContainer');
+      }
+      
+      function showSpeciesErrorMessage() {
+        showErrorMessage('speciesProgressContainer', 'species');
+      }
+
+      // Function to update year dropdown displays
+      function updateYearDropdowns() {
+        const allSelectBoxes = document.querySelectorAll('.select-box');
+        const startYearBox = allSelectBoxes[1]; // Second dropdown (Start Year)
+        const endYearBox = allSelectBoxes[2];   // Third dropdown (End Year)
+        if (startYearBox) startYearBox.textContent = startYear;
+        if (endYearBox) endYearBox.textContent = endYear;
+      }
+
+      // Honor the user's selected Start Year. The axis begins at the user's choice
+      // (clamped to DATA_START_YEAR) even if leading bins are zero, so picks like
+      // 2009/2010 are respected rather than snapped to the first non-zero year.
+      function findOptimalStartYearForData(data, dataType) {
+        const effectiveStartYear = getEffectiveStartYear(dataType);
+        console.log(`${dataType} using start year: ${effectiveStartYear}`);
+        return effectiveStartYear;
+      }
+
+      // Function to find the optimal start year (takes the later of family and species start years)
+      function findOptimalStartYear() {
+        // Check if both data sets are available
+        if (!familyDataMap[activeType] || !speciesDataMap[activeType]) {
+          return 2004; // Use family start year as default since it's later
+        }
+        
+        const familyStartYear = findOptimalStartYearForData(familyDataMap[activeType], 'Family');
+        const speciesStartYear = findOptimalStartYearForData(speciesDataMap[activeType], 'Species');
+        
+        // Use the later of the two start years to ensure both charts have meaningful data
+        const optimalStartYear = Math.max(familyStartYear, speciesStartYear);
+        console.log(`Combined optimal start year: ${optimalStartYear} (Family: ${familyStartYear}, Species: ${speciesStartYear})`);
+        
+        return optimalStartYear;
+      }
+
+      // Function to trim series data to match the user's selected year range
+      function trimSeriesToStartYear(series, startYear, containerId, dataStartYear = DATA_START_YEAR) {
+        const startIndex = Math.max(0, startYear - dataStartYear);
+        const endIndex = endYear - dataStartYear + 1; // +1 because slice end is exclusive
+
+        console.log(`Trimming ${containerId}: dataStartYear=${dataStartYear}, userStartYear=${startYear}, endYear=${endYear}, startIndex=${startIndex}, endIndex=${endIndex}`);
+
+        return series.map(s => ({
+          ...s,
+          data: s.data.slice(startIndex, endIndex)
+        }));
+      }
+
+      function initEchart(data, containerId, yLabel) {
+        const chartDom = document.getElementById(containerId);
+        const myChart = echarts.init(chartDom);
+
+        // Determine optimal start year for this specific chart
+        const dataType = containerId === 'familyProgressContainer' ? 'Family' :
+                         containerId === 'assemblySpanProgressContainer' ? 'AssemblySpan' : 'Species';
+        const chartStartYear = findOptimalStartYearForData(data, dataType);
+        
+        console.log(`${dataType} chart using start year: ${chartStartYear}, end year: ${endYear}`);
+        
+        // Generate year range from optimal start year to selected end year
+        const yearRange = Array.from({length: endYear - chartStartYear + 1}, (_, i) => chartStartYear + i);
+
+        // Trim series data to match the optimal start year
+        const trimmedSeries = trimSeriesToStartYear(data.series, chartStartYear, containerId, data.category[0]);
+
+        // Apply consistent ordering and colors to series data using helper function
+        const seriesWithColors = applyConsistentOrdering(trimmedSeries, containerId);
+
+        // Get the actual order of categories from the reordered series
+        const actualOrder = seriesWithColors.map(series => series.name);
+        
+        // Use the same order for legend as the reordered series (contig before chromosome for species chart)
+        const legendOrder = [...actualOrder];
+        
+        // Define consistent color mapping for the color array
+        const assemblyLevelColors = {
+          'contig': '#b8860b',        // dark amber
+          'scaffold': '#22a884',     // teal
+          'chromosome': '#404387',   // dark blue
+          'complete genome': '#7ad151' // green
+        };
+        
+        // Create colors array in the same order as the reordered series
+        const orderedColors = actualOrder.map(name => assemblyLevelColors[name] || '#cccccc');
+
+        const option = {
+          legend: {
+            show: true,
+            selectedMode: false,
+            data: legendOrder, // Use custom legend order for species chart
+            textStyle: {
+              color: '#000',
+              fontSize: 14,
+              fontWeight: 'bold',
+            }
+          },
+          color: orderedColors, // Use consistent colors in the right order
+          grid: {
+            left: '7%',  // Decreased left margin
+            right: '2%',
+            bottom: '3%',
+            containLabel: true
+          },
+          yAxis: {
+            type: "value",
+            name: yLabel,
+            nameLocation: 'middle',
+            nameRotate: 90,
+            nameGap: 45,  // Adjust gap to bring label closer
+            nameTextStyle: {
+              fontWeight: 'bold',
+              fontSize: 14,
+            },
+            axisLine: {
+              show: true,
+              lineStyle: {
+                color: "#000",
+                width: 1,
+              },
+            },
+            axisLabel: {
+              show: true,
+              color: "#000",
+              fontSize: 12,
+              margin: 5, // Move labels closer to the axis
+              formatter: function(value) {
+                if (containerId === 'assemblySpanProgressContainer') {
+                  return (value / 1e12).toFixed(1) + 'T';
+                }
+                return value.toLocaleString();
+              }
+            },
+            splitLine: {
+              show: true,
+              lineStyle: {
+                color: '#ccc'
+              }
+            },
+          },
+          xAxis: {
+            type: "category",
+            data: yearRange, // Use dynamic year range based on data
+            axisLine: {
+              show: true,
+              lineStyle: {
+                color: "#000",
+                width: 1,
+              },
+            },
+            axisLabel: {
+              show: true,
+              color: "#000",
+              fontSize: 12,
+              interval: function(index, value) {
+                // Show label only if the year is even (2006, 2008, 2010, etc.)
+                return parseInt(value) % 2 === 0;
+              },
+              rotate: 0,  // Rotate labels for better readability
+            },
+            splitLine: {
+              show: false,
+            },
+          },
+          tooltip: {
+            trigger: "axis",
+            position: function (point, params, dom, rect, size) {
+              // Get the chart container width
+              var chartWidth = size.viewSize[0];
+              var tooltipWidth = size.contentSize[0];
+              var tooltipHeight = size.contentSize[1];
+              
+              // Position tooltip on the right side of the chart
+              // If there's enough space on the right, position it there
+              // Otherwise, position it on the left side of the mouse
+              var x = point[0] + 20; // 20px offset from mouse
+              if (x + tooltipWidth > chartWidth) {
+                x = point[0] - tooltipWidth - 20; // Position on left if not enough space on right
+              }
+              
+              // Keep tooltip within vertical bounds
+              var y = point[1] - tooltipHeight / 2;
+              if (y < 0) y = 0;
+              if (y + tooltipHeight > size.viewSize[1]) y = size.viewSize[1] - tooltipHeight;
+              
+              return [x, y];
+            },
+            formatter: function (params) {
+              // For total calculation
+              if (!activeType.includes('YoY Growth')) {
+                var categoryMap = {};
+                params.forEach(function (item) {
+                  var category = item.name;
+                  var value = item.value;
+
+                  if (!categoryMap[category]) {
+                    categoryMap[category] = 0;
+                  }
+
+                  categoryMap[category] += value;
+                });
+
+                var totalStr = "";
+                for (var category in categoryMap) {
+                  totalStr += "Total (" + category + "): " + categoryMap[category].toLocaleString() + "<br/>";
+                }
+
+                var res = params
+                  .map(function (item) {
+                    return item.seriesName + ": " + item.value.toLocaleString();
+                  })
+                  .join("<br/>");
+
+                return totalStr + res;
+              }
+
+              var res = params
+                .map(function (item) {
+                  return item.seriesName + ": " + item.value.toLocaleString() + (activeType.includes('YoY Growth') ? '%' : '');
+                })
+                .join("<br/>");
+
+              return res;
+            },
+          },
+          series: seriesWithColors, // Use series with consistent colors
+        };
+        myChart.setOption(option);
+      
+        return myChart
+      }
+
+       // JavaScript to handle dropdown functionality
+    document.querySelectorAll('.select-box').forEach(selectBox => {
+      selectBox.addEventListener('click', function() {
+        const select = this.parentElement;
+        select.classList.toggle('active');
+      });
+    });
+
+    document.querySelectorAll('.option').forEach(option => {
+      option.addEventListener('click', function() {
+        const selectBox = option.parentElement.previousElementSibling;
+        const selectContainer = option.parentElement.parentElement;
+        selectBox.textContent = option.textContent;
+        selectContainer.classList.remove('active');
+        
+        // Determine which dropdown was clicked based on its label
+        const label = selectContainer.parentElement.querySelector('.select-label').textContent.trim();
+
+        if (label === 'Data Type') {
+          checkoutChart(option.textContent);
+        } else if (label === 'Start Year') {
+          checkoutStartYear(option.textContent);
+        } else if (label === 'End Year') {
+          checkoutEndYear(option.textContent);
+        }
+      });
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+      const selects = document.querySelectorAll('.custom-select');
+      selects.forEach(select => {
+        if (!select.contains(event.target)) {
+          select.classList.remove('active');
+        }
+      });
+    });
+
+    // Add copyright notice with fallback
+    try {
+      const copyrightElement = document.getElementById('copyright');
+      if (window.copyright && window.copyright.notice) {
+        copyrightElement.textContent = copyright.notice;
+      }
+    } catch (e) {
+      console.warn('Copyright configuration not loaded:', e);
+    }
+
+
+
+    window.addEventListener('resize', function() {
+      if (familyChart) familyChart.resize();
+      if (speciesChart) speciesChart.resize();
+      if (assemblySpanChart) assemblySpanChart.resize();
+    });
+
+    // Download chart as PNG image
+    function downloadChartImage(chartInstance, chartName) {
+      if (!chartInstance) {
+        alert('Chart not available. Please wait for data to load.');
+        return;
+      }
+      const url = chartInstance.getDataURL({
+        type: 'png',
+        pixelRatio: 2,
+        backgroundColor: 'transparent'
+      });
+      const link = document.createElement('a');
+      link.download = `${chartName}_${new Date().toISOString().split('T')[0]}.png`;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Download data as CSV — years as rows, columns: actual/cumulative/YoY per assembly level
+    function downloadCSVForChart(dataMap, chartName) {
+      const actualData = dataMap['Actual'];
+      const cumulativeData = dataMap['Cumulative'];
+      const yoyData = dataMap['YoY Growth'];
+
+      if (!actualData || !actualData.category || actualData.category.length === 0) {
+        alert('Data not available. Please wait for data to load.');
+        return;
+      }
+
+      const assemblyLevels = ['contig', 'scaffold', 'chromosome', 'complete genome'];
+
+      // Helper to get series array by level name
+      const getSeriesData = (data, levelName) => {
+        if (!data || !data.series) return [];
+        const s = data.series.find(s => s.name === levelName);
+        return s ? s.data : [];
+      };
+
+      // Build header
+      let header = 'Year';
+      assemblyLevels.forEach(level => { header += `,Actual_${level.replace(/ /g, '_')}`; });
+      header += ',Actual_Total';
+      assemblyLevels.forEach(level => { header += `,Cumulative_${level.replace(/ /g, '_')}`; });
+      header += ',Cumulative_Total';
+      assemblyLevels.forEach(level => { header += `,YoY_${level.replace(/ /g, '_')}`; });
+      header += ',YoY_Total';
+
+      let csvContent = header + '\n';
+
+      // All three maps share the same category array (calculateCumulativeFromActual preserves it)
+      const years = actualData.category;
+
+      years.forEach((year, i) => {
+        let row = year;
+
+        // Actual
+        let actualTotal = 0;
+        assemblyLevels.forEach(level => {
+          const val = getSeriesData(actualData, level)[i] || 0;
+          actualTotal += val;
+          row += `,${val}`;
+        });
+        row += `,${actualTotal}`;
+
+        // Cumulative
+        let cumTotal = 0;
+        assemblyLevels.forEach(level => {
+          const val = getSeriesData(cumulativeData, level)[i] || 0;
+          cumTotal += val;
+          row += `,${val}`;
+        });
+        row += `,${cumTotal}`;
+
+        // YoY Growth
+        let yoyTotal = 0;
+        assemblyLevels.forEach(level => {
+          const val = getSeriesData(yoyData, level)[i] || 0;
+          yoyTotal += val;
+          row += `,${val}`;
+        });
+        row += `,${yoyTotal}`;
+
+        csvContent += row + '\n';
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = `${chartName}_${new Date().toISOString().split('T')[0]}.csv`;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    // Set up download button event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('downloadChartSpeciesBtn').addEventListener('click', function() {
+        downloadChartImage(speciesChart, 'EBP_Species_Progress');
+      });
+      document.getElementById('downloadCSVSpeciesBtn').addEventListener('click', function() {
+        downloadCSVForChart(speciesDataMap, 'EBP_Species_Progress');
+      });
+
+      document.getElementById('downloadChartAssemblySpanBtn').addEventListener('click', function() {
+        downloadChartImage(assemblySpanChart, 'EBP_AssemblySpan_Progress');
+      });
+      document.getElementById('downloadCSVAssemblySpanBtn').addEventListener('click', function() {
+        downloadCSVForChart(assemblySpanDataMap, 'EBP_AssemblySpan_Progress');
+      });
+
+      document.getElementById('downloadChartFamilyBtn').addEventListener('click', function() {
+        downloadChartImage(familyChart, 'EBP_Family_Progress');
+      });
+      document.getElementById('downloadCSVFamilyBtn').addEventListener('click', function() {
+        downloadCSVForChart(familyDataMap, 'EBP_Family_Progress');
+      });
+    });
+    </script>
+  </body>
+</html>
