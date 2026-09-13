@@ -100,6 +100,14 @@
            FILL as well as colour and survives being hard to see. Do not "fix" this
            to a darker orange; it has been asked for twice. */
         --ebp-orange:#ffa500;
+        /* Lineage highlight. Bright rather than the near-black it started as, which
+           read as ink rather than as a highlight (Fang, 2026-09-13). Blue and not a
+           warmer bright: --ebp-orange already MEANS something in this figure ("has
+           an EBP assembly"), so the highlight has to be a hue that cannot be
+           mistaken for it. 221 degrees against orange's 39 is very nearly the
+           complement, and at 84% saturation it still carries 5.17:1 on white --
+           these draw text as well as strokes, so they want text contrast. */
+        --focus:#2563eb;
         /* progress bars: a light fill with the EBP-standard share solid on top */
         --green-soft:#8ed3ad;
         /* Outbound links — cited sources — are BLUE, the convention readers already
@@ -116,6 +124,19 @@
 
       *{box-sizing:border-box;}
       @media (prefers-reduced-motion:reduce){ *{animation:none!important; transition:none!important;} }
+      /* TYPE FLOOR: 15px, matching body (Fang, 2026-09-13 -- "the floor text is too
+         small, and hard to read"). Nothing on this page declares a smaller size
+         except two deliberate exceptions, both non-text: the nav caret glyph at
+         12px, and the figure's SVG labels, which are declared smaller ONLY because
+         the viewBox rescales them -- 11.1px there paints at about 14.6px.
+
+         The consequence, accepted: body is 15px too, so most secondary text is now
+         exactly body size and the old 12/12.5/13/13.5/14 ramp is gone. Hierarchy
+         rests on colour (--paper / --paper-dim / --paper-mute) and weight, which is
+         what was mostly carrying it anyway -- those were 1-2px steps. Above the
+         floor the scale is unchanged: 15 -> 19/20 -> 25 -> 30.
+         Measured before and after: no overflow at 1400px or a true 400px, and the
+         page grew 7% (desktop) / 12% (400px). */
       body{margin:0; background:var(--ink); color:var(--paper);
         font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif;
         font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;}
@@ -135,30 +156,30 @@
       .logo{display:flex; align-items:center; gap:9px; font-weight:800; font-size:14px; white-space:nowrap; color:var(--paper);}
       .logo img{width:25px; height:25px; border-radius:7px; object-fit:cover; display:block;}
       .search-wrap{margin-left:14px; flex:1; max-width:420px; position:relative;}
-      .search{display:flex; align-items:center; gap:8px; background:var(--ink); border:1px solid var(--line); border-radius:9px; padding:0 13px; color:var(--paper-mute); font-size:12.5px;}
+      .search{display:flex; align-items:center; gap:8px; background:var(--ink); border:1px solid var(--line); border-radius:9px; padding:0 13px; color:var(--paper-mute); font-size:13px;}
       .search:focus-within{border-color:var(--green-glow);}
-      .search input{flex:1; background:transparent; border:none; outline:none; color:var(--paper); font:inherit; font-size:12.5px; padding:9px 0;}
+      .search input{flex:1; background:transparent; border:none; outline:none; color:var(--paper); font:inherit; font-size:13px; padding:9px 0;}
       .search input::placeholder{color:var(--paper-mute);}
-      .search .kbd{font-size:12px; color:var(--paper-mute); border:1px solid var(--line); border-radius:5px; padding:1px 6px; background:var(--ink-2);}
+      .search .kbd{font-size:13px; color:var(--paper-mute); border:1px solid var(--line); border-radius:5px; padding:1px 6px; background:var(--ink-2);}
 
       /* grouped results dropdown */
       .results{position:absolute; left:0; right:0; top:calc(100% + 8px); background:var(--ink-2); border:1px solid var(--line); border-radius:12px; box-shadow:0 22px 54px rgba(18,33,26,.16); padding:8px; z-index:45; max-height:min(70vh,520px); overflow-y:auto; display:none;}
       .results.on{display:block;}
       .res-group{margin-bottom:6px;}
       .res-group:last-child{margin-bottom:0;}
-      .res-gh{display:flex; align-items:center; gap:8px; padding:8px 10px 6px; font-size:12px; letter-spacing:.09em; text-transform:uppercase; font-weight:800; color:var(--paper-mute);}
+      .res-gh{display:flex; align-items:center; gap:8px; padding:8px 10px 6px; font-size:13px; letter-spacing:.09em; text-transform:uppercase; font-weight:800; color:var(--paper-mute);}
       .res-item{display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:8px; cursor:pointer; color:inherit; text-decoration:none;}
       .res-item:hover, .res-item.active{background:var(--ink-3);}
-      .res-item .ri{width:28px; height:28px; border-radius:7px; background:var(--ink-4); display:flex; align-items:center; justify-content:center; font-size:12px; flex:none; color:var(--green-deep);}
+      .res-item .ri{width:28px; height:28px; border-radius:7px; background:var(--ink-4); display:flex; align-items:center; justify-content:center; font-size:13px; flex:none; color:var(--green-deep);}
       .res-item .rt{font-size:13px; font-weight:650; color:var(--paper);}
       /* both the title and the description carry highlights; scoping this to .rt
          left description matches on the browser default yellow. */
       .res-item mark{background:rgba(13,122,71,.16); color:inherit; border-radius:2px; padding:0 1px;}
-      .res-item .rd{font-size:12px; color:var(--paper-mute); line-height:1.3;}
+      .res-item .rd{font-size:13px; color:var(--paper-mute); line-height:1.3;}
       .res-item .rmeta{margin-left:auto; display:flex; align-items:center; gap:8px; flex:none;}
-      .res-item .rchip{font-size:12px; font-weight:700; padding:2px 8px; border-radius:999px; white-space:nowrap; color:var(--paper-mute); background:var(--ink-3); border:1px solid var(--line);}
-      .res-empty{padding:20px 12px; text-align:center; color:var(--paper-mute); font-size:12.5px;}
-      .res-foot{border-top:1px solid var(--line); margin-top:6px; padding:9px 10px 4px; font-size:12px; color:var(--paper-mute); line-height:1.4;}
+      .res-item .rchip{font-size:13px; font-weight:700; padding:2px 8px; border-radius:999px; white-space:nowrap; color:var(--paper-mute); background:var(--ink-3); border:1px solid var(--line);}
+      .res-empty{padding:20px 12px; text-align:center; color:var(--paper-mute); font-size:13px;}
+      .res-foot{border-top:1px solid var(--line); margin-top:6px; padding:9px 10px 4px; font-size:13px; color:var(--paper-mute); line-height:1.4;}
       .res-foot b{color:var(--paper-dim);}
 
       .topnav{margin-left:auto; display:flex; gap:3px; align-items:center;}
@@ -166,7 +187,7 @@
       .topnav .n:hover{color:var(--paper);}
       .nav-menu{position:relative;}
       .nav-menu .n{display:inline-flex; align-items:center; gap:6px;}
-      .nav-menu .caret{font-size:9px; opacity:.7;}
+      .nav-menu .caret{font-size:13px; opacity:.7;}
       .dropdown{position:absolute; right:0; top:calc(100% + 8px); background:var(--ink-2); border:1px solid var(--line); border-radius:12px; box-shadow:0 18px 44px rgba(18,33,26,.15); padding:7px; opacity:0; visibility:hidden; transform:translateY(-6px); transition:opacity .15s, transform .15s, visibility .15s; z-index:40;}
       .dropdown.wide{width:300px;}
       .dropdown.list{width:265px;}
@@ -179,12 +200,12 @@
       .dd-item.prio .di{background:rgba(122,209,81,.18); border:1px solid rgba(122,209,81,.45); color:var(--genus-ink);}
       .dd-item.dup .di{background:rgba(74,111,165,.13); border:1px solid rgba(74,111,165,.32); color:var(--gap);}
       .dd-item .dt{font-size:13px; font-weight:700; color:var(--paper);}
-      .dd-item .dd{font-size:12px; color:var(--paper-mute); line-height:1.35;}
-      .dd-item .soon{font-size:12px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--paper-mute); border:1px dashed var(--line); border-radius:999px; padding:1px 7px; margin-left:6px; white-space:nowrap;}
+      .dd-item .dd{font-size:13px; color:var(--paper-mute); line-height:1.35;}
+      .dd-item .soon{font-size:13px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--paper-mute); border:1px dashed var(--line); border-radius:999px; padding:1px 7px; margin-left:6px; white-space:nowrap;}
       /* simple link items */
       .dd-link{display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:8px; color:var(--paper-dim); font-size:13px; text-decoration:none;}
       .dd-link:hover{background:var(--ink-3); color:var(--paper);}
-      .dd-link .dli{font-size:12px; width:20px; text-align:center; flex:none; color:var(--green-deep);}
+      .dd-link .dli{font-size:13px; width:20px; text-align:center; flex:none; color:var(--green-deep);}
       @media (max-width:900px){ .search-wrap{display:none;} }
 
 
@@ -193,7 +214,7 @@
         background:radial-gradient(820px 300px at 80% -30%, rgba(22,163,74,.10), transparent);}
       header.hero canvas.bg{position:absolute; inset:0; width:100%; height:100%; opacity:.5; z-index:0;}
       header.hero .inner{position:relative; z-index:2; padding:34px 24px 32px;}
-      .hero-eyebrow{font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--green-glow); font-weight:700; margin-bottom:10px;}
+      .hero-eyebrow{font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--green-glow); font-weight:700; margin-bottom:10px;}
       .hero-headline{font-size:clamp(21px,3.1vw,30px); line-height:1.12; letter-spacing:-.02em; font-weight:800; margin:0 0 20px; text-wrap:balance;}
       .hero-headline .n{color:var(--green-glow);}
 
@@ -201,7 +222,7 @@
       .kpi{border:1px solid var(--line); border-radius:11px; padding:14px 16px 15px; background:var(--ink-2); position:relative; overflow:hidden;}
       .kpi .stripe{position:absolute; left:0; top:0; bottom:0; width:3px;}
       .kpi .n{font-size:25px; font-weight:800; letter-spacing:-.02em;}
-      .kpi .l{font-size:12px; color:var(--paper-mute); margin-top:2px; line-height:1.35;}
+      .kpi .l{font-size:13px; color:var(--paper-mute); margin-top:2px; line-height:1.35;}
       /* Progress toward the Phase I goal. Replaces the mockup's sparkline, whose
          series was generated with Math.sin() — there is no stored trend behind
          these two counts, so a trend line would have been drawn, not measured. */
@@ -213,7 +234,7 @@
          motion design. */
       .kpi .fill{height:100%; position:relative; border-radius:5px;}
       .kpi .fill .std{position:absolute; inset:0 auto 0 0; border-radius:5px; background:var(--green-deep);}
-      .kpi .cap{font-size:12px; color:var(--paper-mute); margin-top:7px; line-height:1.4; font-variant-numeric:tabular-nums;}
+      .kpi .cap{font-size:13px; color:var(--paper-mute); margin-top:7px; line-height:1.4; font-variant-numeric:tabular-nums;}
       .kpi .cap b{color:var(--paper-dim); font-weight:650;}
 
       /* ── tree card (full width), then the scorecard below it (full width) ──
@@ -227,7 +248,7 @@
          different GoaT reports. */
       .treecard{border:1px solid var(--line); border-radius:16px; background:var(--ink-2); overflow:hidden; margin-top:16px;}
       .tree-pane{padding:18px 20px 20px; min-width:0;}
-      .pane-h{font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--paper-mute); font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+      .pane-h{font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--paper-mute); font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
 
       /* The stage holds a figure this page draws itself — see loadPhylumTree().
          Nothing here is animated; the geometry IS the measurement, same rule as
@@ -245,7 +266,7 @@
          there strands a reader who has zoomed into a corner. */
       .tree-zoom{position:absolute; right:10px; top:10px; z-index:2;}
       .tree-zoom[hidden]{display:none;}
-      .tree-zoom button{padding:5px 11px; font:inherit; font-size:12px; font-weight:650; line-height:1;
+      .tree-zoom button{padding:5px 11px; font:inherit; font-size:13px; font-weight:650; line-height:1;
         color:var(--paper-dim); background:var(--ink-2); border:1px solid var(--line); border-radius:999px;
         cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 1px 3px rgba(18,33,26,.08);}
       .tree-zoom button:hover{background:var(--ink-3); color:var(--paper);}
@@ -272,25 +293,59 @@
       .tree-key i.on{box-shadow:0 0 0 1px rgba(18,33,26,.22);}
       .phylo .lbl{fill:var(--paper-mute); font-size:10px; font-family:inherit;}
       .phylo .lbl.lit{fill:var(--paper); font-weight:700;}
-      .phylo .clade{fill:var(--paper-dim); font-size:9.5px; font-weight:700; font-family:inherit;
-        letter-spacing:.02em; paint-order:stroke; stroke:var(--ink-2); stroke-width:3px; stroke-linejoin:round;}
-      .phylo g.leaf{cursor:default;}
+      .phylo g.leaf, .phylo g.node{cursor:default;}
+      /* Internal nodes get an invisible hit target so a clade can be hovered at
+         all -- before this only the 79 tips had anything to point at, and the
+         clades the tree exists to show (Metazoa, Fungi, Bilateria, Sar) were
+         unreachable. `fill:transparent` rather than `fill:none`: none is not a
+         hit target. */
+      .phylo .hit{fill:transparent; stroke:none;}
+      .phylo g.node:hover .ring, .phylo g.leaf:hover .tip{stroke:var(--paper); stroke-width:1.6;}
+      .phylo .ring{fill:var(--ink-2); stroke:var(--line); stroke-width:1.1; opacity:0;}
+      .phylo g.node:hover .ring{opacity:1;}
+
+      /* Lineage highlight. Hovering any node lifts the path from it to the root:
+         the node, every ancestor, and the segments between them. The rest of the
+         tree drops back rather than being hidden, so the highlighted path is read
+         against the whole shape and not in isolation. Opacity only -- no geometry
+         depends on it, and nothing here is timed. */
+      .phylo.focus .edge{opacity:.18;}
+      .phylo.focus g.leaf .tip{opacity:.3;}
+      .phylo.focus g.leaf .lbl{opacity:.22;}
+      /* the hovered tip keeps its own name at full strength -- it is the one label
+         that must stay readable, and the overlay does not redraw it */
+      .phylo.focus g.leaf.on .lbl{opacity:1; fill:var(--focus);}
+      .phylo.focus g.leaf.on .tip{opacity:1;}
+      .phylo .lin-path{fill:none; stroke:var(--focus); stroke-width:2.6; stroke-linejoin:round; stroke-linecap:round;}
+      .phylo .lin-node{fill:var(--focus); stroke:var(--ink-2); stroke-width:1.4;}
+      .phylo .lin-lbl{fill:var(--focus); font-size:11.5px; font-weight:800; font-family:inherit;
+        paint-order:stroke; stroke:var(--ink-2); stroke-width:3.5px; stroke-linejoin:round;}
+
 
       /* Figure key. Sits under the stage, above the caption. */
-      /* The card's whole footer now that the caption is gone — centred under the
-         figure rather than hanging off its left edge. */
-      .tree-key{display:flex; gap:18px; flex-wrap:wrap; align-items:center; justify-content:center;
-        margin-top:12px; font-size:12px; color:var(--paper-mute); text-align:center;}
-      .tree-key i{width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:6px; vertical-align:-1px;}
-      .tree-key i.on{background:var(--ebp-orange);}
-      .tree-key i.off{background:var(--ink-2); border:1.2px solid var(--paper-mute);}
-      .tree-key b{color:var(--paper); font-weight:800; font-variant-numeric:tabular-nums;}
+      /* One centred note under the figure. It replaced a swatch legend reading
+         "33 phyla with an EBP assembly / 46 still with none" (Fang, 2026-09-13):
+         those two counts were a third copy of a number the scorecard directly above
+         already carries live, and what a first-time reader lacks is not the count
+         but what they are looking at. Deliberately carries NO figures, so it cannot
+         go stale.
+
+         Written for someone who has never heard of GoaT (Fang, 2026-09-13). It said
+         "Every eukaryotic phylum in GoaT, on GoaT's own topology"; naming the
+         database explains nothing to a visitor and reads as jargon. "arranged by
+         shared ancestry" says what the shape IS, which is the thing they cannot see
+         for themselves. Attribution is not lost with it -- the page footer credits
+         GoaT and states the permission, which is where a source belongs. */
+      .tree-key{margin-top:12px; font-size:13px; color:var(--paper-mute);
+        text-align:center; line-height:1.5;}
+      .tree-key b{color:var(--paper-dim); font-weight:700;}
+      .tree-key .warn{display:block; margin-top:4px; color:var(--warn); font-weight:600;}
 
 
       /* ── Taxonomic Milestone Scorecard (right pane) ── */
       .scorecard{border:1px solid var(--line); border-radius:16px; background:var(--ink-3);
         margin-top:24px; padding:18px 20px 20px; min-width:0;}
-      .score-sub{font-size:12px; color:var(--paper-mute); margin:0 0 16px; line-height:1.45;}
+      .score-sub{font-size:13px; color:var(--paper-mute); margin:0 0 16px; line-height:1.45;}
       /* One column in the narrow right pane; below 820px the card is a single
          column and the ranks get the page width back. */
       /* Full width now, so the ranks run across rather than down. */
@@ -300,9 +355,9 @@
       .rank-body{min-width:0;}
       .rank-top{display:flex; align-items:baseline; gap:8px;}
       .rank-name{font-size:13px; font-weight:700; color:var(--paper);}
-      .rank-frac{margin-left:auto; font-size:12px; color:var(--paper-dim); font-variant-numeric:tabular-nums;}
+      .rank-frac{margin-left:auto; font-size:13px; color:var(--paper-dim); font-variant-numeric:tabular-nums;}
       .rank-frac b{color:var(--paper); font-weight:800; font-size:14px;}
-      .rank-pct{font-size:12px; color:var(--paper-mute); font-variant-numeric:tabular-nums;}
+      .rank-pct{font-size:13px; color:var(--paper-mute); font-variant-numeric:tabular-nums;}
       .rank-track{height:9px; border-radius:5px; background:var(--ink-4); overflow:hidden; margin-top:6px;}
       .rank-fill{height:100%; border-radius:5px; width:0;}
 
@@ -310,7 +365,7 @@
       section{padding:34px 0 8px;}
       .sec-h{display:flex; align-items:baseline; gap:12px; margin-bottom:16px; flex-wrap:wrap;}
       .sec-h h2{font-size:20px; font-weight:750; letter-spacing:-.01em; margin:0;}
-      .sec-h .sub{font-size:12.5px; color:var(--paper-mute);}
+      .sec-h .sub{font-size:13px; color:var(--paper-mute);}
 
       /* ── the two tool cards ── */
       .tools{display:flex; flex-direction:column; gap:16px;}
@@ -332,15 +387,15 @@
       .tool.prio .ic{background:rgba(122,209,81,.18); border:1px solid rgba(122,209,81,.45); color:var(--genus-ink);}
       .tool.dup .ic{background:rgba(74,111,165,.13); border:1px solid rgba(74,111,165,.32); color:var(--gap);}
       .tool .tt{font-size:20px; font-weight:800; letter-spacing:-.01em; margin:0; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
-      .tool .badge{font-size:12px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; padding:3px 9px; border-radius:999px;}
+      .tool .badge{font-size:13px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; padding:3px 9px; border-radius:999px;}
       .tool.prio .badge{color:var(--genus-ink); background:rgba(122,209,81,.16); border:1px solid rgba(122,209,81,.45);}
       .tool.dup .badge{color:var(--gap); background:rgba(74,111,165,.10); border:1px solid rgba(74,111,165,.32);}
-      .tool .soon{font-size:12px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; padding:3px 9px; border-radius:999px; color:var(--paper-mute); border:1px dashed var(--paper-mute);}
+      .tool .soon{font-size:13px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; padding:3px 9px; border-radius:999px; color:var(--paper-mute); border:1px dashed var(--paper-mute);}
       .tool .qq{font-size:13.5px; color:var(--paper-dim); font-style:italic; margin:3px 0 0;}
       .tool .desc{font-size:13.5px; color:var(--paper-dim); margin:0 0 14px;}
       .tool .desc b{color:var(--paper);}
       .tool .foot{display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
-      .tool .stat{font-size:12.5px; color:var(--paper-mute);}
+      .tool .stat{font-size:13px; color:var(--paper-mute);}
       .tool .stat b{color:var(--paper-dim); font-variant-numeric:tabular-nums;}
       .tool .open{font-size:14px; font-weight:700; display:inline-flex; align-items:center; gap:7px; text-decoration:none; margin-left:auto;}
       .tool.prio .open{color:var(--genus-ink);} .tool.dup .open{color:var(--gap);}
@@ -351,40 +406,40 @@
       .tool .open:focus-visible{outline:none;}
       .tool:focus-within{border-color:var(--green-glow); box-shadow:0 0 0 2px rgba(13,122,71,.30);}
       .tool .body button, .tool .body a:not(.open){position:relative; z-index:2;}
-      .tool .offnote{font-size:12px; color:var(--paper-mute); margin-left:auto;}
+      .tool .offnote{font-size:13px; color:var(--paper-mute); margin-left:auto;}
 
       /* preview shell */
       .preview{border:1px solid var(--line); border-radius:12px; background:var(--ink-3); padding:16px; margin:0;}
-      .preview .pl{font-size:12px; letter-spacing:.09em; text-transform:uppercase; color:var(--paper-mute); font-weight:700; margin-bottom:13px; line-height:1.5;}
+      .preview .pl{font-size:13px; letter-spacing:.09em; text-transform:uppercase; color:var(--paper-mute); font-weight:700; margin-bottom:13px; line-height:1.5;}
       .preview .pl .src{font-weight:600; letter-spacing:.02em; text-transform:none;}
 
       /* prioritization preview: the novelty LABEL LADDER.
          This is the tool's vocabulary, not a dataset — see the comment on the
          card in the markup for why no counts appear here. */
       .ladder{display:flex; flex-direction:column; gap:7px;}
-      .lad{display:grid; grid-template-columns:10px 96px 1fr; align-items:center; gap:10px;}
+      .lad{display:grid; grid-template-columns:10px max-content 1fr; align-items:center; gap:10px;}
       .lad .sw{width:10px; height:10px; border-radius:3px;}
-      .lad .lb{font-size:12px; font-weight:700; color:var(--paper-dim); font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
-      .lad .ds{font-size:12px; color:var(--paper-mute); line-height:1.35;}
+      .lad .lb{font-size:13px; font-weight:700; color:var(--paper-dim); font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+      .lad .ds{font-size:13px; color:var(--paper-mute); line-height:1.35;}
 
       /* duplication preview: mini heatmap */
-      .mini-heat{border-collapse:separate; border-spacing:4px; width:100%; font-size:11px;}
-      .mini-heat th{font-weight:600; color:var(--paper-mute); padding:0 2px 5px; font-size:10px; text-align:center;}
-      .mini-heat th.rh{text-align:right; padding-right:8px; white-space:nowrap; font-size:10.5px; color:var(--paper-dim);}
-      .mini-heat td{height:26px; text-align:center; border-radius:5px; font-variant-numeric:tabular-nums; font-weight:600; color:var(--paper); font-size:11px;}
+      .mini-heat{border-collapse:separate; border-spacing:4px; width:100%; font-size:13px;}
+      .mini-heat th{font-weight:600; color:var(--paper-mute); padding:0 2px 5px; font-size:13px; text-align:center;}
+      .mini-heat th.rh{text-align:right; padding-right:8px; white-space:nowrap; font-size:13px; color:var(--paper-dim);}
+      .mini-heat td{height:26px; text-align:center; border-radius:5px; font-variant-numeric:tabular-nums; font-weight:600; color:var(--paper); font-size:13px;}
       .mini-heat td.z{color:var(--paper-mute); font-weight:400; background:var(--ink-2);}
-      .heat-msg{font-size:12px; color:var(--paper-mute); padding:14px 2px; line-height:1.45;}
+      .heat-msg{font-size:13px; color:var(--paper-mute); padding:14px 2px; line-height:1.45;}
       .status-legend{margin-top:14px; padding-top:13px; border-top:1px dashed var(--line);}
       .status-legend .sl-scale{display:flex; align-items:center; gap:0; border-radius:6px; overflow:hidden; height:9px;}
       .status-legend .sl-scale i{flex:1;}
-      .status-legend .sl-ends{display:flex; justify-content:space-between; gap:10px; font-size:12px; color:var(--paper-mute); margin-top:6px;}
+      .status-legend .sl-ends{display:flex; justify-content:space-between; gap:10px; font-size:13px; color:var(--paper-mute); margin-top:6px;}
       .status-legend .sl-ends b{color:var(--paper-dim); font-weight:600;}
-      .status-legend .sl-note{font-size:12px; color:var(--paper-mute); margin-top:7px; line-height:1.4;}
+      .status-legend .sl-note{font-size:13px; color:var(--paper-mute); margin-top:7px; line-height:1.4;}
       .status-legend .sl-note b{color:var(--paper-dim);}
-      .status-legend code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px;}
+      .status-legend code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13px;}
 
 
-      footer{border-top:1px solid var(--line); text-align:center; color:var(--paper-mute); font-size:12px; padding:32px 24px 42px; letter-spacing:.03em; margin-top:40px; line-height:1.7;}
+      footer{border-top:1px solid var(--line); text-align:center; color:var(--paper-mute); font-size:13px; padding:32px 24px 42px; letter-spacing:.03em; margin-top:40px; line-height:1.7;}
 
       :focus-visible{outline:2px solid var(--green-bright); outline-offset:2px; border-radius:5px;}
 
@@ -395,7 +450,7 @@
            row come to 430px, i.e. 30px of horizontal scroll. The nav takes its own
            row instead. */
         .topnav{margin-left:0; width:100%; justify-content:space-between; gap:2px;}
-        .topnav .n{padding:7px 10px; font-size:12.5px;}
+        .topnav .n{padding:7px 10px; font-size:13px;}
         /* With .nav-menu static, the panels hang off the sticky topbar instead of
            off a menu button near the right edge — so a 300px panel cannot push the
            page sideways, and none of them opens off-screen. */
@@ -405,7 +460,7 @@
         .kpis{grid-template-columns:1fr;}
         .tool .body{padding:18px 16px 20px;}
         .tree-pane, .scorecard{padding:16px 16px 18px;}
-        .lad{grid-template-columns:10px 90px 1fr; gap:8px;}
+        .lad{grid-template-columns:10px max-content 1fr; gap:8px;}
         footer{padding:28px 16px 36px;}
       }
     </style>
@@ -470,7 +525,7 @@
              The order-level page is unchanged and is one link away, below. -->
         <div class="scorecard">
           <div class="pane-h">Taxonomic milestone scorecard</div>
-          <p class="score-sub">Breadth of coverage at each rank: taxa holding at least one EBP assembly, against every eukaryotic taxon at that rank in GoaT.</p>
+          <p class="score-sub">Breadth of coverage at each rank: taxa holding at least one EBP assembly, against every eukaryotic taxon at that rank.</p>
           <div class="score" id="score"></div>
         </div>
 
@@ -480,13 +535,13 @@
             <div class="tree-stage" id="treeStage">
               <div class="tree-msg" id="treeMsg">
                 <span class="tree-ic" aria-hidden="true"><i class="fas fa-circle-nodes"></i></span>
-                <span>Drawing the phylum tree from GoaT…</span>
+                <span>Drawing the phylum tree…</span>
               </div>
               <div class="tree-zoom" id="treeZoom" hidden>
                 <button type="button" id="zoomReset" title="Reset the view (or double-click the tree)" aria-label="Reset the view">↺ Reset</button>
               </div>
             </div>
-            <div class="tree-key" id="treeKey" hidden></div>
+            <div class="tree-key" id="treeKey" hidden>Every eukaryotic phylum, arranged by shared ancestry — <b>orange</b> where EBP has sequenced at least one species. Hover any node to trace its lineage; scroll to zoom, drag to pan.</div>
           </div>
         </div>
       </div>
@@ -799,7 +854,10 @@
          agreeing, one of the two is wrong and the key says so rather than drawing
          over the disagreement. */
       function buildHierarchy(nodes, rootId){
-        function build(id, depth){
+        /* `parent` makes the tree walkable upwards, which is the whole lineage
+           feature. It is a cycle, so this structure must never be JSON-stringified
+           or deep-cloned. */
+        function build(id, depth, parent){
           var n = nodes[String(id)];
           if(!n) return null;
           var kidIds = Object.keys(n.children || {});
@@ -809,19 +867,28 @@
             rank: n.taxon_rank || '',
             lit: n.status === 1,
             depth: depth,
+            parent: parent || null,
             children: []
           };
           for(var k = 0; k < kidIds.length; k++){
-            var c = build(kidIds[k], depth + 1);
+            var c = build(kidIds[k], depth + 1, node);
             if(c) node.children.push(c);
           }
-          /* a clade counts as covered when anything below it is */
+          /* a clade counts as covered when anything below it is, and carries how
+             many of the phyla under it are -- which is what makes hovering a clade
+             worth doing rather than just naming it */
           if(node.children.length){
             node.lit = node.children.some(function(c){ return c.lit; });
+            node.tips = 0; node.litTips = 0;
+            node.children.forEach(function(c){
+              node.tips += c.tips; node.litTips += c.litTips;
+            });
+          } else {
+            node.tips = 1; node.litTips = node.lit ? 1 : 0;
           }
           return node;
         }
-        return build(rootId, 0);
+        return build(rootId, 0, null);
       }
 
       function leavesOf(root){
@@ -858,6 +925,33 @@
 
       function polar(cx, cy, r, a){ return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
 
+      /* What a hovered node says about itself. Written as data- attributes at draw
+         time so the tooltip is a pure read: no lookup back into the hierarchy, and
+         nothing to fall out of step with what was drawn.
+
+         GoaT's ranks here are real and varied -- domain, kingdom, subkingdom,
+         clade, phylum, "no rank" -- so the rank is shown as GoaT gives it rather
+         than being mapped onto a tidier vocabulary the data does not have. */
+      function tipData(n){
+        var rank = n.rank && n.rank !== 'no rank' ? n.rank : '';
+        /* Only what identifies the node. The tooltip used to carry assembly status
+           too; it was dropped (Fang, 2026-09-13) -- the colour already says it, and
+           what hovering is FOR is the lineage. */
+        return ' data-id="' + esc(n.id) + '"' +
+               ' data-name="' + esc(n.name) + '"' +
+               ' data-rank="' + esc(rank) + '"' +
+               ' role="img" aria-label="' + esc(n.name) + (rank ? ', ' + esc(rank) : '') + '"';
+      }
+
+      /* id -> laid-out node, rebuilt on every draw. The lineage overlay reads r and
+         angle straight off these, so it is always the geometry now on screen. */
+      var nodeById = {};
+
+      function indexNodes(root){
+        nodeById = {};
+        (function rec(n){ nodeById[n.id] = n; n.children.forEach(rec); })(root);
+      }
+
       /* Measure every label instead of guessing at them.
 
          Two things need real text widths. The obvious one is that a guessed
@@ -871,6 +965,12 @@
          browser will not measure (getComputedTextLength can throw, and a webfont
          still loading would measure short). */
       var labelWidthCache = null;
+      var labelFontPx = 11.6;   /* overwritten from the CSS on first measure */
+
+      /* SVG text is NOT page text, and the page's 15px floor does not reach it:
+         it lives in the figure's coordinate space and the viewBox rescales it, so
+         the declared size is not the painted one. See the note in drawPhylo() for
+         why the figure is exempt. */
 
       function measureLabels(names){
         if(labelWidthCache) return labelWidthCache;
@@ -880,9 +980,16 @@
         svg.setAttribute('aria-hidden', 'true');
         svg.style.cssText = 'position:absolute; left:-9999px; top:0; width:10px; height:10px; overflow:visible;';
         var t = document.createElementNS(NS, 'text');
-        t.setAttribute('class', 'lbl');
+        /* 'lit' as well as 'lbl': the covered phyla are drawn BOLD, and bold is
+           wider -- 151.4px against 139.7px for "Platyhelminthes" at this size.
+           Measuring the regular face under-reserves the label ring, and the
+           longest bold name then runs past the edge of the stage and is clipped
+           by overflow:hidden. It did so by 5.6px here; at the old 10px it was
+           under 3px, which is why it went unnoticed. Measure the widest case. */
+        t.setAttribute('class', 'lbl lit');
         svg.appendChild(t);
         document.body.appendChild(svg);
+        labelFontPx = parseFloat(getComputedStyle(t).fontSize) || 11.6;
         var out = {}, ok = false;
         try {
           for(var i = 0; i < names.length; i++){
@@ -917,11 +1024,12 @@
 
         var laid = layoutRadial(root, NOMINAL_R);
         if(!laid) return null;
+        indexNodes(root);
 
         var widths = showLabels ? measureLabels(leaves.map(function(l){ return l.name; })) : null;
         var cx = 0, cy = 0;
 
-        var parts = [];
+        var parts = [], nodeMarks = [];
         (function rec(n){
           if(!n.children.length) return;
           var a = n.children.map(function(c){ return c.angle; });
@@ -939,6 +1047,12 @@
               q0[0].toFixed(1) + ',' + q0[1].toFixed(1) + 'L' + q1[0].toFixed(1) + ',' + q1[1].toFixed(1) + '"/>');
             rec(c);
           });
+          /* the clade's own hoverable point, at its junction */
+          var np = polar(cx, cy, n.r, n.angle);
+          nodeMarks.push('<g class="node"' + tipData(n) + '>' +
+            '<circle class="ring" cx="' + np[0].toFixed(1) + '" cy="' + np[1].toFixed(1) + '" r="3.4"/>' +
+            '<circle class="hit" cx="' + np[0].toFixed(1) + '" cy="' + np[1].toFixed(1) + '" r="9"/>' +
+            '</g>');
         })(root);
 
         /* extents of everything actually drawn */
@@ -968,12 +1082,14 @@
                   '" dominant-baseline="middle" transform="rotate(' + rot.toFixed(1) + ',' +
                   tp[0].toFixed(1) + ',' + tp[1].toFixed(1) + ')">' + esc(lf.name) + '</text>';
           }
+          /* No <title>: the native tooltip waits about a second, cannot be styled
+             and would appear alongside the real one. The accessible name goes on
+             the group instead, which reads the same and shows nothing. */
           parts.push(
-            '<g class="leaf">' +
-              '<title>' + esc(lf.name) + ' \u2014 ' +
-                 (lf.lit ? 'has at least one EBP assembly' : 'no EBP assembly yet') + '</title>' +
+            '<g class="leaf"' + tipData(lf) + '>' +
               '<circle class="tip' + (lf.lit ? ' lit' : '') + '" cx="' + p[0].toFixed(1) +
                  '" cy="' + p[1].toFixed(1) + '" r="' + TIP_R + '"/>' +
+              '<circle class="hit" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="8"/>' +
               lbl +
             '</g>');
         });
@@ -985,7 +1101,8 @@
         var svg = '<svg class="phylo" viewBox="' + box.x.toFixed(2) + ' ' + box.y.toFixed(2) + ' ' +
                   box.w.toFixed(2) + ' ' + box.h.toFixed(2) + '" preserveAspectRatio="xMidYMid meet" ' +
                   'role="img" aria-label="Radial tree of every eukaryotic phylum in GoaT, ' +
-                  'with those holding at least one EBP assembly marked">' + parts.join('') + '</svg>';
+                  'with those holding at least one EBP assembly marked">' +
+                  parts.join('') + nodeMarks.join('') + '</svg>';
         return {svg: svg, box: box};
       }
 
@@ -996,12 +1113,41 @@
         if(!stage || !phyloRoot) return;
         var w = Math.round(stage.clientWidth), h = Math.round(stage.clientHeight);
         if(!w || !h) return;
-        /* Labels need a ring wide enough to hold them. Below that the figure keeps
-           its shape and drops the names rather than printing them at 4px, which is
-           not a smaller label but an unreadable one. The tips keep their tooltips. */
+        /* Labels are drawn only if they will clear the type floor once the viewBox
+           has scaled them. Rendering first and checking after is the only honest
+           way round: the scale depends on the figure's extent, which depends on
+           the label ring, which depends on whether there are labels at all. So
+           draw with them, work out what they would actually paint at, and draw
+           again without if it is under the floor. The ring keeps its shape either
+           way, and a tap still names any node and its whole lineage. */
+        /* THE FIGURE IS EXEMPT FROM THE PAGE'S 15px TYPE FLOOR (Fang, 2026-09-13).
+           It was made to comply -- 20px in figure units, a 700px stage, labels
+           painting at 15.4px -- and reverted: *"the previous version looks better"*.
+           It is the right call. This is a diagram, not prose: its text scales with
+           the drawing the way a map's does, and forcing 79 names to 15px shrinks
+           the tree they belong to until the ring of type dominates the shape it is
+           annotating. The clearance is a fixed geometric ratio (2*pi*R/n against the
+           line height), so a bigger stage does NOT buy room -- at 15px it came to
+           3.7%, which one new phylum would spend.
+           These labels paint at roughly 8px. That is deliberate, and it is why
+           every node is also reachable by hover and by tap.
+
+           Labels are still dropped rather than shrunk below ~560px, and now also
+           if they would COLLIDE -- the figure is live, so the tip count can grow. */
         var showLabels = w >= 560 && h >= 420;
         var out = renderPhylo(phyloRoot, w, h, showLabels);
         if(!out){ treeMessage('The pane is too small to draw the tree.'); return; }
+        if(showLabels){
+          var scale = Math.min(w / out.box.w, h / out.box.h);
+          var tipCount = leavesOf(phyloRoot).length;
+          var ringPitch = tipCount ? (2 * Math.PI * NOMINAL_R * scale) / tipCount : 0;
+          if(ringPitch < labelFontPx * scale * 1.15){
+            out = renderPhylo(phyloRoot, w, h, false);
+            if(!out){ treeMessage('The pane is too small to draw the tree.'); return; }
+          }
+        }
+        /* Captured BEFORE innerHTML: these live inside the stage, so the
+           assignment below destroys them and a lookup after it returns null. */
         var msg = $('treeMsg'), zoom = $('treeZoom');
         stage.innerHTML = out.svg;
         if(msg) stage.appendChild(msg);
@@ -1069,6 +1215,176 @@
         var r = svg.getBoundingClientRect();
         return [view.x + (clientX - r.left) / r.width * view.w,
                 view.y + (clientY - r.top) / r.height * view.h];
+      }
+
+      /* ───────── tooltip ─────────
+         Every tip AND every clade is hoverable. Before this only the 79 tips
+         carried a native <title>, so the internal nodes — Eukaryota, Opisthokonta,
+         Metazoa, Fungi, Bilateria, Sar — could not be pointed at at all, which is
+         most of what a tree is for.
+
+         A clade says how much of itself is covered ("15 of 18 phyla"), because
+         that is the thing the figure is showing and it is the question the shape
+         provokes. A tip says only whether it is covered; "1 of 1" would be noise. */
+      /* root -> node, the way a lineage is normally written */
+      function lineageOf(node){
+        var chain = [];
+        for(var n = node; n; n = n.parent) chain.unshift(n);
+        return chain;
+      }
+
+      /* ───────── lineage overlay ─────────
+         Drawn fresh on hover rather than by restyling existing elements, because
+         the path from a node to the root does not correspond to whole elements.
+         Each step up is a RADIAL segment at the child's angle from the child's
+         radius out to the parent's, and then an ARC at the parent's radius from
+         the child's angle round to the parent's own. The base drawing puts one arc
+         across ALL of a parent's children, so highlighting it would light up
+         siblings that are not on the path. This traces the exact route.
+
+         The geometry is read from nodeById, which is rebuilt every draw, so the
+         overlay always matches the tree currently on screen (zoom included -- it
+         is inside the same viewBox). */
+      var SVG_NS = 'http://www.w3.org/2000/svg';
+
+      function arcSeg(R, a0, a1){
+        var x = (R * Math.cos(a1)).toFixed(2), y = (R * Math.sin(a1)).toFixed(2);
+        var large = Math.abs(a1 - a0) > Math.PI ? 1 : 0;
+        var sweep = a1 > a0 ? 1 : 0;
+        return 'A' + R.toFixed(2) + ',' + R.toFixed(2) + ' 0 ' + large + ' ' + sweep + ' ' + x + ',' + y;
+      }
+
+      function clearLineage(){
+        var svg = phyloSvg();
+        if(!svg) return;
+        svg.classList.remove('focus');
+        var old = svg.querySelector('g.lineage');
+        if(old) old.parentNode.removeChild(old);
+        var on = svg.querySelector('.on');
+        if(on) on.classList.remove('on');
+      }
+
+      function drawLineage(node){
+        var svg = phyloSvg();
+        if(!svg || !node) return;
+        clearLineage();
+        var chain = lineageOf(node);
+        if(chain.length < 2) return;
+
+        var d = '', i;
+        /* start at the hovered node and walk up */
+        for(i = chain.length - 1; i > 0; i--){
+          var c = chain[i], par = chain[i - 1];
+          if(i === chain.length - 1){
+            d += 'M' + (c.r * Math.cos(c.angle)).toFixed(2) + ',' + (c.r * Math.sin(c.angle)).toFixed(2);
+          }
+          /* radial in to the parent's circle, then round it to the parent's point */
+          d += 'L' + (par.r * Math.cos(c.angle)).toFixed(2) + ',' + (par.r * Math.sin(c.angle)).toFixed(2);
+          d += arcSeg(par.r, c.angle, par.angle);
+        }
+
+        var host = svg.querySelector('[data-id="' + node.id + '"]');
+        if(host) host.classList.add('on');
+
+        var g = document.createElementNS(SVG_NS, 'g');
+        g.setAttribute('class', 'lineage');
+
+        var path = document.createElementNS(SVG_NS, 'path');
+        path.setAttribute('class', 'lin-path');
+        path.setAttribute('d', d);
+        g.appendChild(path);
+
+        /* a marker and a name at every ancestor, and at the node itself */
+        chain.forEach(function(n, idx){
+          var x = n.r * Math.cos(n.angle), y = n.r * Math.sin(n.angle);
+          var dot = document.createElementNS(SVG_NS, 'circle');
+          dot.setAttribute('class', 'lin-node');
+          dot.setAttribute('cx', x.toFixed(2));
+          dot.setAttribute('cy', y.toFixed(2));
+          dot.setAttribute('r', idx === chain.length - 1 ? '4.2' : '3.4');
+          g.appendChild(dot);
+
+          /* the hovered tip already has its own label at full width; naming it
+             again on top of that just doubles the text */
+          /* skip only the hovered TIP, whose own label is already on the figure
+             and is un-dimmed above; ancestors always get one */
+          var isHovered = idx === chain.length - 1;
+          if(isHovered && !n.children.length && host && host.querySelector('text.lbl')) return;
+
+          var deg = n.angle * 180 / Math.PI;
+          var flip = (deg > 90 || deg < -90);
+          var off = 9;
+          var lx = (n.r + off) * Math.cos(n.angle), ly = (n.r + off) * Math.sin(n.angle);
+          var t = document.createElementNS(SVG_NS, 'text');
+          t.setAttribute('class', 'lin-lbl');
+          t.setAttribute('x', lx.toFixed(2));
+          t.setAttribute('y', ly.toFixed(2));
+          t.setAttribute('text-anchor', flip ? 'end' : 'start');
+          t.setAttribute('dominant-baseline', 'middle');
+          t.setAttribute('transform', 'rotate(' + (flip ? deg + 180 : deg).toFixed(1) + ',' +
+                         lx.toFixed(2) + ',' + ly.toFixed(2) + ')');
+          t.textContent = n.name;
+          g.appendChild(t);
+        });
+
+        svg.appendChild(g);
+        svg.classList.add('focus');
+      }
+
+      /* ───────── hover: trace the lineage ─────────
+         There is no tooltip. One was built and then removed (Fang, 2026-09-13):
+         the overlay already writes every node on the path onto the figure, so a
+         floating box repeated names that were on screen a centimetre away, and
+         covered the tree while doing it. */
+      function initPhyloHover(){
+        var stage = $('treeStage');
+        if(!stage) return;
+        var current = null;
+
+        function hide(){ current = null; clearLineage(); }
+
+        stage.addEventListener('pointermove', function(e){
+          /* while panning the pointer is holding the tree, not asking about it */
+          if(stage.querySelector('svg.dragging')){ hide(); return; }
+          var g = e.target.closest ? e.target.closest('g.leaf, g.node') : null;
+          if(!g){ hide(); return; }
+          if(g !== current){
+            current = g;
+            drawLineage(nodeById[g.dataset.id]);
+          }
+        });
+        /* Mouse only. A touch pointer ceases to exist the moment the finger
+           lifts, so the browser fires pointerleave straight after pointerup --
+           which cleared the tapped lineage in the same tick it was drawn. */
+        stage.addEventListener('pointerleave', function(e){
+          if(e.pointerType === 'mouse') hide();
+        });
+        /* a wheel-zoom moves the geometry out from under the cursor */
+        stage.addEventListener('wheel', hide, {passive:true});
+
+        /* Touch has no hover, and below 560px the tips carry no labels either --
+           so without this a phone shows 79 dots and no way to learn what any of
+           them is. A TAP traces one lineage, and names every node on it. It has
+           to be told apart from a pan, which starts the same way, so the gesture
+           only counts if the pointer barely moved between down and up. */
+        var downX = 0, downY = 0, downT = 0;
+        stage.addEventListener('pointerdown', function(e){
+          downX = e.clientX; downY = e.clientY; downT = Date.now();
+          if(e.pointerType === 'mouse') hide();
+        });
+        stage.addEventListener('pointerup', function(e){
+          if(e.pointerType === 'mouse') return;          /* hover already covers it */
+          var moved = Math.abs(e.clientX - downX) + Math.abs(e.clientY - downY);
+          if(moved > 8 || Date.now() - downT > 700){ hide(); return; }
+          /* NOT e.target: the pan handler has taken pointer capture on the
+             stage by now, so every pointer event retargets there and closest()
+             would find nothing. Ask the document what is under the finger. */
+          var under = document.elementFromPoint(e.clientX, e.clientY);
+          var g = (under && under.closest) ? under.closest('g.leaf, g.node') : null;
+          if(!g){ hide(); return; }
+          current = g;
+          drawLineage(nodeById[g.dataset.id]);
+        });
       }
 
       function initPhyloControls(){
@@ -1150,27 +1466,29 @@
           phyloRoot = buildHierarchy(inner.treeNodes, inner.lca.taxon_id);
           if(!phyloRoot) throw new Error('no root');
 
+          /* The note carries no counts, but the check behind them is kept: `x` is
+             every phylum the tree holds and `y` those the EBP query matched, and
+             the drawn tree must agree with both. It is silent when it agrees and
+             says so when it does not, rather than being dropped along with the
+             numbers it used to sit beside. */
           var leaves = leavesOf(phyloRoot);
           var lit = leaves.filter(function(l){ return l.lit; }).length;
-          /* Reported by the same response, not counted into existence here: `x` is
-             every phylum the tree holds and `y` those the EBP query matched. */
           var total = (typeof t.x === 'number') ? t.x : leaves.length;
           var covered = (typeof t.y === 'number') ? t.y : lit;
           var key = $('treeKey');
           if(key){
-            var mismatch = (leaves.length !== total || lit !== covered);
-            key.innerHTML =
-              '<span><i class="on"></i><b>' + num(covered) + '</b> phyla with an EBP assembly</span>' +
-              '<span><i class="off"></i><b>' + num(total - covered) + '</b> still with none</span>' +
-              (mismatch
-                ? '<span>\u26a0\ufe0f drawn ' + num(leaves.length) + '/' + num(lit) +
-                  ' does not match the report \u2014 read the full page instead</span>'
-                : '');
+            if(leaves.length !== total || lit !== covered){
+              key.innerHTML += '<span class="warn">\u26a0\ufe0f Drawn ' + num(leaves.length) + '/' +
+                num(lit) + ' but GoaT reports ' + num(total) + '/' + num(covered) +
+                ' \u2014 read the full page instead.</span>';
+            }
             key.hidden = false;
           }
           drawPhylo();
         }).catch(function(){
-          treeMessage('The GoaT tree report did not load, so no tree is shown. Reload to try again.');
+          /* Names no database: the visitor cannot act on which one it was, and
+             the footer credits the source. Says what failed and what to do. */
+          treeMessage('The tree data did not load, so no tree is shown. Reload to try again.');
         });
       }
 
@@ -1520,6 +1838,7 @@
       buildToolCard('card-dup',  'foot-dup',  'duplication.html', 'dup-stat');
       loadHero();
       initPhyloControls();
+      initPhyloHover();
       loadPhylumTree();
       loadDuplicationPreview();
     })();
