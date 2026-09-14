@@ -1659,6 +1659,18 @@
       };
       var TOOL_CATEGORY = 'Sequencing coordination toolset';
 
+      /* Top-bar links open in a new tab. This page is the index — you come back
+         to it — and a report opened from here should not replace it.
+         `rel="noopener"` because `target="_blank"` otherwise hands the opened
+         page a live `window.opener` reference back to this one.
+
+         DELIBERATELY ONLY THE TOP BAR. The tool cards below and the search
+         results still navigate in place, and the header that site_topbar.js puts
+         on the tool pages does too: if every link everywhere opened a tab, three
+         clicks would leave you with four. One tab per thing you opened from
+         here, and none after that. */
+      var NEW_TAB = ' target="_blank" rel="noopener"';
+
       function catalogue(){ return (typeof pages !== 'undefined' && Array.isArray(pages)) ? pages : []; }
       function isOff(p){ return !!(p.requiresBackend && !backendConfigured); }
 
@@ -1683,9 +1695,9 @@
                           '<div class="dd">' + esc(p.description || '') + '</div></div>';
               html += off
                 ? '<div class="dd-item off ' + cls + '">' + inner + '</div>'
-                : '<a class="dd-item ' + cls + '" href="' + esc(p.file) + '">' + inner + '</a>';
+                : '<a class="dd-item ' + cls + '" href="' + esc(p.file) + '"' + NEW_TAB + '>' + inner + '</a>';
             } else {
-              html += '<a class="dd-link" href="' + esc(p.file) + '">' +
+              html += '<a class="dd-link" href="' + esc(p.file) + '"' + NEW_TAB + '>' +
                         '<span class="dli" aria-hidden="true"><i class="fas ' + esc(p.icon || 'fa-circle') + '"></i></span>' +
                         esc(p.name) + '</a>';
             }
