@@ -91,7 +91,7 @@ const PrioritizationResults = (function () {
   const STYLE_ID = 'ebp-results-styles';
   const STYLES = `
   .ebp-res-note{background:var(--ink-3,#14231b); border:1px solid var(--line,#22362b);
-    color:var(--paper-dim,#a6bcaf); font-size:12.5px; border-radius:9px; padding:10px 14px;
+    color:var(--paper-dim,#a6bcaf); font-size:13px; border-radius:9px; padding:10px 14px;
     margin-bottom:14px; display:flex; gap:9px; align-items:flex-start; line-height:1.6;}
   .ebp-res-note b{color:var(--paper,#e9f2ec);}
   .ebp-res-warn{border-color:rgba(224,167,96,.3); background:rgba(224,167,96,.09); color:var(--warn-ink,#e0a760);}
@@ -102,27 +102,27 @@ const PrioritizationResults = (function () {
   .ebp-stat{background:var(--ink-2,#0f1a14); border:1px solid var(--line,#22362b); border-radius:10px;
     padding:13px 15px; position:relative; overflow:hidden;}
   .ebp-stat .n{font-size:26px; font-weight:750; letter-spacing:-.02em; font-variant-numeric:tabular-nums;}
-  .ebp-stat .l{font-size:12px; color:var(--paper-dim,#a6bcaf); margin-top:1px; line-height:1.4;}
+  .ebp-stat .l{font-size:13px; color:var(--paper-dim,#a6bcaf); margin-top:1px; line-height:1.4;}
   .ebp-stat .stripe{position:absolute; left:0; top:0; bottom:0; width:4px;}
   .ebp-stat.s-total .n{color:var(--paper,#e9f2ec);}
-  .ebp-stat.s-novel .stripe{background:var(--novel,#7aa2ff);} .ebp-stat.s-novel .n{color:var(--novel,#7aa2ff);}
+  .ebp-stat.s-novel .stripe{background:var(--novel,#7aa2ff);} .ebp-stat.s-novel .n{color:var(--novel-ink,#7aa2ff);}
   .ebp-stat.s-new .stripe{background:var(--green-glow,#5fd39a);} .ebp-stat.s-new .n{color:var(--green-glow,#5fd39a);}
-  .ebp-stat.s-improve .stripe{background:var(--improve,#e0a760);} .ebp-stat.s-improve .n{color:var(--improve,#e0a760);}
-  .ebp-stat.s-low .stripe{background:var(--low,#8595a0);} .ebp-stat.s-low .n{color:var(--low,#8595a0);}
+  .ebp-stat.s-improve .stripe{background:var(--improve,#e0a760);} .ebp-stat.s-improve .n{color:var(--improve-ink,#e0a760);}
+  .ebp-stat.s-low .stripe{background:var(--low,#8595a0);} .ebp-stat.s-low .n{color:var(--low-ink,#8595a0);}
   .ebp-stat.s-na .stripe{background:var(--paper-mute,#6f8a7b);} .ebp-stat.s-na .n{color:var(--paper-mute,#6f8a7b);}
 
   .ebp-res-charts{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
   @media (max-width:760px){ .ebp-res-charts{grid-template-columns:1fr;} }
   .ebp-res-chart{height:190px;}
-  .ebp-res-cap{font-size:11.5px; color:var(--paper-mute,#6f8a7b); margin:8px 0 0; line-height:1.5;}
+  .ebp-res-cap{font-size:13px; color:var(--paper-mute,#6f8a7b); margin:8px 0 0; line-height:1.5;}
 
   .ebp-filters{display:flex; gap:10px 14px; flex-wrap:wrap; align-items:center; margin-bottom:12px;}
-  .ebp-filters label{font-size:12px; color:var(--paper-dim,#a6bcaf); font-weight:600;}
+  .ebp-filters label{font-size:13px; color:var(--paper-dim,#a6bcaf); font-weight:600;}
   .ebp-filters select,.ebp-filters input[type=search]{font:inherit; font-size:13px; padding:7px 9px;
     background:var(--ink,#0b1310); border:1px solid var(--line,#22362b); border-radius:7px; color:var(--paper,#e9f2ec);}
   .ebp-filters input[type=search]{min-width:190px;}
-  .ebp-count-note{margin-left:auto; font-size:12.5px; color:var(--paper-mute,#6f8a7b); font-variant-numeric:tabular-nums;}
-  .ebp-clear{background:none; border:none; font:inherit; font-size:12.5px; color:var(--green-glow,#5fd39a);
+  .ebp-count-note{margin-left:auto; font-size:13px; color:var(--paper-mute,#6f8a7b); font-variant-numeric:tabular-nums;}
+  .ebp-clear{background:none; border:none; font:inherit; font-size:13px; color:var(--green-glow,#5fd39a);
     cursor:pointer; text-decoration:underline; padding:0;}
   .ebp-clear[hidden]{display:none;}
 
@@ -130,7 +130,7 @@ const PrioritizationResults = (function () {
   .ebp-scroll{overflow-x:auto; max-height:70vh; overflow-y:auto;}
   table.ebp-data{width:100%; border-collapse:collapse; font-size:13px;}
   table.ebp-data thead th{position:sticky; top:0; z-index:2; background:var(--ink-2,#0f1a14); text-align:left;
-    font-weight:650; color:var(--paper-dim,#a6bcaf); font-size:11.5px; text-transform:uppercase;
+    font-weight:650; color:var(--paper-dim,#a6bcaf); font-size:13px; text-transform:uppercase;
     letter-spacing:.03em; padding:11px 12px; border-bottom:1px solid var(--line,#22362b); white-space:nowrap;}
   table.ebp-data thead th.srt{cursor:pointer; user-select:none;}
   table.ebp-data thead th.srt:hover{color:var(--paper,#e9f2ec);}
@@ -143,23 +143,23 @@ const PrioritizationResults = (function () {
     cursor:pointer; text-align:left; border-bottom:1px dotted var(--paper-mute,#6f8a7b);}
   .ebp-res-name:hover{color:var(--green-glow,#5fd39a); border-bottom-color:var(--green-glow,#5fd39a);}
   .ebp-res-name.sel{color:var(--green-glow,#5fd39a); border-bottom-style:solid;}
-  .ebp-res-as{display:block; font-size:11px; color:var(--paper-mute,#6f8a7b); font-style:normal; margin-top:2px;}
-  .ebp-res-chip{display:inline-block; padding:2.5px 8px; border-radius:999px; font-size:11.5px; font-weight:600;}
-  .ebp-res-chip.c-novel{background:rgba(122,162,255,.14); color:var(--novel,#7aa2ff);}
+  .ebp-res-as{display:block; font-size:13px; color:var(--paper-mute,#6f8a7b); font-style:normal; margin-top:2px;}
+  .ebp-res-chip{display:inline-block; padding:2.5px 8px; border-radius:999px; font-size:13px; font-weight:600;}
+  .ebp-res-chip.c-novel{background:rgba(122,162,255,.14); color:var(--novel-ink,#7aa2ff);}
   .ebp-res-chip.c-covered{background:var(--ink-4,#1b2f24); color:var(--paper-mute,#6f8a7b);}
   .ebp-res-chip.c-new{background:rgba(63,191,127,.13); color:var(--green-glow,#5fd39a);}
-  .ebp-res-chip.c-improve{background:rgba(224,167,96,.13); color:var(--improve,#e0a760);}
-  .ebp-res-chip.c-low{background:var(--ink-4,#1b2f24); color:var(--low,#8595a0);}
+  .ebp-res-chip.c-improve{background:rgba(224,167,96,.13); color:var(--improve-ink,#e0a760);}
+  .ebp-res-chip.c-low{background:var(--ink-4,#1b2f24); color:var(--low-ink,#8595a0);}
   .ebp-res-chip.c-unknown{background:var(--ink-4,#1b2f24); color:var(--paper-mute,#6f8a7b);}
   .ebp-firsts{display:inline-flex; gap:4px; font-variant-numeric:tabular-nums;}
-  .ebp-firsts b{width:19px; height:19px; border-radius:5px; font-size:11px; font-weight:700;
+  .ebp-firsts b{width:19px; height:19px; border-radius:5px; font-size:13px; font-weight:700;
     display:inline-flex; align-items:center; justify-content:center; cursor:default;}
-  .ebp-firsts b.y{background:rgba(122,162,255,.18); color:var(--novel,#7aa2ff);}
+  .ebp-firsts b.y{background:rgba(122,162,255,.18); color:var(--novel-ink,#7aa2ff);}
   .ebp-firsts b.n{background:var(--ink-4,#1b2f24); color:var(--paper-mute,#6f8a7b);}
   .ebp-firsts b.u{background:transparent; border:1px dashed var(--line,#22362b); color:var(--paper-mute,#6f8a7b);}
   .ebp-na{color:var(--paper-mute,#6f8a7b); cursor:default;}
   .ebp-projects{max-width:230px; overflow:hidden; text-overflow:ellipsis;}
-  .ebp-iucn{font-weight:700; font-size:12px;}
+  .ebp-iucn{font-weight:700; font-size:13px;}
   .ebp-iucn.threat{color:var(--red,#e0736a);} .ebp-iucn.lc{color:var(--green-glow,#5fd39a);}
   .ebp-iucn.other{color:var(--paper-dim,#a6bcaf);}
   .ebp-iucn.none{color:var(--paper-mute,#6f8a7b); font-weight:400;}
@@ -345,6 +345,9 @@ const PrioritizationResults = (function () {
   // ── charts ────────────────────────────────────────────────────────────────
 
   /** A CSS variable's current value, with the dark default as a fallback. */
+  /* Canvas text does not inherit the page's font, so ECharts is told it. */
+  const FONT = "'Libre Franklin',-apple-system,'Segoe UI',sans-serif";
+
   function cssVar(name, fallback) {
     const value = getComputedStyle(document.documentElement).getPropertyValue(name);
     return (value || '').trim() || fallback;
@@ -404,14 +407,14 @@ const PrioritizationResults = (function () {
       yAxis: {
         type: 'category', data: labels, inverse: true,
         axisLine: { show: false }, axisTick: { show: false },
-        axisLabel: { color: dim, fontSize: 11.5 },
+        axisLabel: { color: dim, fontSize: 13, fontFamily: FONT },
       },
       series: [{
         type: 'bar', barMaxWidth: 15,
         data: labels.map((label) => ({
           name: label, value: counts[label], itemStyle: { color: colorFor(kind, label), borderRadius: 3 },
         })),
-        label: { show: true, position: 'right', color: mute, fontSize: 11, formatter: (p) => num(p.value) },
+        label: { show: true, position: 'right', color: mute, fontSize: 13, fontFamily: FONT, formatter: (p) => num(p.value) },
       }],
     };
   }

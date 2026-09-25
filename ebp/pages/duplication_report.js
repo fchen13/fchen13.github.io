@@ -276,13 +276,13 @@ const DuplicationReport = (function () {
     color:var(--paper-dim,#a6bcaf); font:inherit; font-size:13px; padding:10px 15px;
     border-radius:10px 10px 0 0; cursor:pointer; display:flex; align-items:center; gap:9px;
     border-bottom:none;}
-  .ebp-dup-tabs button .rn{font-size:10.5px; font-weight:800; letter-spacing:.04em;
+  .ebp-dup-tabs button .rn{font-size:13px; font-weight:800; letter-spacing:.04em;
     color:var(--paper-mute,#6f8a7b); background:var(--ink-4,#1b2f24); border-radius:5px; padding:2px 6px;}
   .ebp-dup-tabs button .tct{font-variant-numeric:tabular-nums; color:var(--paper-mute,#6f8a7b);
     font-weight:600;}
   .ebp-dup-tabs button:hover{color:var(--paper,#e9f2ec);}
   .ebp-dup-tabs button.on{background:var(--ink-3,#14231b); color:var(--paper,#e9f2ec); font-weight:650;}
-  .ebp-dup-tabs button.on .rn{color:var(--green-glow,#5fd39a); background:rgba(22,163,74,.14);}
+  .ebp-dup-tabs button.on .rn{color:var(--green-ink,#5fd39a); background:rgba(22,163,74,.14);}
 
   .ebp-dup-panel{border:1px solid var(--line,#22362b); border-radius:0 14px 14px 14px;
     background:var(--ink-2,#0f1a14); padding:20px 22px 24px; margin-bottom:26px;}
@@ -291,7 +291,7 @@ const DuplicationReport = (function () {
     border-bottom:1px dashed var(--line,#22362b); line-height:1.65;}
   .ebp-dup-desc .ic{flex:none; width:20px; height:20px; border-radius:6px;
     background:var(--ink-4,#1b2f24); display:flex; align-items:center; justify-content:center;
-    font-size:12px; margin-top:1px;}
+    font-size:13px; margin-top:1px;}
   .ebp-dup-desc b{color:var(--paper,#e9f2ec);}
   .ebp-dup-desc .rec{display:block; margin-top:7px; color:var(--paper-mute,#6f8a7b);}
   .ebp-dup-desc .rec b{color:var(--paper-dim,#a6bcaf);}
@@ -299,14 +299,14 @@ const DuplicationReport = (function () {
   /* view toggle */
   .ebp-dup-vtoggle{display:flex; border:1px solid var(--line,#22362b); border-radius:8px;
     overflow:hidden; width:max-content; margin-bottom:18px;}
-  .ebp-dup-vtoggle button{font:inherit; font-size:12.5px; font-weight:600; padding:7px 14px;
+  .ebp-dup-vtoggle button{font:inherit; font-size:13px; font-weight:600; padding:7px 14px;
     background:var(--ink-2,#0f1a14); color:var(--paper-dim,#a6bcaf); border:none; cursor:pointer;}
   .ebp-dup-vtoggle button.on{background:var(--ink-4,#1b2f24); color:var(--green-glow,#5fd39a);}
   .ebp-dup-vtoggle button+button{border-left:1px solid var(--line,#22362b);}
 
   /* ── HEATMAP ── */
   .ebp-hmwrap{overflow-x:auto; padding-bottom:6px;}
-  table.ebp-heatmap{border-collapse:separate; border-spacing:3px; font-size:12px;}
+  table.ebp-heatmap{border-collapse:separate; border-spacing:3px; font-size:13px;}
   table.ebp-heatmap th{font-weight:600; color:var(--paper-dim,#a6bcaf); padding:6px 4px;
     text-align:center; vertical-align:bottom;}
   /* The row label and the two summary columns are the table's frame: they stay
@@ -327,7 +327,7 @@ const DuplicationReport = (function () {
      shuffled table rather than a broken one. */
   table.ebp-heatmap thead th.stick{z-index:5;}
   table.ebp-heatmap thead th.rowh{z-index:6;}
-  table.ebp-heatmap th.colh{font-size:11px;}
+  table.ebp-heatmap th.colh{font-size:13px;}
   table.ebp-heatmap th.colh span{writing-mode:vertical-rl; transform:rotate(180deg);
     letter-spacing:.02em; padding:4px 0; font-family:ui-monospace,'Cascadia Code',Menlo,monospace;}
   table.ebp-heatmap th.colh.meta span{font-family:inherit; color:var(--paper-mute,#6f8a7b);}
@@ -355,24 +355,24 @@ const DuplicationReport = (function () {
   /* ── STACKED BARS ── */
   .ebp-barrow{display:grid; grid-template-columns:112px 1fr 56px; align-items:center; gap:12px;
     padding:5px 0;}
-  .ebp-barname{font-size:12.5px; font-weight:650; text-align:right; color:var(--paper-dim,#a6bcaf);
+  .ebp-barname{font-size:13px; font-weight:650; text-align:right; color:var(--paper-dim,#a6bcaf);
     font-family:ui-monospace,'Cascadia Code',Menlo,monospace; overflow:hidden; text-overflow:ellipsis;}
   .ebp-bartrack{height:26px; border-radius:6px; background:var(--ink-3,#14231b); overflow:hidden;
     display:flex; min-width:6px;}
   .ebp-barseg{height:100%; min-width:0; border-right:2px solid var(--ink-2,#0f1a14);}
   .ebp-barseg:last-child{border-right:none;}
-  .ebp-bartot{font-size:12.5px; font-weight:700; color:var(--paper-dim,#a6bcaf);
+  .ebp-bartot{font-size:13px; font-weight:700; color:var(--paper-dim,#a6bcaf);
     font-variant-numeric:tabular-nums;}
   .ebp-baraxis{display:grid; grid-template-columns:112px 1fr 56px; gap:12px; margin-top:8px;
-    font-size:11px; color:var(--paper-mute,#6f8a7b);}
+    font-size:13px; color:var(--paper-mute,#6f8a7b);}
   @media (max-width:720px){ .ebp-barrow,.ebp-baraxis{grid-template-columns:80px 1fr 48px;} }
 
   /* legend */
   .ebp-dup-legend{display:flex; flex-wrap:wrap; gap:9px 16px; margin-top:20px; padding-top:16px;
-    border-top:1px solid var(--line,#22362b); font-size:11.5px; color:var(--paper-dim,#a6bcaf);
+    border-top:1px solid var(--line,#22362b); font-size:13px; color:var(--paper-dim,#a6bcaf);
     align-items:center;}
   .ebp-dup-legend .lead{color:var(--paper-mute,#6f8a7b); font-weight:700; text-transform:uppercase;
-    letter-spacing:.05em; font-size:10.5px;}
+    letter-spacing:.05em; font-size:13px;}
   .ebp-dup-legend span{display:inline-flex; align-items:center; gap:6px;}
   .ebp-dup-legend .dot{width:10px; height:10px; border-radius:3px; flex:none;}
 
@@ -381,7 +381,7 @@ const DuplicationReport = (function () {
      about half the panel with a ragged void beside it. They are short and set
      small; the usual 65-90ch reading measure is for running prose, not for two
      lines of caption pinned to the thing above them. */
-  .ebp-dup-cap{font-size:11.5px; color:var(--paper-mute,#6f8a7b); margin:14px 0 0; line-height:1.6;}
+  .ebp-dup-cap{font-size:13px; color:var(--paper-mute,#6f8a7b); margin:14px 0 0; line-height:1.6;}
   .ebp-dup-cap b{color:var(--paper-dim,#a6bcaf);}
 
   /* ── drill-down drawer ── */
@@ -393,7 +393,7 @@ const DuplicationReport = (function () {
   .ebp-drill-head .swatch{width:11px; height:11px; border-radius:3px; flex:none;}
   .ebp-drill-head .dh-title{font-size:13.5px; font-weight:700;}
   .ebp-drill-head .dh-title b{color:var(--green-glow,#5fd39a);}
-  .ebp-drill-head .dh-sub{font-size:12px; color:var(--paper-mute,#6f8a7b); margin-top:1px;}
+  .ebp-drill-head .dh-sub{font-size:13px; color:var(--paper-mute,#6f8a7b); margin-top:1px;}
   .ebp-drill-head .dh-close{margin-left:auto; background:transparent;
     border:1px solid var(--line,#22362b); color:var(--paper-dim,#a6bcaf); border-radius:7px;
     width:28px; height:28px; cursor:pointer; font-size:15px; line-height:1; flex:none;}
@@ -403,15 +403,15 @@ const DuplicationReport = (function () {
     font-size:13px;}
   .ebp-sp:hover{background:var(--ink-4,#1b2f24);}
   .ebp-sp .sci{font-style:italic; font-weight:500; color:var(--paper,#e9f2ec); flex:1; min-width:0;}
-  .ebp-sp .tid{font-size:11px; color:var(--paper-mute,#6f8a7b); font-variant-numeric:tabular-nums;
+  .ebp-sp .tid{font-size:13px; color:var(--paper-mute,#6f8a7b); font-variant-numeric:tabular-nums;
     white-space:nowrap;}
   /* Leaves the site, so it takes the outbound-link blue rather than the
      in-product green — same rule as the cited sources in the footer. */
-  .ebp-sp .goat{font-size:11.5px; color:var(--link-out,#7aa2ff); white-space:nowrap;}
+  .ebp-sp .goat{font-size:13px; color:var(--link-out,#7aa2ff); white-space:nowrap;}
   .ebp-sp+.ebp-sp{border-top:1px solid var(--line-soft,#1a2a20);}
-  .ebp-drill-more{text-align:center; padding:9px; font-size:12px; color:var(--paper-mute,#6f8a7b);
+  .ebp-drill-more{text-align:center; padding:9px; font-size:13px; color:var(--paper-mute,#6f8a7b);
     border-top:1px solid var(--line,#22362b);}
-  .ebp-drill-none{padding:16px; font-size:12.5px; color:var(--warn-ink,#e0a760); line-height:1.65;}
+  .ebp-drill-none{padding:16px; font-size:13px; color:var(--warn-ink,#e0a760); line-height:1.65;}
 
   /* ── empty + warning ── */
   .ebp-dup-empty{border:1px dashed var(--line,#22362b); border-radius:11px; padding:22px 24px;
@@ -425,7 +425,7 @@ const DuplicationReport = (function () {
   .ebp-dup-empty.caution b{color:var(--warn-ink,#e0a760);}
 
   .ebp-dup-warn{border:1px solid rgba(224,167,96,.35); background:rgba(224,167,96,.09);
-    color:var(--warn-ink,#e0a760); border-radius:9px; padding:10px 14px; font-size:12.5px;
+    color:var(--warn-ink,#e0a760); border-radius:9px; padding:10px 14px; font-size:13px;
     line-height:1.65; margin-bottom:14px;}
   .ebp-dup-warn b{color:var(--warn-ink,#e0a760);}
   `;

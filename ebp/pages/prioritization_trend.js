@@ -92,7 +92,7 @@ const PrioritizationTrend = (function () {
     background:var(--ink-2,#0f1a14); color:var(--paper,#e9f2ec);}
   .ebp-moves{padding:18px 22px 20px; margin-bottom:18px;}
   .ebp-trend{padding:20px 22px 22px;}
-  .ebp-moves h3{font-size:12px; text-transform:uppercase; letter-spacing:.05em;
+  .ebp-moves h3{font-size:13px; text-transform:uppercase; letter-spacing:.05em;
     color:var(--paper-mute,#6f8a7b); margin:0 0 8px; font-weight:700;}
   .ebp-moves .lead{font-size:13px; color:var(--paper-dim,#a6bcaf); margin:0 0 15px;}
   .ebp-moves .lead b{color:var(--paper,#e9f2ec);}
@@ -108,14 +108,14 @@ const PrioritizationTrend = (function () {
      label beside it — Liste_Roscoff's window has kinds of 419 and 468 species. */
   .ebp-move .n{font-size:20px; font-weight:800; font-variant-numeric:tabular-nums;
     color:var(--green-glow,#5fd39a); line-height:1.15; min-width:20px; flex:none;}
-  .ebp-move .lbl{display:block; font-size:12.5px; font-weight:650; color:var(--paper,#e9f2ec); line-height:1.3;}
-  .ebp-move .mean{display:block; font-size:11.5px; color:var(--paper-mute,#6f8a7b); margin-top:3px; line-height:1.4;}
+  .ebp-move .lbl{display:block; font-size:13px; font-weight:650; color:var(--paper,#e9f2ec); line-height:1.3;}
+  .ebp-move .mean{display:block; font-size:13px; color:var(--paper-mute,#6f8a7b); margin-top:3px; line-height:1.4;}
   /* Collapsed by default: a kind on a 5,000-name list can hold hundreds of
      species and would bury the card. Nothing is truncated — the box scrolls. */
   .ebp-move .names{display:none; flex-wrap:wrap; gap:5px; margin-top:10px; max-height:216px;
     overflow-y:auto; padding-top:9px; border-top:1px dashed var(--line,#22362b);}
   .ebp-move.open .names{display:flex;}
-  .ebp-sp-chip{font-style:italic; font-size:11.5px; color:var(--paper-dim,#a6bcaf);
+  .ebp-sp-chip{font-style:italic; font-size:13px; color:var(--paper-dim,#a6bcaf);
     background:var(--ink-2,#0f1a14); border:1px solid var(--line,#22362b); border-radius:999px;
     padding:2px 9px; cursor:pointer; line-height:1.5; font-family:inherit;}
   .ebp-sp-chip:hover{color:var(--green-glow,#5fd39a); border-color:rgba(63,191,127,.45);}
@@ -123,33 +123,33 @@ const PrioritizationTrend = (function () {
   .ebp-trend-head{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:6px;}
   .ebp-trend-head h2{font-size:15px; font-weight:750; letter-spacing:-.01em; margin:0;
     color:var(--paper,#e9f2ec); text-transform:none;}
-  .ebp-badge{font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+  .ebp-badge{font-size:13px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
     color:var(--green-glow,#5fd39a); background:rgba(63,191,127,.12);
     border:1px solid rgba(63,191,127,.3); border-radius:999px; padding:2px 9px;}
   .ebp-trend-ctls{margin-left:auto; display:flex; gap:14px; align-items:center; flex-wrap:wrap;}
   .ebp-trend-ctl{display:flex; align-items:center; gap:7px;}
-  .ebp-trend-ctl label{font-size:11.5px; text-transform:uppercase; letter-spacing:.05em;
+  .ebp-trend-ctl label{font-size:13px; text-transform:uppercase; letter-spacing:.05em;
     color:var(--paper-mute,#6f8a7b); font-weight:700;}
   .ebp-trend-ctl select{font:inherit; font-size:13px; padding:7px 10px; background:var(--ink,#0b1310);
     color:var(--paper,#e9f2ec); border:1px solid var(--line,#22362b); border-radius:8px; cursor:pointer;}
-  .ebp-trend-sub{font-size:12.5px; color:var(--paper-dim,#a6bcaf); margin:0 0 14px;}
+  .ebp-trend-sub{font-size:13px; color:var(--paper-dim,#a6bcaf); margin:0 0 14px;}
   .ebp-trend-sub b{color:var(--paper,#e9f2ec);}
   .ebp-canvas-wrap{position:relative;}
   .ebp-trend canvas{width:100%; height:210px; display:block;}
   .ebp-trend-tip{position:absolute; pointer-events:none; opacity:0; transition:opacity .12s;
     background:var(--ink-3,#14231b); border:1px solid var(--line,#22362b); border-radius:9px;
-    padding:8px 11px; font-size:11.5px; line-height:1.5; color:var(--paper,#e9f2ec);
+    padding:8px 11px; font-size:13px; line-height:1.5; color:var(--paper,#e9f2ec);
     box-shadow:0 12px 30px rgba(0,0,0,.4); white-space:nowrap; z-index:5;}
   .ebp-trend-tip b{color:var(--green-glow,#5fd39a);}
   .ebp-trend-tip .tt-d{color:var(--paper-mute,#6f8a7b);}
-  .ebp-trend-legend{display:flex; gap:16px; margin-top:12px; font-size:11.5px;
+  .ebp-trend-legend{display:flex; gap:16px; margin-top:12px; font-size:13px;
     color:var(--paper-dim,#a6bcaf); flex-wrap:wrap;}
   .ebp-trend-legend span{display:inline-flex; align-items:center; gap:6px;}
   .ebp-trend-legend .ln{width:18px; height:2px; border-radius:2px; background:var(--green-glow,#5fd39a);}
   .ebp-trend-legend .ln.dash{background:repeating-linear-gradient(90deg,var(--green-glow,#5fd39a) 0 5px,transparent 5px 9px);}
   .ebp-trend-legend .pt{width:8px; height:8px; border-radius:50%; background:var(--green-glow,#5fd39a);}
   .ebp-trend-legend .muted{color:var(--paper-mute,#6f8a7b);}
-  .ebp-trend-note{display:flex; gap:9px; align-items:flex-start; font-size:12px;
+  .ebp-trend-note{display:flex; gap:9px; align-items:flex-start; font-size:13px;
     color:var(--paper-dim,#a6bcaf); margin-top:14px; padding:11px 13px; background:var(--ink-3,#14231b);
     border:1px solid var(--line,#22362b); border-radius:9px;}
   .ebp-trend-note .ic{flex:none; color:var(--warn-ink,#e0a760);}
@@ -159,7 +159,7 @@ const PrioritizationTrend = (function () {
     background:var(--ink-2,#0f1a14); color:var(--paper-dim,#a6bcaf); padding:20px 22px;
     font-size:13px; line-height:1.6;}
   .ebp-trend-msg b{color:var(--paper,#e9f2ec);}
-  .ebp-trend-msg code{font-family:ui-monospace,'Cascadia Code',Menlo,monospace; font-size:.9em;
+  .ebp-trend-msg code{font-family:ui-monospace,'Cascadia Code',Menlo,monospace; font-size:max(13px,.9em);
     color:var(--green-glow,#5fd39a);}
   `;
 
@@ -436,7 +436,7 @@ const PrioritizationTrend = (function () {
 
       /* grid + y labels. Solid rules — dashing is reserved for the data line,
          where it means "this window contains a change of ours". */
-      g.font = '10px -apple-system,Segoe UI,sans-serif';
+      g.font = "13px 'Libre Franklin',-apple-system,Segoe UI,sans-serif";
       g.textBaseline = 'middle';
       g.textAlign = 'right';
       for (let tick = yMin; tick <= yMax + 0.001; tick += stepY) {
@@ -504,7 +504,7 @@ const PrioritizationTrend = (function () {
       });
       label[iLo] = 1; label[iHi] = 1;
       g.textAlign = 'center';
-      g.font = '600 10px -apple-system,Segoe UI,sans-serif';
+      g.font = "600 13px 'Libre Franklin',-apple-system,Segoe UI,sans-serif";
       let lastLabelRight = -1e9;
       geom.forEach(function (p, idx) {
         if (!label[idx]) return;
@@ -526,7 +526,7 @@ const PrioritizationTrend = (function () {
          rest. Only plotted runs are labelled: an axis tick under no point would
          read as a run whose value is off-scale. */
       g.textAlign = 'center'; g.textBaseline = 'top';
-      g.font = '10px -apple-system,Segoe UI,sans-serif';
+      g.font = "13px 'Libre Franklin',-apple-system,Segoe UI,sans-serif";
       let lastRight = -1e9;
       geom.forEach(function (p, idx) {
         const text = axisLabel(p.run.date);

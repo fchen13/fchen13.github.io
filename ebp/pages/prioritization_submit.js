@@ -93,14 +93,14 @@ const PrioritizationSubmit = (function () {
   .ebp-file[hidden]{display:none;}
   .ebp-file .fn{font-weight:600; color:var(--paper,#e9f2ec); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .ebp-file .fsz{color:var(--paper-mute,#6f8a7b); font-variant-numeric:tabular-nums; flex:none;}
-  .ebp-file .drop-it{margin-left:auto; flex:none; background:none; border:none; font:inherit; font-size:12px;
+  .ebp-file .drop-it{margin-left:auto; flex:none; background:none; border:none; font:inherit; font-size:13px;
     color:var(--paper-mute,#6f8a7b); cursor:pointer; text-decoration:underline;}
   .ebp-file .drop-it:hover{color:var(--red,#e0736a);}
 
   .ebp-or{display:flex; align-items:center; gap:14px; margin:20px 0; color:var(--paper-mute,#6f8a7b);
-    font-size:12px; letter-spacing:.06em; text-transform:uppercase;}
+    font-size:13px; letter-spacing:.06em; text-transform:uppercase;}
   .ebp-or::before,.ebp-or::after{content:""; flex:1; height:1px; background:var(--line,#22362b);}
-  .ebp-sub label.ebp-field{display:block; font-size:12px; font-weight:700; color:var(--paper-dim,#a6bcaf);
+  .ebp-sub label.ebp-field{display:block; font-size:13px; font-weight:700; color:var(--paper-dim,#a6bcaf);
     text-transform:uppercase; letter-spacing:.04em; margin-bottom:7px;}
   .ebp-sub textarea{width:100%; min-height:130px; resize:vertical; font:inherit; font-size:13.5px;
     line-height:1.6; padding:12px 14px; background:var(--ink,#0b1310); border:1px solid var(--line,#22362b);
@@ -112,29 +112,29 @@ const PrioritizationSubmit = (function () {
   .ebp-sub input[type=text]{width:100%; font:inherit; font-size:13.5px; padding:9px 12px;
     background:var(--ink,#0b1310); border:1px solid var(--line,#22362b); border-radius:9px; color:var(--paper,#e9f2ec);}
   .ebp-sub input[type=text]:focus{outline:none; border-color:var(--green-bright,#3fbf7f);}
-  .ebp-hint{font-size:11.5px; color:var(--paper-mute,#6f8a7b); margin-top:5px; line-height:1.5;}
-  .ebp-hint code{font-size:.92em;}
+  .ebp-hint{font-size:13px; color:var(--paper-mute,#6f8a7b); margin-top:5px; line-height:1.5;}
+  .ebp-hint code{font-size:max(13px,.92em);}
   .ebp-actions{display:flex; align-items:center; gap:14px; margin-top:20px; flex-wrap:wrap;}
   .ebp-counter{font-size:13px; color:var(--paper-dim,#a6bcaf);}
   .ebp-counter b{color:var(--green-glow,#5fd39a); font-variant-numeric:tabular-nums;}
 
-  .ebp-sub-err{margin-top:14px; font-size:12.5px; line-height:1.75; border-radius:9px; padding:11px 14px;
+  .ebp-sub-err{margin-top:14px; font-size:13px; line-height:1.75; border-radius:9px; padding:11px 14px;
     color:var(--red,#e0736a); background:rgba(224,115,106,.1); border:1px solid rgba(224,115,106,.3);}
   .ebp-sub-err[hidden]{display:none;}
   .ebp-sub-err b{color:var(--red,#e0736a);}
   /* The recovery command is the point of the message, so it is legible rather
      than inheriting the page's green-on-ink code style inside a red box. */
   .ebp-sub-err code{background:rgba(224,115,106,.12); border-color:rgba(224,115,106,.28);
-    color:inherit; font-size:.92em;}
+    color:inherit; font-size:max(13px,.92em);}
 
   .ebp-steps{list-style:none; padding:0; margin:0; display:grid; gap:11px;}
   .ebp-steps li{display:flex; gap:11px; align-items:flex-start; font-size:13px; color:var(--paper-dim,#a6bcaf);
     line-height:1.6;}
   .ebp-steps .k{width:22px; height:22px; border-radius:50%; background:var(--ink-4,#1b2f24);
-    color:var(--green-glow,#5fd39a); font-weight:700; font-size:12px; display:flex; align-items:center;
+    color:var(--green-glow,#5fd39a); font-weight:700; font-size:13px; display:flex; align-items:center;
     justify-content:center; flex:none; margin-top:1px;}
   .ebp-steps b{color:var(--paper,#e9f2ec);}
-  .ebp-keep{font-size:12px; color:var(--paper-mute,#6f8a7b); line-height:1.6; margin:14px 0 0;
+  .ebp-keep{font-size:13px; color:var(--paper-mute,#6f8a7b); line-height:1.6; margin:14px 0 0;
     border-top:1px solid var(--line-soft,#1a2a20); padding-top:12px;}
   .ebp-keep b{color:var(--paper-dim,#a6bcaf);}
 
@@ -144,7 +144,7 @@ const PrioritizationSubmit = (function () {
     border-top-color:var(--green-glow,#5fd39a); border-radius:50%; animation:ebp-spin .8s linear infinite; flex:none;}
   @keyframes ebp-spin{to{transform:rotate(360deg);}}
   .ebp-proc-head .t{font-size:16px; font-weight:650;}
-  .ebp-proc-head .s{font-size:12.5px; color:var(--paper-mute,#6f8a7b); font-variant-numeric:tabular-nums;}
+  .ebp-proc-head .s{font-size:13px; color:var(--paper-mute,#6f8a7b); font-variant-numeric:tabular-nums;}
   .ebp-bar{height:8px; border-radius:99px; background:var(--ink-4,#1b2f24); overflow:hidden; margin:6px 0 16px;}
   .ebp-bar>i{display:block; height:100%; width:0;
     background:linear-gradient(90deg,var(--green-deep,#0d7a47),var(--green-glow,#5fd39a));
@@ -156,9 +156,9 @@ const PrioritizationSubmit = (function () {
   .ebp-bar.indet>i{width:100%; transform-origin:left;
     animation:ebp-indet 1.5s ease-in-out infinite; opacity:.55;}
   @keyframes ebp-indet{0%{transform:scaleX(.15);}50%{transform:scaleX(.8);}100%{transform:scaleX(.15);}}
-  .ebp-proc-note{font-size:12.5px; color:var(--paper-dim,#a6bcaf); line-height:1.6; margin:0;}
+  .ebp-proc-note{font-size:13px; color:var(--paper-dim,#a6bcaf); line-height:1.6; margin:0;}
   .ebp-proc-note b{color:var(--paper,#e9f2ec);}
-  .ebp-proc-note code{font-size:.9em;}
+  .ebp-proc-note code{font-size:max(13px,.9em);}
   `;
 
   function injectStyles() {

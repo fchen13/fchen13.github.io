@@ -7,20 +7,23 @@ Use it as the reference when auditing or creating files.
 
 ## 1. Color Palette
 
-### Landing page (`index.html`) — CSS variables
+### Landing page and the two tools (`index.html`, `pages/prioritization.html`, `pages/duplication.html`) — CSS variables
+The three share one light palette. Text tokens (all AAA on white):
 ```css
---bg:            #ffffff
---bg-alt:        #f4f6f4
---bg-card:       #ffffff
---bg-card-hover: #f7faf8
---accent:        #0d7a47      /* primary green */
---accent-light:  #e5f3ec
---accent-mid:    #16a34a
---text:          #111827
---text-dim:      #4b5563
---text-muted:    #9ca3af
---border:        #e5e7eb
+--ink:        #f4f7f4   /* page ground */     --ink-2: #ffffff   /* cards */
+--paper:      #12211a   /* primary text, 15.5:1 */
+--paper-dim:  #293930   /* secondary text, 12:1 */
+--paper-mute: #415047   /* tertiary text, 8.5:1 */
+--green-deep: #0d7a47   /* primary green */
 ```
+There is no light-grey text tier. Hierarchy comes from size, weight and uppercase
+letterspacing, as on earthbiogenome.org — never from lightening the text.
+
+On the tool pages, a colour that paints **both** fills and text has two tokens: the
+fill (`--novel`, `--improve`, `--low`, `--gap`, `--warn`) keeps its value, and
+text reads the `-ink` twin (`--novel-ink #2f55b0`, `--improve-ink #8a5518`,
+`--low-ink #4f5a63`, `--gap-ink #2f55b0`, `--warn-ink #935f1d`), each ≥ 5.6:1 on
+its own chip tint. A dark-theme value must never reach light-theme text.
 
 ### Visualization files (`pages/*.html`) — inline values
 | Purpose | Value |
@@ -62,10 +65,17 @@ Hover: `background-color: #F1F5F9`. Differentiate button intent (e.g. CSV vs ima
 
 ## 2. Typography
 
-### Landing page
-- Font stack: `-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif`
-- Base line-height: `1.6`
-- Page headline: `1.6rem`, weight `800`, letter-spacing `-0.02em`
+### Landing page and the two tools
+- Font: **Libre Franklin** (Google Fonts, variable 400–800 + italic), then
+  `-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif`. It is
+  earthbiogenome.org's body face; the official site's heading face, effra, is
+  Adobe-licensed to that site and cannot be used here. Canvas and ECharts text
+  name the font explicitly — they do not inherit it.
+- Type floor: **13px** for all text. Scale above it: 13 → 15 (body) → 19/20 → 25 → 30.
+  Exempt: glyph-only marks (disclosure carets, sort arrows) and the home page's
+  phylum-tree SVG labels, which scale with the drawing (Fang, 2026-09-13).
+- Base line-height: `1.55`
+- Page headline: weight `800`, letter-spacing `-0.02em`
 
 ### Visualization files
 - Font stack: `Arial, sans-serif` (for UI controls and labels)

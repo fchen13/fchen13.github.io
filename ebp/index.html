@@ -24,6 +24,11 @@
          fact can separate the two. Do not restore it here. -->
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Libre Franklin: earthbiogenome.org's body face (its headings use effra,
+         Adobe-licensed to that site and not loadable here). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400..800;1,400..800&display=swap">
 
     <style>
       /* ══════════════════════════════════════════════════════════════════
@@ -85,6 +90,11 @@
         /* a green dark enough to read as a label on white. #4d8a1f read 4.22:1 and
            failed AA on every ground including its own badge tint; #467d1c clears it. */
         --genus-ink:#467d1c;
+        /* The two tool-card badges are small uppercase text on their own tint, where
+           --genus-ink (4.51:1) and --gap (4.49:1) sat on the AA line. Same hues, one
+           step darker, for the badges only (2026-09-25). */
+        --novelty-ink:#3b6b17;   /* 5.75:1 on the Novelty tint */
+        --coord-ink:#3d5f8f;     /* 5.71:1 on the Coordination tint */
         /* "Has at least one EBP assembly", for the phylum tree. THE SAME ORANGE AS
            THE ORDER-LEVEL TREE: pages/phylotree.html paints its branches the CSS
            keyword `orange`, and its GoaT caption reads "Orange highlights represent
@@ -124,21 +134,18 @@
 
       *{box-sizing:border-box;}
       @media (prefers-reduced-motion:reduce){ *{animation:none!important; transition:none!important;} }
-      /* TYPE FLOOR: 15px, matching body (Fang, 2026-09-13 -- "the floor text is too
-         small, and hard to read"). Nothing on this page declares a smaller size
-         except two deliberate exceptions, both non-text: the nav caret glyph at
-         12px, and the figure's SVG labels, which are declared smaller ONLY because
-         the viewBox rescales them -- 11.1px there paints at about 14.6px.
+      /* TYPE FLOOR: 13px (Fang, 2026-09-13 -- "the floor text is too small, and
+         hard to read"). It went to 15 first and came back: body is 15px, so a 15px
+         floor collapsed 13.5/14/15 into one size. At 13 the ramp survives:
+         13 -> 15 -> 19/20 -> 25 -> 30. The one exception is the figure's SVG
+         labels, which scale with the drawing (see drawPhylo). The two tool pages
+         hold the same floor (2026-09-25).
 
-         The consequence, accepted: body is 15px too, so most secondary text is now
-         exactly body size and the old 12/12.5/13/13.5/14 ramp is gone. Hierarchy
-         rests on colour (--paper / --paper-dim / --paper-mute) and weight, which is
-         what was mostly carrying it anyway -- those were 1-2px steps. Above the
-         floor the scale is unchanged: 15 -> 19/20 -> 25 -> 30.
-         Measured before and after: no overflow at 1400px or a true 400px, and the
-         page grew 7% (desktop) / 12% (400px). */
+         FACE: Libre Franklin, earthbiogenome.org's body font, so the dashboard
+         reads as part of the official site (2026-09-25). The system stack stays
+         behind it for the moment before the webfont arrives. */
       body{margin:0; background:var(--ink); color:var(--paper);
-        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif;
+        font-family:'Libre Franklin',-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif;
         font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;}
       .tnum{font-variant-numeric:tabular-nums;}
       .wrap{max-width:1180px; margin:0 auto; padding:0 24px;}
@@ -187,20 +194,21 @@
       .topnav .n:hover{color:var(--paper);}
       .nav-menu{position:relative;}
       .nav-menu .n{display:inline-flex; align-items:center; gap:6px;}
-      .nav-menu .caret{font-size:13px; opacity:.7;}
+      .nav-menu .caret{font-size:13px;}
       .dropdown{position:absolute; right:0; top:calc(100% + 8px); background:var(--ink-2); border:1px solid var(--line); border-radius:12px; box-shadow:0 18px 44px rgba(18,33,26,.15); padding:7px; opacity:0; visibility:hidden; transform:translateY(-6px); transition:opacity .15s, transform .15s, visibility .15s; z-index:40;}
-      .dropdown.wide{width:300px;}
+      /* Titles only (Fang, 2026-09-25): the descriptions are in the search results
+         and on the tool cards below. Sized to the longest title, never narrower than a list. */
+      .dropdown.wide{width:max-content; min-width:265px;}
       .dropdown.list{width:265px;}
       .nav-menu:hover .dropdown, .nav-menu:focus-within .dropdown{opacity:1; visibility:visible; transform:translateY(0);}
       /* rich tool items */
-      .dd-item{display:flex; gap:11px; align-items:flex-start; padding:11px 12px; border-radius:9px; text-decoration:none;}
+      .dd-item{display:flex; gap:11px; align-items:center; padding:11px 12px; border-radius:9px; text-decoration:none;}
       a.dd-item:hover{background:var(--ink-3);}
       .dd-item.off{opacity:.6; cursor:default;}
       .dd-item .di{width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; flex:none;}
       .dd-item.prio .di{background:rgba(122,209,81,.18); border:1px solid rgba(122,209,81,.45); color:var(--genus-ink);}
       .dd-item.dup .di{background:rgba(74,111,165,.13); border:1px solid rgba(74,111,165,.32); color:var(--gap);}
       .dd-item .dt{font-size:13px; font-weight:700; color:var(--paper);}
-      .dd-item .dd{font-size:13px; color:var(--paper-mute); line-height:1.35;}
       .dd-item .soon{font-size:13px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--paper-mute); border:1px dashed var(--line); border-radius:999px; padding:1px 7px; margin-left:6px; white-space:nowrap;}
       /* simple link items */
       .dd-link{display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:8px; color:var(--paper-dim); font-size:13px; text-decoration:none;}
@@ -381,15 +389,17 @@
       .tool.dup .accent{background:linear-gradient(90deg,var(--s-not),var(--s-collected),var(--s-datagen),var(--s-progress),var(--s-published));}
       .tool.off .accent{filter:saturate(.25) opacity(.55);}
       .tool .body{display:grid; grid-template-columns:1fr 1fr; gap:22px; padding:20px 24px 22px; align-items:center;}
-      @media (max-width:760px){ .tool .body{grid-template-columns:1fr; gap:16px;} }
+      /* minmax(0,1fr), not 1fr: a bare 1fr cannot shrink below its content's
+         min-content, and in Libre Franklin that ran 3px past the card at 400px. */
+      @media (max-width:760px){ .tool .body{grid-template-columns:minmax(0,1fr); gap:16px;} }
       .tool .head{display:flex; align-items:flex-start; gap:13px; margin-bottom:12px;}
       .tool .ic{width:44px; height:44px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:19px; flex:none;}
       .tool.prio .ic{background:rgba(122,209,81,.18); border:1px solid rgba(122,209,81,.45); color:var(--genus-ink);}
       .tool.dup .ic{background:rgba(74,111,165,.13); border:1px solid rgba(74,111,165,.32); color:var(--gap);}
       .tool .tt{font-size:20px; font-weight:800; letter-spacing:-.01em; margin:0; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
       .tool .badge{font-size:13px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; padding:3px 9px; border-radius:999px;}
-      .tool.prio .badge{color:var(--genus-ink); background:rgba(122,209,81,.16); border:1px solid rgba(122,209,81,.45);}
-      .tool.dup .badge{color:var(--gap); background:rgba(74,111,165,.10); border:1px solid rgba(74,111,165,.32);}
+      .tool.prio .badge{color:var(--novelty-ink); background:rgba(122,209,81,.16); border:1px solid rgba(122,209,81,.45);}
+      .tool.dup .badge{color:var(--coord-ink); background:rgba(74,111,165,.10); border:1px solid rgba(74,111,165,.32);}
       .tool .soon{font-size:13px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; padding:3px 9px; border-radius:999px; color:var(--paper-mute); border:1px dashed var(--paper-mute);}
       .tool .qq{font-size:13.5px; color:var(--paper-dim); font-style:italic; margin:3px 0 0;}
       .tool .desc{font-size:13.5px; color:var(--paper-dim); margin:0 0 14px;}
@@ -967,7 +977,7 @@
       var labelWidthCache = null;
       var labelFontPx = 11.6;   /* overwritten from the CSS on first measure */
 
-      /* SVG text is NOT page text, and the page's 15px floor does not reach it:
+      /* SVG text is NOT page text, and the page's type floor does not reach it:
          it lives in the figure's coordinate space and the viewBox rescales it, so
          the declared size is not the painted one. See the note in drawPhylo() for
          why the figure is exempt. */
@@ -1120,7 +1130,8 @@
            draw with them, work out what they would actually paint at, and draw
            again without if it is under the floor. The ring keeps its shape either
            way, and a tap still names any node and its whole lineage. */
-        /* THE FIGURE IS EXEMPT FROM THE PAGE'S 15px TYPE FLOOR (Fang, 2026-09-13).
+        /* THE FIGURE IS EXEMPT FROM THE PAGE'S TYPE FLOOR (Fang, 2026-09-13; the
+           floor was 15px when this was decided and is 13px now).
            It was made to comply -- 20px in figure units, a 700px stage, labels
            painting at 15.4px -- and reverted: *"the previous version looks better"*.
            It is the right call. This is a diagram, not prose: its text scales with
@@ -1485,6 +1496,12 @@
             key.hidden = false;
           }
           drawPhylo();
+          /* Libre Franklin is a webfont: if the tree drew before it arrived, the
+             label ring was measured in the fallback face and cached. Measure again
+             once it is here. A no-op redraw when it was already loaded. */
+          if(document.fonts && document.fonts.ready){
+            document.fonts.ready.then(function(){ labelWidthCache = null; drawPhylo(); });
+          }
         }).catch(function(){
           /* Names no database: the visitor cannot act on which one it was, and
              the footer credits the source. Says what failed and what to do. */
@@ -1691,8 +1708,7 @@
               var cls = p.file.indexOf('prioritization') > -1 ? 'prio' : 'dup';
               var inner = '<span class="di" aria-hidden="true"><i class="fas ' + esc(p.icon || 'fa-circle') + '"></i></span>' +
                           '<div><div class="dt">' + esc(p.name) +
-                            (off ? '<span class="soon">Soon</span>' : '') + '</div>' +
-                          '<div class="dd">' + esc(p.description || '') + '</div></div>';
+                            (off ? '<span class="soon">Soon</span>' : '') + '</div></div>';
               html += off
                 ? '<div class="dd-item off ' + cls + '">' + inner + '</div>'
                 : '<a class="dd-item ' + cls + '" href="' + esc(p.file) + '"' + NEW_TAB + '>' + inner + '</a>';

@@ -106,7 +106,7 @@ const PrioritizationHelp = (function () {
      separate panels, and at 1.23:1 on the light ground the pill all but vanished,
      leaving the arrow to carry the affordance alone. */
   .ebp-help-btn{background:transparent; border:1px solid var(--line-strong,#4a6b57); color:var(--paper-dim,#a6bcaf);
-    border-radius:999px; padding:7px 13px; font:inherit; font-size:12px; font-weight:600; cursor:pointer;
+    border-radius:999px; padding:7px 13px; font:inherit; font-size:13px; font-weight:600; cursor:pointer;
     white-space:nowrap;}
   /* Solid --green-glow, not the rgba(63,191,127,.4) the page's other quiet
      controls hover to: at 40% over the light ground that composites to 1.36:1,
@@ -126,43 +126,43 @@ const PrioritizationHelp = (function () {
   .ebp-help-top{position:sticky; top:0; z-index:2; display:flex; align-items:baseline; gap:12px;
     padding:18px 24px 14px; background:var(--ink-2,#0f1a14); border-bottom:1px solid var(--line,#22362b);}
   .ebp-help-top h2{margin:0; font-size:17px; font-weight:700; letter-spacing:-.01em;}
-  .ebp-help-top .sub{font-size:12px; color:var(--paper-mute,#6f8a7b);}
+  .ebp-help-top .sub{font-size:13px; color:var(--paper-mute,#6f8a7b);}
   .ebp-help-close{margin-left:auto; background:transparent; border:1px solid var(--line,#22362b);
     color:var(--paper-dim,#a6bcaf); border-radius:7px; width:30px; height:30px; cursor:pointer;
     font-size:15px; line-height:1; flex:none;}
   .ebp-help-close:hover{color:var(--green-glow,#5fd39a); border-color:rgba(63,191,127,.4);}
   .ebp-help-body{padding:6px 24px 40px;}
-  .ebp-help h3{font-size:12px; text-transform:uppercase; letter-spacing:.05em;
+  .ebp-help h3{font-size:13px; text-transform:uppercase; letter-spacing:.05em;
     color:var(--paper-mute,#6f8a7b); font-weight:700; margin:26px 0 4px;}
   .ebp-help h3:first-child{margin-top:16px;}
   .ebp-help p{font-size:13px; color:var(--paper-dim,#a6bcaf); line-height:1.65; margin:0 0 10px;}
   .ebp-help p b{color:var(--paper,#e9f2ec);}
-  .ebp-help code{font-family:ui-monospace,'Cascadia Code',Menlo,monospace; font-size:.86em;
+  .ebp-help code{font-family:ui-monospace,'Cascadia Code',Menlo,monospace; font-size:max(13px,.86em);
     color:var(--green-glow,#5fd39a); background:var(--ink-3,#14231b);
     border:1px solid var(--line,#22362b); border-radius:5px; padding:1px 5px;}
 
-  .ebp-help-tbl{width:100%; border-collapse:collapse; font-size:12.5px; margin:8px 0 4px;}
-  .ebp-help-tbl th{text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em;
+  .ebp-help-tbl{width:100%; border-collapse:collapse; font-size:13px; margin:8px 0 4px;}
+  .ebp-help-tbl th{text-align:left; font-size:13px; text-transform:uppercase; letter-spacing:.04em;
     color:var(--paper-mute,#6f8a7b); font-weight:700; padding:6px 10px 6px 0;
     border-bottom:1px solid var(--line,#22362b);}
   .ebp-help-tbl td{padding:8px 10px 8px 0; border-bottom:1px solid var(--line-soft,#1a2a20);
     color:var(--paper-dim,#a6bcaf); line-height:1.55; vertical-align:top;}
   .ebp-help-tbl td:first-child{white-space:nowrap; width:1%;}
-  .ebp-help-chip{display:inline-block; padding:2.5px 8px; border-radius:999px; font-size:11.5px;
+  .ebp-help-chip{display:inline-block; padding:2.5px 8px; border-radius:999px; font-size:13px;
     font-weight:600;}
-  .ebp-help-chip.c-novel{background:rgba(122,162,255,.14); color:var(--novel,#7aa2ff);}
+  .ebp-help-chip.c-novel{background:rgba(122,162,255,.14); color:var(--novel-ink,#7aa2ff);}
   .ebp-help-chip.c-covered{background:var(--ink-4,#1b2f24); color:var(--paper-mute,#6f8a7b);}
   .ebp-help-chip.c-new{background:rgba(63,191,127,.13); color:var(--green-glow,#5fd39a);}
-  .ebp-help-chip.c-improve{background:rgba(224,167,96,.13); color:var(--improve,#e0a760);}
-  .ebp-help-chip.c-low{background:var(--ink-4,#1b2f24); color:var(--low,#8595a0);}
+  .ebp-help-chip.c-improve{background:rgba(224,167,96,.13); color:var(--improve-ink,#e0a760);}
+  .ebp-help-chip.c-low{background:var(--ink-4,#1b2f24); color:var(--low-ink,#8595a0);}
   .ebp-help-chip.c-unknown{background:var(--ink-4,#1b2f24); color:var(--paper-mute,#6f8a7b);}
   .ebp-help-arrow{color:var(--paper-mute,#6f8a7b); padding:0 4px;}
-  .ebp-help-src{font-size:11.5px; color:var(--paper-mute,#6f8a7b); line-height:1.6;}
+  .ebp-help-src{font-size:13px; color:var(--paper-mute,#6f8a7b); line-height:1.6;}
   .ebp-help-src div{margin:3px 0;}
 
   /* The compact matrix, inline in the Results view beside the two filters. */
   .ebp-matrix{border:1px solid var(--line,#22362b); border-radius:10px; background:var(--ink-2,#0f1a14);
-    padding:10px 14px; margin-bottom:12px; font-size:12.5px;}
+    padding:10px 14px; margin-bottom:12px; font-size:13px;}
   .ebp-matrix > summary{cursor:pointer; color:var(--paper-dim,#a6bcaf); font-weight:600;
     list-style:none; display:flex; align-items:center; gap:8px;}
   .ebp-matrix > summary::-webkit-details-marker{display:none;}
@@ -173,8 +173,8 @@ const PrioritizationHelp = (function () {
   .ebp-matrix .row{display:flex; align-items:center; gap:7px; flex-wrap:wrap;
     color:var(--paper-dim,#a6bcaf);}
   .ebp-matrix .act{color:var(--paper,#e9f2ec); font-weight:600;}
-  .ebp-matrix .all{margin-top:9px; font-size:11.5px;}
-  .ebp-help-link{background:none; border:none; padding:0; font:inherit; font-size:11.5px;
+  .ebp-matrix .all{margin-top:9px; font-size:13px;}
+  .ebp-help-link{background:none; border:none; padding:0; font:inherit; font-size:13px;
     color:var(--green-glow,#5fd39a); cursor:pointer; text-decoration:underline;}
   .ebp-help-link:hover{text-decoration:none;}
 

@@ -10,6 +10,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="author" content="Fang Chen" />
+<!-- Libre Franklin is earthbiogenome.org's body face, so the tools read as part
+     of the same site. Its headings use effra, which is Adobe-licensed to that
+     Squarespace kit and cannot be loaded here; Libre Franklin carries both.
+     One variable file covers every weight the page asks for (400-800). -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400..800;1,400..800&display=swap" />
 <title>EBP — Cross-project Duplication</title>
 
 <!--
@@ -125,6 +132,9 @@
     --line:#22362b; --line-soft:#1a2a20;
     --paper:#e9f2ec; --paper-dim:#a6bcaf; --paper-mute:#748f80;
     --green:#16a34a; --green-deep:#0d7a47; --green-bright:#3fbf7f; --green-glow:#5fd39a;
+    /* Green TEXT on a green tint (the active report tab's R-badge). Same as
+       --green-glow in dark; one step darker in light, where #0d7846 read 4.34:1. */
+    --green-ink:#5fd39a;
 
     /* ── the sequencing-status ramp, from the mockup ──
        Semantic: gray → blue → teal → olive → gold → brown → green, "further
@@ -158,6 +168,8 @@
     --stat-done:#5fd39a;
 
     --warn:#e0a760; --gap:#7aa2ff; --red:#e0736a;
+    /* Text twin of --gap, which also paints the r3 stripe. Same in dark. */
+    --gap-ink:#7aa2ff;
     /* --warn is a FILL: duplication_report.js falls back to it for an unknown-status
        heat cell, so its value must not move. Warning TEXT uses --warn-ink instead,
        which is free to go dark enough to read on a light ground (#e0a760 was 1.97:1
@@ -183,8 +195,13 @@
   :root[data-theme="light"]{
     --ink:#f4f7f4; --ink-2:#ffffff; --ink-3:#eef5f0; --ink-4:#e2ede5;
     --line:#d6e3d9; --line-soft:#e6efe8;
-    --paper:#12211a; --paper-dim:#3e5548; --paper-mute:#5a6e62;
+    /* --paper-dim / --paper-mute are the home page's values (AAA, 7:1+). These
+       were #3e5548 / #5a6e62 -- AA by the number, but carried 10.5-12px text,
+       which read as faint (Fang, 2026-09-25). */
+    --paper:#12211a; --paper-dim:#293930; --paper-mute:#415047;
+    --gap-ink:#2f55b0;       /* 6.89:1 on white; #7aa2ff was 2.49:1 */
     --green-glow:#0d7846; --green-bright:#16a34a;
+    --green-ink:#0a6139;     /* 5.91:1 on the active tab's tint */
     --s-not:#c3d0c8;
     /* Re-stepped for a white ground: the dark line colours sit at 1.6–2.1:1
        there. These clear 3:1 and separate best under normal vision (ΔE 22.3). */
@@ -197,8 +214,10 @@
     :root:not([data-theme="dark"]){
       --ink:#f4f7f4; --ink-2:#ffffff; --ink-3:#eef5f0; --ink-4:#e2ede5;
       --line:#d6e3d9; --line-soft:#e6efe8;
-      --paper:#12211a; --paper-dim:#3e5548; --paper-mute:#5a6e62;
+      --paper:#12211a; --paper-dim:#293930; --paper-mute:#415047;
+      --gap-ink:#2f55b0;
       --green-glow:#0d7846; --green-bright:#16a34a;
+      --green-ink:#0a6139;
       --s-not:#c3d0c8;
       --trend-r1:#0d7a47; --trend-r2:#a8452a; --trend-r3:#3f63c8;
       --link-out:#0000ee;       /* the browser default, as the report pages use */
@@ -210,7 +229,7 @@
   *{box-sizing:border-box;}
   @media (prefers-reduced-motion:reduce){ *{animation:none!important; transition:none!important;} }
   body{margin:0; background:var(--ink); color:var(--paper);
-    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif;
+    font-family:'Libre Franklin',-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif;
     font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;}
   .tnum{font-variant-numeric:tabular-nums;}
   .wrap{max-width:1120px; margin:0 auto; padding:0 24px;}
@@ -220,7 +239,7 @@
      without anybody remembering to. Buttons are excluded: a button is an action
      and reads as one, not as a citation. */
   a[href^="http"]:not(.btn){color:var(--link-out);}
-  code{font-family:ui-monospace,'Cascadia Code',Menlo,monospace; font-size:.85em;
+  code{font-family:ui-monospace,'Cascadia Code',Menlo,monospace; font-size:max(13px,.85em);
     color:var(--green-glow); background:var(--ink-3); border:1px solid var(--line);
     border-radius:5px; padding:1px 6px;}
 
@@ -230,7 +249,7 @@
   /* ── question header ── */
   header.q{padding:30px 0 22px;
     background:radial-gradient(760px 220px at 22% -30%, rgba(22,163,74,.12), transparent);}
-  .qeyebrow{font-size:11.5px; letter-spacing:.16em; text-transform:uppercase;
+  .qeyebrow{font-size:13px; letter-spacing:.16em; text-transform:uppercase;
     color:var(--green-glow); font-weight:700; margin-bottom:9px;}
   header.q h1{font-size:clamp(22px,3.2vw,30px); line-height:1.12; letter-spacing:-.02em;
     font-weight:800; margin:0 0 8px; text-wrap:balance;}
@@ -249,13 +268,15 @@
   /* ── control strip ── */
   .controls{display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:16px 0;
     border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-bottom:22px;}
-  .ctl{display:flex; align-items:center; gap:8px;}
-  .ctl label{font-size:11.5px; text-transform:uppercase; letter-spacing:.05em;
+  /* min-width:0 on the row and the select: without it the row could not shrink
+     below label + 360px, and at 400px the page scrolled sideways by 57px. */
+  .ctl{display:flex; align-items:center; gap:8px; min-width:0; max-width:100%;}
+  .ctl label{font-size:13px; text-transform:uppercase; letter-spacing:.05em;
     color:var(--paper-mute); font-weight:700;}
   select{font:inherit; font-size:13.5px; padding:8px 11px; background:var(--ink-2);
     color:var(--paper); border:1px solid var(--line); border-radius:8px; cursor:pointer;
-    max-width:360px;}
-  .asof{margin-left:auto; font-size:12px; color:var(--paper-mute); text-align:right; line-height:1.6;}
+    max-width:360px; min-width:0;}
+  .asof{margin-left:auto; font-size:13px; color:var(--paper-mute); text-align:right; line-height:1.6;}
   .asof b{color:var(--paper-dim);}
   .asof .d{color:var(--paper); font-weight:700; font-variant-numeric:tabular-nums;}
 
@@ -266,11 +287,11 @@
     position:relative; overflow:hidden;}
   .kpi .stripe{position:absolute; left:0; top:0; bottom:0; width:3px;}
   .kpi .n{font-size:25px; font-weight:800; letter-spacing:-.02em; font-variant-numeric:tabular-nums;}
-  .kpi .l{font-size:11.5px; color:var(--paper-mute); margin-top:2px; line-height:1.35;}
+  .kpi .l{font-size:13px; color:var(--paper-mute); margin-top:2px; line-height:1.35;}
   .kpi.k-total .stripe{background:var(--paper-mute);}
   .kpi.k-r1 .stripe{background:var(--s-published);} .kpi.k-r1 .n{color:var(--stat-done);}
   .kpi.k-r2 .stripe{background:var(--s-progress);} .kpi.k-r2 .n{color:var(--warn-ink);}
-  .kpi.k-r3 .stripe{background:var(--gap);} .kpi.k-r3 .n{color:var(--gap);}
+  .kpi.k-r3 .stripe{background:var(--gap);} .kpi.k-r3 .n{color:var(--gap-ink);}
 
   /* ── staleness ── */
   .stale{margin-bottom:22px; padding:13px 17px; border-radius:11px; font-size:13px; line-height:1.7;
@@ -281,13 +302,13 @@
 
   /* ── footer actions on the panel ── */
   .foot{display:flex; align-items:center; gap:12px; margin-top:20px; flex-wrap:wrap;}
-  .btn{font:inherit; font-size:12.5px; font-weight:650; padding:9px 15px; border-radius:8px;
+  .btn{font:inherit; font-size:13px; font-weight:650; padding:9px 15px; border-radius:8px;
     cursor:pointer; display:inline-flex; align-items:center; gap:7px; border:1px solid var(--line);
     background:var(--ink-2); color:var(--paper-dim); text-decoration:none;}
   .btn:hover{border-color:rgba(63,191,127,.4); color:var(--green-glow); text-decoration:none;}
   .btn.primary{background:var(--green-deep); color:#fff; border-color:transparent;}
   .btn.primary:hover{background:var(--green); color:#fff;}
-  .foot .src{margin-left:auto; font-size:11.5px; color:var(--paper-mute);}
+  .foot .src{margin-left:auto; font-size:13px; color:var(--paper-mute);}
 
   /* ── generic notice card (the five "nothing to show" states) ── */
   .notice{border:1px solid var(--line); border-radius:var(--radius); background:var(--ink-2);
@@ -302,7 +323,7 @@
   .guide{border:1px solid var(--line); border-radius:var(--radius); background:var(--ink-2);
     padding:20px 22px; margin-bottom:26px;}
   .guide[hidden]{display:none;}
-  .guide h2{font-size:12.5px; text-transform:uppercase; letter-spacing:.05em;
+  .guide h2{font-size:13px; text-transform:uppercase; letter-spacing:.05em;
     color:var(--paper-mute); margin:0 0 12px; font-weight:700;}
   .guide h2+h2{margin-top:20px;}
   /* Full card width, no measure cap — the same rule the heatmap's notes follow.
@@ -310,8 +331,8 @@
      the right-hand half of it. */
   .guide p{margin:0 0 10px; color:var(--paper-dim); font-size:13px; line-height:1.7;}
   .guide p b{color:var(--paper);}
-  .gloss{display:grid; grid-template-columns:auto 1fr; gap:5px 16px; font-size:12.5px; margin:0;}
-  .gloss dt{font-family:ui-monospace,'Cascadia Code',Menlo,monospace; font-size:12px;
+  .gloss{display:grid; grid-template-columns:auto 1fr; gap:5px 16px; font-size:13px; margin:0;}
+  .gloss dt{font-family:ui-monospace,'Cascadia Code',Menlo,monospace; font-size:13px;
     white-space:nowrap; display:flex; align-items:center; gap:7px; color:var(--paper);}
   .gloss dt i{width:9px; height:9px; border-radius:2px; flex:none;}
   .gloss dd{margin:0; color:var(--paper-dim);}
@@ -324,7 +345,7 @@
   .origin-warning code{color:inherit; background:rgba(224,167,96,.14); border-color:rgba(224,167,96,.3);}
 
   .site-footer{border-top:1px solid var(--line); background:var(--ink-2); color:var(--paper-mute);
-    font-size:12.5px; text-align:center; padding:16px 24px; margin-top:10px;}
+    font-size:13px; text-align:center; padding:16px 24px; margin-top:10px;}
   :focus-visible{outline:2px solid var(--green-bright); outline-offset:2px; border-radius:5px;}
   @media (max-width:720px){ .kpis{grid-template-columns:repeat(2,1fr);} }
 </style>

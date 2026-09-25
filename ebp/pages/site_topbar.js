@@ -66,7 +66,7 @@
   .ebp-search:focus-within{border-color:var(--green-glow,#0d7846);}
   .ebp-search input{flex:1; background:transparent; border:none; outline:none;
     color:var(--paper,#12211a); font:inherit; font-size:13px; padding:9px 0;}
-  .ebp-search input::placeholder{color:var(--paper-mute,#5a6e62);}
+  .ebp-search input::placeholder{color:var(--paper-mute,#415047);}
   .ebp-search .kbd{font-size:13px; color:var(--paper-mute,#5a6e62);
     border:1px solid var(--line,#d6e3d9); border-radius:5px; padding:1px 6px;
     background:var(--ink-2,#ffffff);}
@@ -88,16 +88,18 @@
   .ebp-topnav .n:hover{color:var(--paper,#12211a);}
   .ebp-nav-menu{position:relative;}
   .ebp-nav-menu .n{display:inline-flex; align-items:center; gap:6px;}
-  .ebp-nav-menu .caret{font-size:13px; opacity:.7;}
+  .ebp-nav-menu .caret{font-size:13px;}
   .ebp-dropdown{position:absolute; right:0; top:calc(100% + 8px); background:var(--ink-2,#fff);
     border:1px solid var(--line,#d6e3d9); border-radius:12px; box-shadow:0 18px 44px rgba(18,33,26,.15);
     padding:7px; opacity:0; visibility:hidden; transform:translateY(-6px);
     transition:opacity .15s, transform .15s, visibility .15s; z-index:40;}
-  .ebp-dropdown.wide{width:300px;}
+  /* Titles only (Fang, 2026-09-25): the descriptions are in the search results
+     and on the home cards. Sized to the longest title, never narrower than a list. */
+  .ebp-dropdown.wide{width:max-content; min-width:265px;}
   .ebp-dropdown.list{width:265px;}
   .ebp-nav-menu:hover .ebp-dropdown,.ebp-nav-menu:focus-within .ebp-dropdown{
     opacity:1; visibility:visible; transform:translateY(0);}
-  .ebp-dd-item{display:flex; gap:11px; align-items:flex-start; padding:11px 12px; border-radius:9px;
+  .ebp-dd-item{display:flex; gap:11px; align-items:center; padding:11px 12px; border-radius:9px;
     text-decoration:none;}
   a.ebp-dd-item:hover{background:var(--ink-3,#eef5f0); text-decoration:none;}
   .ebp-dd-item.off{opacity:.6; cursor:default;}
@@ -115,7 +117,6 @@
   .ebp-dd-item.dup .di{background:rgba(74,111,165,.13); border:1px solid rgba(74,111,165,.32);
     color:var(--gap,#4a6fa5);}
   .ebp-dd-item .dt{font-size:13px; font-weight:700; color:var(--paper,#12211a);}
-  .ebp-dd-item .dd{font-size:13px; color:var(--paper-mute,#5a6e62); line-height:1.35;}
   .ebp-dd-item .soon{font-size:13px; font-weight:800; letter-spacing:.05em; text-transform:uppercase;
     color:var(--paper-mute,#5a6e62); border:1px dashed var(--line,#d6e3d9); border-radius:999px;
     padding:1px 7px; margin-left:6px; white-space:nowrap;}
@@ -208,8 +209,7 @@
           var inner = '<span class="di" aria-hidden="true"><i class="fas '
             + esc(p.icon || 'fa-circle') + '"></i></span>'
             + '<div><div class="dt">' + esc(p.name)
-            + (off ? '<span class="soon">Soon</span>' : '') + '</div>'
-            + '<div class="dd">' + esc(p.description || '') + '</div></div>';
+            + (off ? '<span class="soon">Soon</span>' : '') + '</div></div>';
           if (off) {
             html += '<div class="ebp-dd-item off ' + cls + '">' + inner + '</div>';
           } else if (here) {

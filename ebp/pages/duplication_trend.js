@@ -67,6 +67,9 @@ const DuplicationTrend = (function () {
 
   const num = (value) => (Number(value) || 0).toLocaleString();
 
+  /* Canvas text does not inherit the page's font, so ECharts is told it. */
+  const FONT = "'Libre Franklin',-apple-system,'Segoe UI',sans-serif";
+
   function cssVar(name, fallback) {
     const value = getComputedStyle(document.documentElement).getPropertyValue(name);
     return (value || '').trim() || fallback;
@@ -88,26 +91,26 @@ const DuplicationTrend = (function () {
     background:var(--ink-2,#0f1a14); padding:20px 22px 22px; margin-bottom:26px;}
   .ebp-trend-head{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:6px;}
   .ebp-trend-head h2{font-size:15px; font-weight:750; letter-spacing:-.01em; margin:0;}
-  .ebp-trend-head .badge{font-size:10.5px; font-weight:700; letter-spacing:.04em;
+  .ebp-trend-head .badge{font-size:13px; font-weight:700; letter-spacing:.04em;
     text-transform:uppercase; color:var(--green-glow,#5fd39a); background:rgba(22,163,74,.12);
     border:1px solid rgba(22,163,74,.3); border-radius:999px; padding:2px 9px; white-space:nowrap;}
   .ebp-trend-head .badge.thin{color:var(--warn-ink,#e0a760); background:rgba(224,167,96,.12);
     border-color:rgba(224,167,96,.3);}
-  .ebp-trend-head .tot{margin-left:auto; font-size:12.5px; color:var(--paper-mute,#6f8a7b);}
+  .ebp-trend-head .tot{margin-left:auto; font-size:13px; color:var(--paper-mute,#6f8a7b);}
   .ebp-trend-head .tot b{color:var(--paper-dim,#a6bcaf); font-variant-numeric:tabular-nums;}
   /* Full panel width, no measure cap — the same rule the heatmap's notes and the
      reading guide follow. At 88ch this sat at 593px inside a 1,028px panel and
      ran to three lines with a void beside it. */
-  .ebp-trend-sub{font-size:12.5px; color:var(--paper-dim,#a6bcaf); margin:0 0 16px;
+  .ebp-trend-sub{font-size:13px; color:var(--paper-dim,#a6bcaf); margin:0 0 16px;
     line-height:1.6;}
   .ebp-trend-sub b{color:var(--paper,#e9f2ec);}
   .ebp-trend-chart{width:100%; height:220px;}
-  .ebp-trend-legend{display:flex; gap:9px 18px; margin-top:12px; font-size:11.5px;
+  .ebp-trend-legend{display:flex; gap:9px 18px; margin-top:12px; font-size:13px;
     color:var(--paper-dim,#a6bcaf); flex-wrap:wrap;}
   .ebp-trend-legend span{display:inline-flex; align-items:center; gap:7px;}
   .ebp-trend-legend .ln{width:22px; height:0; border-top-width:2px; border-top-style:solid; flex:none;}
   .ebp-trend-first{border:1px dashed var(--line,#22362b); border-radius:11px; padding:16px 18px;
-    background:var(--ink-3,#14231b); font-size:12.5px; color:var(--paper-dim,#a6bcaf);
+    background:var(--ink-3,#14231b); font-size:13px; color:var(--paper-dim,#a6bcaf);
     line-height:1.7;}
   .ebp-trend-first b{color:var(--paper,#e9f2ec);}
   .ebp-trend-first ul{margin:9px 0 0; padding-left:19px;}
@@ -171,14 +174,14 @@ const DuplicationTrend = (function () {
         type: 'category', data: dates, boundaryGap: false,
         axisTick: { show: false },
         axisLine: { lineStyle: { color: line } },
-        axisLabel: { color: mute, fontSize: 10 },
+        axisLabel: { color: mute, fontSize: 13, fontFamily: FONT },
       },
       yAxis: {
         type: 'value',
         /* A zero baseline, always: these are counts, and a count axis that does
            not start at zero exaggerates every move on it. */
         min: 0,
-        axisLabel: { color: mute, fontSize: 10, formatter: (value) => num(value) },
+        axisLabel: { color: mute, fontSize: 13, fontFamily: FONT, formatter: (value) => num(value) },
         splitLine: { lineStyle: { color: line, type: 'dashed' } },
       },
       series: series.map(function (entry) {
@@ -202,7 +205,7 @@ const DuplicationTrend = (function () {
              cannot be separated by hue under deuteranopia at any stepping, so
              the line type and this label carry the identity instead. */
           endLabel: {
-            show: true, color: color, fontSize: 11, fontWeight: 600, distance: 8,
+            show: true, color: color, fontSize: 13, fontWeight: 600, fontFamily: FONT, distance: 8,
             /* The newest value rides in the label: it is the number a reader
                wants off a trend line, and putting it here means it is legible
                without hovering and without a fourth axis label. */
