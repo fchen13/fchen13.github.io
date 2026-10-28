@@ -178,8 +178,8 @@ const PrioritizationSubmit = (function () {
                aria-label="Choose a species list file, or drop one here">
             <div class="icon" aria-hidden="true">⤒</div>
             <div class="big">Drop a species list here</div>
-            <div class="small">or <span class="browse">browse your computer</span>
-              · .xlsx, .xls, .csv, .tsv, .txt · the first column that looks like a name is used</div>
+            <div class="small">or <span class="browse">browse</span>
+              · .xlsx .xls .csv .tsv .txt · names are read from the first name-like column</div>
           </div>
           <input type="file" id="ebp-file" accept="${ACCEPT}" hidden>
           <div class="ebp-file" id="ebp-file-chip" hidden>
@@ -199,19 +199,17 @@ const PrioritizationSubmit = (function () {
                 <span style="text-transform:none;font-weight:400;color:var(--paper-mute,#6f8a7b)">(optional)</span></label>
               <input type="text" id="ebp-list" placeholder="e.g. ARIDE Biocollections list"
                      maxlength="200" autocomplete="off">
-              <div class="ebp-hint">What to call this run. It names the results header and the
-                downloaded workbook (<code>&lt;list name&gt;_prioritization.xlsx</code>). <b>A label
-                only</b> — it does not attach this run to a tracked list, and the “Changes over time”
-                history is not affected by what you type here.</div>
+              <div class="ebp-hint">Names the results and the workbook
+                (<code>&lt;list name&gt;_prioritization.xlsx</code>). <b>A label only</b>; it doesn't
+                link to a tracked list.</div>
             </div>
             <div class="grp">
               <label class="ebp-field" for="ebp-self">Your EBP project
                 <span style="text-transform:none;font-weight:400;color:var(--paper-mute,#6f8a7b)">(optional)</span></label>
               <input type="text" id="ebp-self" placeholder="e.g. africabp" autocomplete="off">
-              <div class="ebp-hint">The GoaT project code, as it appears in
-                <code>sequencing_status_&lt;code&gt;</code>. Set it and your own project's status stops
-                counting as “someone else is already working on it”. A code GoaT does not carry simply
-                has no effect — nothing is dropped and nothing is flagged.</div>
+              <div class="ebp-hint">Your GoaT project code (as in
+                <code>sequencing_status_&lt;code&gt;</code>). Your own project's work then isn't counted
+                as someone else's. An unknown code is ignored.</div>
             </div>
           </div>
 
@@ -225,26 +223,20 @@ const PrioritizationSubmit = (function () {
         <div class="card pad">
           <h2>What happens when you submit</h2>
           <ul class="ebp-steps">
-            <li><span class="k">1</span><div><b>Name cleaning.</b> Parenthetical annotations are dropped
-              and subspecies trinomials reduced to the binomial GoaT tracks assemblies at.
-              <code>sp.</code> identifiers are kept as written, and <code>cf.</code> / <code>aff.</code> /
-              <code>nr.</code> are reduced to the genus — they make no species-level claim. Your
-              original spelling is kept and returned beside the result.</div></li>
-            <li><span class="k">2</span><div><b>GoaT lookup.</b> Every name is matched on its exact
-              scientific name, with a synonym pass so a superseded name resolves to the accepted
-              record: assembly level, EBP-standard status, the full lineage, and every EBP project's
-              sequencing status.</div></li>
+            <li><span class="k">1</span><div><b>Name cleaning.</b> Notes in brackets and subspecies
+              are trimmed to the species name; <code>cf.</code> / <code>aff.</code> / <code>nr.</code>
+              go to the genus. Your original spelling is kept.</div></li>
+            <li><span class="k">2</span><div><b>GoaT lookup.</b> Each name is matched in GoaT, synonyms
+              included, for assembly status, lineage and every EBP project's status.</div></li>
             <!-- The whole clause is the swap target, not just the version, so it
                  reads as a sentence either way — see nameTheIucnRelease(). -->
-            <li><span class="k">3</span><div><b>IUCN Red List.</b> A conservation category for each
-              species, from <span id="ebp-iucn-release">the latest IUCN Red List release we
-              hold</span>.</div></li>
-            <li><span class="k">4</span><div><b>Prioritization analysis.</b> Each species is assigned
-              two priority labels — taxonomic novelty and project status.</div></li>
+            <li><span class="k">3</span><div><b>IUCN Red List.</b> Conservation category from
+              <span id="ebp-iucn-release">the latest IUCN release we hold</span>.</div></li>
+            <li><span class="k">4</span><div><b>Prioritization analysis.</b> Each species gets two
+              labels: phylogenetic novelty and project status.</div></li>
           </ul>
-          <p class="ebp-keep"><b>Where your list goes.</b> The submitted names, the results and the raw
-            upload are stored on the EBP backend so the Excel export can replay exactly the results you
-            saw.</p>
+          <p class="ebp-keep"><b>Where your list goes.</b> Your names, results and upload are stored on
+            the EBP backend, so the Excel export matches what you saw.</p>
         </div>
       </div>
 

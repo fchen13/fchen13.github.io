@@ -62,20 +62,20 @@
         /* Viridis taxonomic-rank spectrum (prioritization world).
 
            THIS RAMP MEANS "WHICH RANK" AND NOTHING ELSE, and it is shared: the
-           scorecard's rank dots and bars, the prioritization card's novelty ladder
+           taxa-reached row's rank dots, the prioritization card's novelty ladder
            (Highest_P purple -> Highest_G green) and that card's accent gradient all
            read from it. Recolour one and the other two stop agreeing.
 
            Kept viridis deliberately when aligning the scorecard to the tree's
            orange was put (Fang, 2026-09-12). The page runs three colour languages
            and each carries one meaning: viridis = rank, green = EBP progress
-           (hero KPI bars, brand spine), --ebp-orange = has at least one EBP
+           (hero progress bars, brand spine), --ebp-orange = has at least one EBP
            assembly (the tree, quoting pages/phylotree.html). Spending orange on
            rank rows would give it two meanings on one screen and break the novelty
            ladder next to it.
 
-           The gap it was meant to close is that the tree's key and the scorecard's
-           Phylum row are the same number reached through two different GoaT
+           The gap it was meant to close is that the tree's key and the taxa-reached
+           row's Phyla count are the same number reached through two different GoaT
            reports (arc, and report=tree) -- each a check on the other. A sentence
            saying so was written into .score-sub and then removed: a home-page
            reader does not need it (Fang, 2026-09-12). It is recorded here and in
@@ -85,6 +85,9 @@
            variant's one ramp override; --s-published is darkened here because
            the dark-theme mint (#5fd39a) cannot carry text on white. */
         --s-not:#c3d0c8; --s-collected:#4a6fa5; --s-datagen:#5fa39a; --s-progress:#b4923e; --s-published:#2f9e68;
+        /* IUCN Critically Endangered: pages/prioritization.html's --red, so the
+           example's CR swatch matches the tool's IUCN colour. */
+        --iucn-cr:#b42318;
         /* semantic */
         --warn:#b4762a; --gap:#4a6fa5; --novel:#4a6fa5;
         /* a green dark enough to read as a label on white. #4d8a1f read 4.22:1 and
@@ -118,8 +121,14 @@
            complement, and at 84% saturation it still carries 5.17:1 on white --
            these draw text as well as strokes, so they want text contrast. */
         --focus:#2563eb;
-        /* progress bars: a light fill with the EBP-standard share solid on top */
-        --green-soft:#8ed3ad;
+        /* Phase I progress bars: all EBP assemblies in --green-soft, the share that
+           meets the EBP standard solid --green-deep on top, on a white track.
+           --green-soft is the previous home page's own fill (#6fbb8d); the lighter
+           #8ed3ad it replaced read 1.7:1 on white. At #6fbb8d both edges a reader
+           has to find -- total against track, standard against total -- sit at
+           about 2.3:1. --axis is 3.2:1 on the page ground. */
+        --green-soft:#6fbb8d;
+        --axis:#7d8f83;
         /* Outbound links — cited sources — are BLUE, the convention readers already
            have for "this leaves the site"; green stays in-product navigation.
            #0000ee is the browser's own default link colour, measured off the report
@@ -222,28 +231,72 @@
         background:radial-gradient(820px 300px at 80% -30%, rgba(22,163,74,.10), transparent);}
       header.hero canvas.bg{position:absolute; inset:0; width:100%; height:100%; opacity:.5; z-index:0;}
       header.hero .inner{position:relative; z-index:2; padding:34px 24px 32px;}
-      .hero-eyebrow{font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--green-glow); font-weight:700; margin-bottom:10px;}
-      .hero-headline{font-size:clamp(21px,3.1vw,30px); line-height:1.12; letter-spacing:-.02em; font-weight:800; margin:0 0 20px; text-wrap:balance;}
-      .hero-headline .n{color:var(--green-glow);}
+      .hero-headline{font-size:clamp(21px,3.1vw,30px); line-height:1.12; letter-spacing:-.02em; font-weight:800; margin:0; text-align:center; text-wrap:balance;}
 
-      .kpis{display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:12px;}
-      .kpi{border:1px solid var(--line); border-radius:11px; padding:14px 16px 15px; background:var(--ink-2); position:relative; overflow:hidden;}
-      .kpi .stripe{position:absolute; left:0; top:0; bottom:0; width:3px;}
-      .kpi .n{font-size:25px; font-weight:800; letter-spacing:-.02em;}
-      .kpi .l{font-size:13px; color:var(--paper-mute); margin-top:2px; line-height:1.35;}
-      /* Progress toward the Phase I goal. Replaces the mockup's sparkline, whose
-         series was generated with Math.sin() — there is no stored trend behind
-         these two counts, so a trend line would have been drawn, not measured. */
-      .kpi .track{height:9px; border-radius:5px; background:var(--ink-4); overflow:hidden; margin-top:11px; display:flex;}
+      /* Phase I progress: the previous home page's two bars, kept as they were in
+         form and content (Fang, 2026-10-28) -- one headline, a two-swatch legend,
+         Species and Families against their Phase I targets, an axis, and the counts
+         on hover only. They replaced a headline, two KPI cards and their captions
+         that carried the same two counts four times over; at a glance the bar
+         lengths are the story, and the numbers were competing with them. Only the
+         styling is this page's: flat fills from the tokens above, the type ramp
+         and 13px floor, no gloss and no animation. */
+      /* Narrower than the cards below and centred, as before: the axis's last
+         label is centred on the bar's end and would otherwise overhang the card
+         edge. */
+      .progress{max-width:980px; margin:4px auto 0;}
+      .progress-legend{display:flex; justify-content:center; flex-wrap:wrap; gap:6px 22px; margin:10px 0 18px;}
+      .legend-item{display:inline-flex; align-items:center; gap:7px; font-size:13px; color:var(--paper-dim);}
+      .legend-swatch{width:12px; height:12px; border-radius:3px; flex:none;}
+      .progress-chart{display:flex; align-items:flex-start; gap:20px;}
+      .progress-chart + .progress-chart{margin-top:14px;}
+      .progress-label{display:flex; align-items:center; justify-content:flex-end; gap:9px; min-width:112px; height:44px;
+        font-size:15px; font-weight:700; color:var(--paper);}
+      .progress-label i{font-size:19px; color:var(--green-deep);}
+      .progress-bar-container{flex:1; min-width:0;}
+      /* The track draws as the cards below it do -- white, hairline border -- so
+         the unfilled remainder reads as the rest of the target, not as background.
+         No overflow:hidden: the hover labels have to escape the bar. */
+      .progress-bar{display:flex; height:44px; background:var(--ink-2); border:1px solid var(--line); border-radius:8px;}
       /* No width transition on any bar on this page. The width IS the figure, and a
          transition makes what is painted depend on an animation clock — which does
          not advance under headless capture, so the bar renders as an empty sliver
          and cannot be verified by rendering it. Bars here are measurements, not
          motion design. */
-      .kpi .fill{height:100%; position:relative; border-radius:5px;}
-      .kpi .fill .std{position:absolute; inset:0 auto 0 0; border-radius:5px; background:var(--green-deep);}
-      .kpi .cap{font-size:13px; color:var(--paper-mute); margin-top:7px; line-height:1.4; font-variant-numeric:tabular-nums;}
-      .kpi .cap b{color:var(--paper-dim); font-weight:650;}
+      .progress-completed{position:relative; height:100%; max-width:100%; background:var(--green-soft); border-radius:7px 0 0 7px; cursor:default;}
+      /* Width is a share of .progress-completed (what is sequenced), not of the target. */
+      .progress-quality{position:absolute; left:0; top:0; height:100%; background:var(--green-deep); border-radius:7px 0 0 7px; cursor:default;}
+      .progress-incomplete{flex:1; position:relative; cursor:default;}
+
+      /* Hover labels: each segment shows its own count. */
+      .progress-completed[data-tooltip]::before,
+      .progress-quality[data-tooltip]::before,
+      .progress-incomplete[data-tooltip]::before{
+        content:attr(data-tooltip); position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%);
+        background:var(--ink-2); color:var(--paper); font-size:13px; font-weight:650; white-space:nowrap;
+        padding:4px 10px; border-radius:6px; border:1px solid var(--line); box-shadow:0 2px 8px rgba(18,33,26,.14);
+        font-variant-numeric:tabular-nums; opacity:0; pointer-events:none; z-index:5;}
+      .progress-completed[data-tooltip]::after,
+      .progress-quality[data-tooltip]::after,
+      .progress-incomplete[data-tooltip]::after{
+        content:''; position:absolute; bottom:calc(100% + 3px); left:50%; transform:translateX(-50%);
+        border:5px solid transparent; border-top-color:var(--ink-2); opacity:0; pointer-events:none; z-index:5;}
+      .progress-completed[data-tooltip]:hover::before, .progress-completed[data-tooltip]:hover::after,
+      .progress-quality[data-tooltip]:hover::before,   .progress-quality[data-tooltip]:hover::after,
+      .progress-incomplete[data-tooltip]:hover::before, .progress-incomplete[data-tooltip]:hover::after{opacity:1;}
+      .progress-completed:has(.progress-quality:hover)::before,
+      .progress-completed:has(.progress-quality:hover)::after{opacity:0;}
+      /* An empty data-tooltip draws an empty box; hide it until there is a count. */
+      [data-tooltip=""]::before, [data-tooltip=""]::after{display:none;}
+
+      .progress-axis{position:relative; height:30px;}
+      .progress-axis-line{position:absolute; top:0; left:0; right:0; height:1px; background:var(--axis);}
+      .progress-axis-tick{position:absolute; top:0; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center;}
+      .progress-axis-tick::before{content:''; width:1px; height:7px; background:var(--axis);}
+      .progress-axis-label{font-size:13px; color:var(--paper-mute); font-variant-numeric:tabular-nums; margin-top:2px;}
+      .progress-axis-tick.phone-only{display:none;}
+      .progress-footnote{font-size:13px; color:var(--paper-mute); font-style:italic; text-align:right; margin:0;}
+      .progress-footnote.warn{color:var(--warn); font-style:normal; font-weight:600;}
 
       /* ── tree card (full width), then the scorecard below it (full width) ──
          The mockup put these side by side and this page did too until 2026-09-12,
@@ -252,15 +305,16 @@
          the scorecard its room. Stacked, the tree gets the page's full width and
          the four ranks sit in one row instead of a column. They still read as one
          idea — the same phylum → order → family axis, drawn then counted — and the
-         figure's key and the scorecard's Phylum row are the same 33 / 79 from two
-         different GoaT reports. */
+         figure's orange tips and the taxa-reached row's Phyla count are the same
+         number from two different GoaT reports. (Written when this card was the
+         scorecard; replaced by the taxa-reached row 2026-10-28.) */
       .treecard{border:1px solid var(--line); border-radius:16px; background:var(--ink-2); overflow:hidden; margin-top:16px;}
       .tree-pane{padding:18px 20px 20px; min-width:0;}
       .pane-h{font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--paper-mute); font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
 
       /* The stage holds a figure this page draws itself — see loadPhylumTree().
          Nothing here is animated; the geometry IS the measurement, same rule as
-         the note on .kpi .fill. */
+         the note on .progress-completed. */
       /* Taller since the card went full width: the figure is a CIRCLE, so its size
          is set by the shorter side of the stage. Widening the card bought it
          nothing; height is the only dimension that makes the tree bigger. */
@@ -350,24 +404,34 @@
       .tree-key .warn{display:block; margin-top:4px; color:var(--warn); font-weight:600;}
 
 
-      /* ── Taxonomic Milestone Scorecard (right pane) ── */
-      .scorecard{border:1px solid var(--line); border-radius:16px; background:var(--ink-3);
+      /* ── Taxa reached by EBP: one count per rank, phylum → genus ──
+         Replaced the "taxonomic milestone scorecard" (Fang, 2026-10-28), which gave
+         every rank a fraction, a bar and a percentage line. EBP sets no target at
+         these ranks except family, and family's is already the second progress bar;
+         so the denominators and percentages went, and without a denominator a bar
+         has nothing to fill toward. What is left is the count, read left to right
+         down the hierarchy.
+
+         Phylum to genus are the tool's five First_in_X levels. Kingdom is left out
+         by decision: NCBI gives the kingdom rank only to Metazoa, Fungi and
+         Viridiplantae, and EBP covers all three, so a "3" would read as complete
+         while leaving out every protist lineage EBP has reached.
+
+         Text stays in text tokens; the rank dot carries the rank colour, the same
+         swatch as the novelty ladder in the prioritization card. */
+      .reach{border:1px solid var(--line); border-radius:16px; background:var(--ink-3);
         margin-top:24px; padding:18px 20px 20px; min-width:0;}
-      .score-sub{font-size:13px; color:var(--paper-mute); margin:0 0 16px; line-height:1.45;}
-      /* One column in the narrow right pane; below 820px the card is a single
-         column and the ranks get the page width back. */
-      /* Full width now, so the ranks run across rather than down. */
-      .score{display:grid; grid-template-columns:repeat(auto-fit,minmax(232px,1fr)); gap:16px 26px;}
-      .rank-row{display:grid; grid-template-columns:14px 1fr; gap:11px; align-items:start;}
-      .rank-dot{width:11px; height:11px; border-radius:3px; margin-top:5px; flex:none;}
-      .rank-body{min-width:0;}
-      .rank-top{display:flex; align-items:baseline; gap:8px;}
-      .rank-name{font-size:13px; font-weight:700; color:var(--paper);}
-      .rank-frac{margin-left:auto; font-size:13px; color:var(--paper-dim); font-variant-numeric:tabular-nums;}
-      .rank-frac b{color:var(--paper); font-weight:800; font-size:14px;}
-      .rank-pct{font-size:13px; color:var(--paper-mute); font-variant-numeric:tabular-nums;}
-      .rank-track{height:9px; border-radius:5px; background:var(--ink-4); overflow:hidden; margin-top:6px;}
-      .rank-fill{height:100%; border-radius:5px; width:0;}
+      .reach-sub{font-size:13px; color:var(--paper-mute); margin:0 0 14px; line-height:1.45;}
+      .reach-row{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:16px 0;}
+      /* Each tile is centred in its fifth, so the "›" on the boundary sits midway
+         between neighbours: broad to narrow, one reading direction. */
+      .reach-row li{position:relative; display:flex; flex-direction:column; align-items:center;}
+      .reach-row li + li::before{content:'›'; position:absolute; left:0; top:0; transform:translateX(-50%);
+        font-size:30px; line-height:1; color:var(--axis); font-weight:400;}
+      .reach-n{display:flex; align-items:center; gap:8px; font-size:25px; font-weight:800; letter-spacing:-.02em;
+        line-height:1.1; color:var(--paper);}
+      .reach-dot{width:11px; height:11px; border-radius:3px; flex:none;}
+      .reach-l{font-size:13px; color:var(--paper-dim); margin-top:3px;}
 
       /* ── section scaffolding ── */
       section{padding:34px 0 8px;}
@@ -423,14 +487,26 @@
       .preview .pl{font-size:13px; letter-spacing:.09em; text-transform:uppercase; color:var(--paper-mute); font-weight:700; margin-bottom:13px; line-height:1.5;}
       .preview .pl .src{font-weight:600; letter-spacing:.02em; text-transform:none;}
 
-      /* prioritization preview: the novelty LABEL LADDER.
-         This is the tool's vocabulary, not a dataset — see the comment on the
-         card in the markup for why no counts appear here. */
+      /* prioritization preview: one worked example, as swatch | label |
+         explanation rows. Written in, not fetched; the comment on the card in
+         the markup says what was verified and when. */
       .ladder{display:flex; flex-direction:column; gap:7px;}
       .lad{display:grid; grid-template-columns:10px max-content 1fr; align-items:center; gap:10px;}
       .lad .sw{width:10px; height:10px; border-radius:3px;}
       .lad .lb{font-size:13px; font-weight:700; color:var(--paper-dim); font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
       .lad .ds{font-size:13px; color:var(--paper-mute); line-height:1.35;}
+      /* An example's rows carry a sentence each, so they top-align and the
+         label column lines up across rows. */
+      .ladder.ex{gap:10px;}
+      .ladder.ex .lad{align-items:start;}
+      .ladder.ex .sw{margin-top:4px;}
+      .ladder.ex .lb{min-width:5.5em;}
+      .ladder.ex .ds b{color:var(--paper-dim); font-weight:700;}
+      .ex-name{font-size:15px; font-weight:700; color:var(--paper); margin:0 0 12px;}
+      .ex-name b{font-weight:800;}
+      .ex-name .ex-tax{font-weight:400; color:var(--paper-dim);}
+      .ex-foot{font-size:13px; color:var(--paper-dim); margin:12px 0 0; padding-top:10px; border-top:1px dashed var(--line);}
+      .heat-msg{font-size:13px; color:var(--paper-mute); padding:14px 2px; line-height:1.45;}
 
       /* duplication preview: mini heatmap */
       .mini-heat{border-collapse:separate; border-spacing:4px; width:100%; font-size:13px;}
@@ -438,15 +514,8 @@
       .mini-heat th.rh{text-align:right; padding-right:8px; white-space:nowrap; font-size:13px; color:var(--paper-dim);}
       .mini-heat td{height:26px; text-align:center; border-radius:5px; font-variant-numeric:tabular-nums; font-weight:600; color:var(--paper); font-size:13px;}
       .mini-heat td.z{color:var(--paper-mute); font-weight:400; background:var(--ink-2);}
-      .heat-msg{font-size:13px; color:var(--paper-mute); padding:14px 2px; line-height:1.45;}
-      .status-legend{margin-top:14px; padding-top:13px; border-top:1px dashed var(--line);}
-      .status-legend .sl-scale{display:flex; align-items:center; gap:0; border-radius:6px; overflow:hidden; height:9px;}
-      .status-legend .sl-scale i{flex:1;}
-      .status-legend .sl-ends{display:flex; justify-content:space-between; gap:10px; font-size:13px; color:var(--paper-mute); margin-top:6px;}
-      .status-legend .sl-ends b{color:var(--paper-dim); font-weight:600;}
-      .status-legend .sl-note{font-size:13px; color:var(--paper-mute); margin-top:7px; line-height:1.4;}
-      .status-legend .sl-note b{color:var(--paper-dim);}
-      .status-legend code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13px;}
+      .heat-read{font-size:13px; color:var(--paper-dim); line-height:1.45; margin:8px 2px 0;}
+      .heat-read b{color:var(--paper); font-variant-numeric:tabular-nums;}
 
 
       footer{border-top:1px solid var(--line); text-align:center; color:var(--paper-mute); font-size:13px; padding:32px 24px 42px; letter-spacing:.03em; margin-top:40px; line-height:1.7;}
@@ -467,9 +536,24 @@
         .nav-menu{position:static;}
         .dropdown, .dropdown.wide, .dropdown.list{left:16px; right:16px; width:auto;}
         header.hero .inner{padding:26px 16px 26px;}
-        .kpis{grid-template-columns:1fr;}
+        /* Below 640px the label goes above its bar, as on the previous home page. */
+        .progress-chart{flex-direction:column; align-items:stretch; gap:6px;}
+        .progress-label{height:auto; min-width:0; justify-content:flex-start;}
+        .progress-bar{height:38px;}
+        /* At this width a label centred on the bar's end ("10,000") is cut off by
+           the screen edge; end it at its tick instead. */
+        .progress-axis-tick.end{transform:translateX(-100%); align-items:flex-end;}
+        /* Species: 0 / 5,000 / 10,000 only (Fang, 2026-10-28); six labels at this
+           width run "8,000" into "10,000". */
+        .progress-axis-tick.desk-only{display:none;}
+        .progress-axis-tick.phone-only{display:flex;}
         .tool .body{padding:18px 16px 20px;}
-        .tree-pane, .scorecard{padding:16px 16px 18px;}
+        .tree-pane, .reach{padding:16px 16px 18px;}
+        /* Three across, then two; the arrows only make sense in one line. */
+        .reach-row{grid-template-columns:repeat(3,minmax(0,1fr));}
+        .reach-row li{align-items:flex-start; padding-right:8px;}
+        .reach-l{padding-left:19px;}
+        .reach-row li + li::before{display:none;}
         .lad{grid-template-columns:10px max-content 1fr; gap:8px;}
         footer{padding:28px 16px 36px;}
       }
@@ -481,7 +565,7 @@
       <div class="inner">
         <a class="logo" href="index.html">
           <img src="./favicon.jpg" alt="">
-          <span>Earth BioGenome</span>
+          <span>Earth BioGenome Project</span>
         </a>
         <div class="search-wrap">
           <div class="search">
@@ -502,25 +586,42 @@
     <header class="hero">
       <canvas class="bg" id="heroBg" aria-hidden="true"></canvas>
       <div class="inner wrap">
-        <div class="hero-eyebrow">Phase I · the mission in one line</div>
         <!-- Every number below is fetched from GoaT at page load; the markup ships
-             with no figure in it. See loadHero() / loadScorecard(). -->
-        <h1 class="hero-headline" id="headline">Sequencing the eukaryotic tree of life.</h1>
+             with no figure in it. See loadHero(). -->
+        <h1 class="hero-headline">EBP Phase I Progress</h1>
 
-        <div class="kpis">
-          <div class="kpi">
-            <span class="stripe" style="background:var(--r-species)"></span>
-            <div class="n tnum" id="kpi-species">—</div>
-            <div class="l">Species sequenced by EBP</div>
-            <div class="track"><div class="fill" id="kpi-species-fill" style="width:0; background:var(--green-soft)"><span class="std" id="kpi-species-std" style="width:0"></span></div></div>
-            <div class="cap" id="kpi-species-cap">&nbsp;</div>
+        <div class="progress">
+          <div class="progress-legend">
+            <span class="legend-item"><span class="legend-swatch" style="background:var(--green-deep)"></span>Meeting EBP standard</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:var(--green-soft)"></span>Total EBP assemblies</span>
           </div>
-          <div class="kpi">
-            <span class="stripe" style="background:var(--r-family)"></span>
-            <div class="n tnum" id="kpi-family">—</div>
-            <div class="l">Families with at least one EBP assembly</div>
-            <div class="track"><div class="fill" id="kpi-family-fill" style="width:0; background:var(--green-soft)"><span class="std" id="kpi-family-std" style="width:0"></span></div></div>
-            <div class="cap" id="kpi-family-cap">&nbsp;</div>
+
+          <div class="progress-chart">
+            <div class="progress-label"><i class="fas fa-dna" aria-hidden="true"></i><span>Species</span></div>
+            <div class="progress-bar-container">
+              <div class="progress-bar" id="progress-species-bar" role="img" aria-label="Species: loading">
+                <div class="progress-completed" id="progress-species-completed" style="width:0" data-tooltip="">
+                  <div class="progress-quality" id="progress-species-quality" style="width:0" data-tooltip=""></div>
+                </div>
+                <div class="progress-incomplete" id="progress-species-incomplete" data-tooltip=""></div>
+              </div>
+              <div class="progress-axis" id="progress-species-axis"><div class="progress-axis-line"></div></div>
+              <p class="progress-footnote warn" id="progress-species-note" hidden></p>
+            </div>
+          </div>
+
+          <div class="progress-chart">
+            <div class="progress-label"><i class="fas fa-layer-group" aria-hidden="true"></i><span>Families</span></div>
+            <div class="progress-bar-container">
+              <div class="progress-bar" id="progress-family-bar" role="img" aria-label="Families: loading">
+                <div class="progress-completed" id="progress-family-completed" style="width:0" data-tooltip="">
+                  <div class="progress-quality" id="progress-family-quality" style="width:0" data-tooltip=""></div>
+                </div>
+                <div class="progress-incomplete" id="progress-family-incomplete" data-tooltip=""></div>
+              </div>
+              <div class="progress-axis" id="progress-family-axis"><div class="progress-axis-line"></div></div>
+              <p class="progress-footnote" id="progress-family-note">Target is half of all INSDC-registered families</p>
+            </div>
           </div>
         </div>
 
@@ -533,10 +634,10 @@
              ~1.1 MB of d3 + phylotree.js + underscore + jQuery the iframe did. That
              is what makes it affordable to draw on load rather than on a click.
              The order-level page is unchanged and is one link away, below. -->
-        <div class="scorecard">
-          <div class="pane-h">Taxonomic milestone scorecard</div>
-          <p class="score-sub">Breadth of coverage at each rank: taxa holding at least one EBP assembly, against every eukaryotic taxon at that rank.</p>
-          <div class="score" id="score"></div>
+        <div class="reach">
+          <div class="pane-h">Taxa reached by EBP</div>
+          <p class="reach-sub">Taxa with at least one EBP assembly, at each rank.</p>
+          <ul class="reach-row" id="reach"></ul>
         </div>
 
         <div class="treecard">
@@ -559,10 +660,10 @@
 
     <div class="wrap">
       <section>
-        <div class="sec-h">
-          <h2>Two tools</h2>
-          <span class="sub">One shared backend · they take a species list and answer a question, rather than displaying a standing dataset</span>
-        </div>
+        <!-- The visible "Two tools" heading was removed (Fang, 2026-10-28); this
+             one is for screen readers, so the outline still goes h1 -> h2 -> the
+             cards' h3s. -->
+        <h2 class="vh">Tools</h2>
         <div class="tools" id="tools">
 
           <!-- PRIORITIZATION -->
@@ -577,26 +678,35 @@
                     <p class="qq">“Is my species list worth sequencing?”</p>
                   </div>
                 </div>
-                <p class="desc">Screen a list → each species labelled by <b>taxonomic novelty</b> (would it be a phylogenetic first?) and by what the network is already doing, so the two can be filtered separately.</p>
+                <p class="desc">Screen a list → each species labelled by <b>phylogenetic novelty</b> (would it be a phylogenetic first?) and by what the network is already doing, so the two can be filtered separately.</p>
                 <div class="foot" id="foot-prio"></div>
               </div>
-              <!-- The mockup previewed one list's novelty distribution (ARIDE, 308
-                   species). That is a fact about one confidential list, there is no
-                   public endpoint behind it, and a home page has no list — so what
-                   ships is the tool's LABEL VOCABULARY instead. It is a legend, not
-                   a dataset: nothing here is a count, so nothing here can go stale
-                   or be read as a network-level figure. -->
+              <!-- One example result instead of the label vocabulary (Fang,
+                   2026-10-28): what the tool does reads faster from one row than
+                   from a legend of seven labels. Species chosen by Fang; written
+                   in, not computed, so it does not need the backend.
+
+                   Verified 2026-10-28 against live GoaT and the IUCN cache:
+                   * Highest_F -- GoaT's assembly index holds 0 assemblies under
+                     Pyrgulopsis and 0 under Hydrobiidae, 41 under the order
+                     Littorinimorpha. A taxon search with assembly_span DOES return
+                     one Hydrobiidae species (Peringia ulvae), but that value's
+                     aggregation_source is 'ancestor': an estimate, not a genome.
+                     The tool's reference cache agrees: no Hydrobiidae assembly.
+                   * High_New -- no sequencing_status in any project, no assembly.
+                   * CR -- global assessment (2012), IUCN 2026-1, decreasing.
+                   Labels move with GoaT: the first Hydrobiidae genome makes this
+                   row wrong. Re-check before reusing it. One short phrase per
+                   label, by request (Fang, 2026-10-28). -->
               <figure class="preview">
-                <figcaption class="pl">Novelty labels · what the tool assigns each species</figcaption>
-                <div class="ladder">
-                  <div class="lad"><span class="sw" style="background:var(--r-phylum)"></span><span class="lb">Highest_P</span><span class="ds">First in its phylum</span></div>
-                  <div class="lad"><span class="sw" style="background:var(--r-class)"></span><span class="lb">Highest_C</span><span class="ds">First in its class</span></div>
-                  <div class="lad"><span class="sw" style="background:var(--r-order)"></span><span class="lb">Highest_O</span><span class="ds">First in its order</span></div>
-                  <div class="lad"><span class="sw" style="background:var(--r-family)"></span><span class="lb">Highest_F</span><span class="ds">First in its family</span></div>
-                  <div class="lad"><span class="sw" style="background:var(--r-genus)"></span><span class="lb">Highest_G</span><span class="ds">First in its genus</span></div>
-                  <div class="lad"><span class="sw" style="background:#94a3b8"></span><span class="lb">High_S</span><span class="ds">No assembly, but not a first at any rank</span></div>
-                  <div class="lad"><span class="sw" style="background:var(--paper-mute)"></span><span class="lb">Already_Covered</span><span class="ds">An assembly already exists</span></div>
+                <figcaption class="pl">Example · one species from a screened list</figcaption>
+                <div class="ex-name"><i>Pyrgulopsis trivialis</i> <span class="ex-tax">· a freshwater springsnail</span></div>
+                <div class="ladder ex">
+                  <div class="lad"><span class="sw" style="background:var(--r-family)"></span><span class="lb">Highest_F</span><span class="ds">First genome in its family</span></div>
+                  <div class="lad"><span class="sw" style="background:var(--green-deep)"></span><span class="lb">High_New</span><span class="ds">No assembly, no active EBP project working on the species</span></div>
+                  <div class="lad"><span class="sw" style="background:var(--iucn-cr)"></span><span class="lb">CR</span><span class="ds">Critically Endangered (IUCN)</span></div>
                 </div>
+                <p class="ex-foot">Ideal sequencing target</p>
               </figure>
             </div>
           </article>
@@ -616,21 +726,21 @@
                 <p class="desc">For one project, <b>who else has touched each species</b> and how far they have taken it — coordinate before sequencing in parallel.</p>
                 <div class="foot" id="foot-dup"></div>
               </div>
-              <!-- Filled live from /api/duplication/{project} when a backend exists
-                   for this deployment, and left as the legend alone when one does
-                   not. Labelled with the project and the report's generated date,
-                   because it is one project's figures and not the network's. -->
+              <!-- The heatmap as it was, showing B10K instead of DTOL (Fang,
+                   2026-10-28): an actively sequencing project with little overlap,
+                   where DTOL is the network's most overlapped. WRITTEN IN, not
+                   fetched, and marked "for display only": the cells are B10K's
+                   report 2 from the backend's report of 2026-10-25 (DUP_EXAMPLE
+                   below), so the card looks the same with or without a backend and
+                   does not follow later reports. No date is shown, by request. -->
               <div class="preview">
-                <div class="pl" id="heat-label">Cross-project overlap · loading…</div>
-                <table class="mini-heat" id="miniHeat" aria-describedby="heat-label"></table>
-                <div class="heat-msg" id="heat-msg" hidden></div>
-                <div class="status-legend">
-                  <div class="sl-scale">
-                    <i style="background:var(--s-not)"></i><i style="background:var(--s-collected)"></i><i style="background:var(--s-datagen)"></i><i style="background:var(--s-progress)"></i><i style="background:var(--s-published)"></i>
-                  </div>
-                  <div class="sl-ends"><b>Not started</b><span>sample → data → assembly →</span><b>Published</b></div>
-                  <div class="sl-note">GoaT <code>sequencing_status</code> stages, left → right. Further right = <b>closer to publication</b>; a project stuck far left is stalled, not near done.</div>
-                </div>
+                <div class="pl" id="heat-label">Cross-project overlap</div>
+                <table class="mini-heat" id="miniHeat" aria-describedby="heat-label heat-read"></table>
+                <!-- How to read the grid, by reading its largest cell aloud (Fang,
+                     2026-10-28: the stage legend that stood here explained the
+                     colours, but nothing said what a number means; the legend was
+                     then removed). Filled from DUP_EXAMPLE. -->
+                <p class="heat-read" id="heat-read"></p>
               </div>
             </div>
           </article>
@@ -667,8 +777,8 @@
          "not yet" than a link to a page whose own client is missing.
 
          Everything gated on this: both tool cards, the two Tools entries in
-         the nav, the search index's treatment of them, and the live
-         duplication preview.
+         the nav, and the search index's treatment of them. The two card
+         previews are written-in examples and need no backend.
          ═══════════════════════════════════════════════════════════════════ */
       var backendConfigured = typeof EBPBackend !== 'undefined' && !!EBPBackend.backendBase();
 
@@ -690,7 +800,7 @@
         familyStd:    'https://goat.genomehubs.org/api/v2/search?result=taxon&query=tax_rank%28family%29%20AND%20bioproject%3DPRJNA533106%20AND%20ebp_standard_criteria&taxonomy=ncbi&includeEstimates=true&excludeMissing%5B0%5D=bioproject&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B1%5D=ebp_standard_criteria&size=1',
         /* One call, six ranks. `x` = taxa at that rank carrying an EBP assembly,
            `y` = every eukaryotic taxon at that rank in GoaT. This single request
-           answers the whole scorecard AND the family KPI. */
+           answers the taxa-reached row AND the family progress bar. */
         ebpArc:       'https://goat.genomehubs.org/api/v2/report?report=arc&x=assembly_span%20AND%20bioproject%3DPRJNA533106&rank=phylum%2Cclass%2Corder%2Cfamily%2Cgenus%2Cspecies&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&caption=EBP%20taxa&taxonomy=ncbi&result=taxon&queryId=8EWp2aVcZB',
         /* The tree behind the left pane. Same `report=tree` that
            pages/phylotree.html runs, with two deliberate differences:
@@ -718,31 +828,67 @@
       }
       function hits(d){ return (d && d.status && typeof d.status.hits === 'number') ? d.status.hits : null; }
 
-      /* ───────────── hero + scorecard ───────────── */
+      /* ───────────── hero + taxa reached ───────────── */
       var RANKS = [
-        {key:'phylum', name:'Phylum', plural:'phyla',    colour:'var(--r-phylum)'},
-        {key:'class',  name:'Class',  plural:'classes',  colour:'var(--r-class)'},
-        {key:'order',  name:'Order',  plural:'orders',   colour:'var(--r-order)'},
-        {key:'family', name:'Family', plural:'families', colour:'var(--r-family)'}
+        {key:'phylum', plural:'Phyla',    colour:'var(--r-phylum)'},
+        {key:'class',  plural:'Classes',  colour:'var(--r-class)'},
+        {key:'order',  plural:'Orders',   colour:'var(--r-order)'},
+        {key:'family', plural:'Families', colour:'var(--r-family)'},
+        {key:'genus',  plural:'Genera',   colour:'var(--r-genus)'}
       ];
 
-      function setBar(fillId, stdId, value, total, stdValue){
-        var pct = total > 0 ? Math.min(value / total * 100, 100) : 0;
-        var fill = $(fillId);
+      /* Axis ticks at fixed values, placed against the bar's own target.
+         `phoneTicks`, if given, is the sparser set shown below 640px; ticks in
+         only one of the two sets are hidden at the other width by CSS. */
+      function drawAxis(id, max, ticks, phoneTicks){
+        var axis = $(id);
+        axis.querySelectorAll('.progress-axis-tick').forEach(function(el){ el.remove(); });
+        var all = phoneTicks ? ticks.concat(phoneTicks.filter(function(v){ return ticks.indexOf(v) < 0; })) : ticks;
+        all.forEach(function(v){
+          if(v > max) return;
+          var t = document.createElement('div');
+          var only = !phoneTicks ? '' : phoneTicks.indexOf(v) < 0 ? ' desk-only' : ticks.indexOf(v) < 0 ? ' phone-only' : '';
+          t.className = 'progress-axis-tick' + (v === max ? ' end' : '') + only;
+          t.style.left = (v / max * 100) + '%';
+          t.innerHTML = '<span class="progress-axis-label">' + num(v) + '</span>';
+          axis.appendChild(t);
+        });
+      }
+
+      /* One Phase I bar. `key` is 'species' or 'family'; `what` names the unit
+         for the screen-reader label, which carries the counts the hover labels do. */
+      function setProgress(key, what, value, target, stdValue){
+        var pct = Math.min(value / target * 100, 100);
         /* width of the inner segment is expressed against the OUTER bar, which is
            itself `pct` of the track — so the standard-meeting slice reads as a
            share of what has been sequenced, not of the goal. */
         var stdPct = value > 0 && stdValue != null ? Math.min(stdValue / value * 100, 100) : 0;
-        /* Set synchronously. The CSS transition still animates it where the browser
-           chooses to, but the WIDTH IS THE FIGURE — it must never depend on a frame
-           callback that may not run (headless capture, a background tab at load).
-           A rAF that never fires draws a measured number as an empty bar. */
-        fill.style.width = pct.toFixed(2) + '%';
-        if(stdId) $(stdId).style.width = stdPct.toFixed(2) + '%';
-        return pct;
+        /* Set synchronously: the WIDTH IS THE FIGURE, and it must never depend on a
+           frame callback that may not run (headless capture, a background tab at
+           load). A rAF that never fires draws a measured number as an empty bar. */
+        var done = $('progress-' + key + '-completed'), std = $('progress-' + key + '-quality');
+        done.style.width = pct.toFixed(2) + '%';
+        done.setAttribute('data-tooltip', num(value));
+        std.style.width = stdPct.toFixed(2) + '%';
+        std.setAttribute('data-tooltip', stdValue != null ? num(stdValue) : '');
+        $('progress-' + key + '-incomplete').setAttribute('data-tooltip', 'Target: ' + num(target));
+        $('progress-' + key + '-bar').setAttribute('aria-label',
+          num(value) + ' ' + what + ' with an EBP assembly' +
+          (stdValue != null ? ', ' + num(stdValue) + ' meeting the EBP standard' : '') +
+          ', against the Phase I target of ' + num(target));
+      }
+
+      function progressUnavailable(key, what){
+        $('progress-' + key + '-bar').setAttribute('aria-label', what + ': GoaT unavailable');
+        var note = $('progress-' + key + '-note');
+        note.className = 'progress-footnote warn';
+        note.textContent = 'GoaT did not answer, so this bar is empty. Reload to try again.';
+        note.hidden = false;
       }
 
       function loadHero(){
+        /* The species target is fixed, so its axis is drawn before GoaT answers. */
+        drawAxis('progress-species-axis', PHASE_I_SPECIES_GOAL, [0, 2000, 4000, 6000, 8000, 10000], [0, 5000, 10000]);
         var pSpecies = getJSON(GOAT.species).then(hits).catch(function(){ return null; });
         var pStd     = getJSON(GOAT.speciesStd).then(hits).catch(function(){ return null; });
         var pFamStd  = getJSON(GOAT.familyStd).then(hits).catch(function(){ return null; });
@@ -757,62 +903,33 @@
         Promise.all([pSpecies, pStd, pFamStd, pArc]).then(function(r){
           var species = r[0], speciesStd = r[1], famStd = r[2], arc = r[3];
           var family = arc && arc.family ? arc.family.x : null;
-          /* The Phase I family target is half of all eukaryotic families known to
-             GoaT — the same definition the previous home page used, computed from
-             the same response rather than written down. */
+          /* The Phase I family target is half of all families known to GoaT. The
+             previous home page took the denominator from a second, INSDC-wide arc
+             report; it is the same y (10,380 on 2026-10-28, target 5,190), so it is
+             read from this response rather than fetched twice or written down. */
           var familyTarget = arc && arc.family ? Math.max(1, Math.round(arc.family.y / 2)) : null;
 
-          /* headline */
-          if(species != null && family != null){
-            $('headline').innerHTML =
-              'Sequenced <span class="n tnum">' + num(species) + '</span> species toward ' +
-              '<span class="tnum">' + num(PHASE_I_SPECIES_GOAL) + '</span> — ' +
-              '<span class="n tnum">' + num(family) + '</span> families now covered.';
-          }
+          if(species != null) setProgress('species', 'species', species, PHASE_I_SPECIES_GOAL, speciesStd);
+          else progressUnavailable('species', 'Species');
 
-          /* species KPI */
-          if(species != null){
-            $('kpi-species').textContent = num(species);
-            var pct = setBar('kpi-species-fill', 'kpi-species-std', species, PHASE_I_SPECIES_GOAL, speciesStd);
-            $('kpi-species-cap').innerHTML = '<b>' + pct.toFixed(1) + '%</b> of the Phase I goal of ' +
-              num(PHASE_I_SPECIES_GOAL) +
-              (speciesStd != null ? ' · <b>' + num(speciesStd) + '</b> meet the EBP standard' : '');
-          } else { $('kpi-species-cap').textContent = 'GoaT unavailable'; }
-
-          /* family KPI */
           if(family != null && familyTarget != null){
-            $('kpi-family').textContent = num(family);
-            var fpct = setBar('kpi-family-fill', 'kpi-family-std', family, familyTarget, famStd);
-            $('kpi-family-cap').innerHTML = '<b>' + fpct.toFixed(1) + '%</b> of the Phase I target of ' +
-              num(familyTarget) + ' (half of all eukaryotic families)' +
-              (famStd != null ? ' · <b>' + num(famStd) + '</b> meet the EBP standard' : '');
-          } else { $('kpi-family-cap').textContent = 'GoaT unavailable'; }
+            setProgress('family', 'families', family, familyTarget, famStd);
+            drawAxis('progress-family-axis', familyTarget, [0, 1000, 2000, 3000, 4000, 5000]);
+          } else progressUnavailable('family', 'Families');
 
-          /* scorecard */
+          /* taxa reached: x only. y (every taxon at the rank) is not a target and
+             is not shown. */
           if(arc){
             var html = '';
             RANKS.forEach(function(rk){
               var a = arc[rk.key];
-              if(!a || !a.y) return;
-              var p = a.x / a.y * 100;
-              html += '<div class="rank-row">' +
-                        '<span class="rank-dot" style="background:' + rk.colour + '"></span>' +
-                        '<div class="rank-body">' +
-                          '<div class="rank-top"><span class="rank-name">' + rk.name + '</span>' +
-                            '<span class="rank-frac"><b>' + num(a.x) + '</b> / ' + num(a.y) + '</span></div>' +
-                          '<div class="rank-track"><div class="rank-fill" data-w="' + p.toFixed(1) + '" style="background:' + rk.colour + '"></div></div>' +
-                          '<div class="rank-pct">' + p.toFixed(1) + '% of eukaryotic ' + rk.plural + ' reached</div>' +
-                        '</div>' +
-                      '</div>';
+              if(!a) return;
+              html += '<li><div class="reach-n"><span class="reach-dot" style="background:' + rk.colour + '" aria-hidden="true"></span>' +
+                        num(a.x) + '</div><div class="reach-l">' + rk.plural + '</div></li>';
             });
-            $('score').innerHTML = html;
-            /* Same rule as setBar(): the width is the measurement, so it is applied
-               directly rather than from inside a frame callback. */
-            document.querySelectorAll('.rank-fill').forEach(function(el){
-              el.style.width = (el.dataset.w || 0) + '%';
-            });
+            $('reach').innerHTML = html;
           } else {
-            $('score').innerHTML = '<p class="heat-msg">The GoaT report did not load, so no coverage figures are shown. Reload to try again.</p>';
+            $('reach').outerHTML = '<p class="heat-msg">The GoaT report did not load, so no counts are shown. Reload to try again.</p>';
           }
         });
       }
@@ -1519,14 +1636,27 @@
         phyloTimer = setTimeout(drawPhylo, 150);
       });
 
-      /* ───────────── duplication preview (live) ─────────────
-         One project's report, labelled as one project's report. There is no
-         network-wide overlap endpoint, so this names DTOL and the date the
-         report was generated rather than implying a network figure. Report 2
-         is "active elsewhere, no assembly yet" — the case where coordination
-         is still possible, which is the card's whole argument. */
-      var PREVIEW_PROJECT = 'dtol';
-      var PREVIEW_PROJECT_LABEL = 'Darwin Tree of Life';
+      /* ───────────── duplication preview (for display only) ─────────────
+         The same heatmap the card drew live from /api/duplication/dtol, now
+         drawn from one project's report written in below -- see the comment on
+         the card in the markup. Report 2 is "active elsewhere, no assembly yet":
+         the case where coordination is still possible, which is the card's
+         whole argument. Rows are CCGP's own status, columns the partner
+         projects, as in the tool. */
+      /* B10K's report of 2026-10-25. Chosen over CCGP, whose report 2 was a
+         single row of two 1s: B10K is the most active project after DTOL (1,230
+         species in an active GoaT stage) and among the least overlapped (481 of
+         its 9,049, 5.3%), and its report 2 fills a 2 x 4 grid. */
+      var DUP_EXAMPLE = {
+        project: 'b10k',
+        project_columns: ['dtol', 'africabp', 'canbp', 'ccgp'], /* report 2's top 4, the backend's order */
+        status_order: ['not_started', 'sample_collected', 'sample_acquired', 'data_generation',
+                       'in_assembly', 'in_progress', 'open', 'insdc_open', 'published'],
+        matrix: {
+          sample_collected: { dtol: 4,  africabp: 5,  canbp: 1,  ccgp: 1 },
+          in_progress:      { dtol: 38, africabp: 25, canbp: 28, ccgp: 9 }
+        }
+      };
       var STATUS_COLOUR = {
         not_started:'--s-not',
         sample_collected:'--s-collected', sample_acquired:'--s-collected',
@@ -1539,76 +1669,58 @@
         data_generation:'data gen.', in_assembly:'in assembly', in_progress:'in progress',
         open:'open', insdc_open:'in INSDC', published:'published'
       };
+      /* CSS custom property, read at run time (heat cells, hero background). */
       function cvar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
 
-      function heatMessage(msg){
-        $('miniHeat').innerHTML = '';
-        var el = $('heat-msg');
-        el.textContent = msg;
-        el.hidden = false;
-      }
-
-      function loadDuplicationPreview(){
-        if(!backendConfigured){
-          $('heat-label').textContent = 'Cross-project overlap';
-          heatMessage('No backend is configured for this deployment, so no report can be shown. The stage ramp below is the scale the tool reads against.');
-          return;
-        }
-        $('heat-label').textContent = 'Cross-project overlap · loading…';
-        getJSON(EBPBackend.backendBase() + '/api/duplication/' + PREVIEW_PROJECT).then(function(d){
-          var rep = d && d.report_2;
-          if(!rep || !rep.matrix || !rep.project_columns) throw new Error('unexpected shape');
-
-          /* top 4 partner projects, in the order the backend ranked them */
-          var cols = rep.project_columns.slice(0, 4);
-          /* rows: the statuses that actually carry a value, so an empty row never
-             reads as a measured zero */
-          var rows = (rep.status_order || []).filter(function(s){
-            var r = rep.matrix[s] || {};
-            return cols.some(function(c){ return Number(r[c]) > 0; });
-          });
-          if(!cols.length || !rows.length) throw new Error('no cells');
-
-          var mx = 0;
-          rows.forEach(function(s){ cols.forEach(function(c){ var v = Number((rep.matrix[s]||{})[c]) || 0; if(v > mx) mx = v; }); });
-          mx = mx || 1;
-
-          function mix(varName, t){
-            var hex = cvar(varName) || '#6b8375';
-            var r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
-            return 'rgba(' + r + ',' + g + ',' + b + ',' + (0.16 + 0.68 * t).toFixed(3) + ')';
-          }
-
-          var html = '<thead><tr><th class="rh"></th>';
-          cols.forEach(function(c){ html += '<th>' + esc(c.toUpperCase()) + '</th>'; });
-          html += '</tr></thead><tbody>';
-          rows.forEach(function(s){
-            html += '<tr><th class="rh">' + esc(STATUS_LABEL[s] || s) + '</th>';
-            cols.forEach(function(c){
-              var v = Number((rep.matrix[s]||{})[c]) || 0;
-              if(!v){ html += '<td class="z">·</td>'; }
-              else { html += '<td style="background:' + mix(STATUS_COLOUR[s] || '--s-not', v / mx) + '">' + num(v) + '</td>'; }
-            });
-            html += '</tr>';
-          });
-          html += '</tbody>';
-          $('miniHeat').innerHTML = html;
-          $('heat-msg').hidden = true;
-
-          var when = d.generated_date ? ' · generated ' + esc(d.generated_date) : '';
-          $('heat-label').innerHTML = 'Example · ' + esc(PREVIEW_PROJECT.toUpperCase()) +
-            ' <span class="src">active elsewhere, no assembly yet' + when + '</span>';
-
-          var total = d.stored && d.stored.total_species;
-          if(total){
-            var el = document.getElementById('dup-stat');
-            if(el) el.innerHTML = '<b>' + num(total) + '</b> ' + esc(PREVIEW_PROJECT_LABEL) +
-              ' species overlap another project';
-          }
-        }).catch(function(){
-          $('heat-label').textContent = 'Cross-project overlap';
-          heatMessage('The report did not load. Open the tool for the live view.');
+      function drawDuplicationPreview(){
+        var rep = DUP_EXAMPLE;
+        /* top 4 partner projects, in the order the backend ranked them */
+        var cols = rep.project_columns.slice(0, 4);
+        /* rows: the statuses that actually carry a value, so an empty row never
+           reads as a measured zero */
+        var rows = rep.status_order.filter(function(s){
+          var r = rep.matrix[s] || {};
+          return cols.some(function(c){ return Number(r[c]) > 0; });
         });
+
+        var mx = 0;
+        rows.forEach(function(s){ cols.forEach(function(c){ var v = Number((rep.matrix[s]||{})[c]) || 0; if(v > mx) mx = v; }); });
+        mx = mx || 1;
+
+        function mix(varName, t){
+          var hex = cvar(varName) || '#6b8375';
+          var r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+          return 'rgba(' + r + ',' + g + ',' + b + ',' + (0.16 + 0.68 * t).toFixed(3) + ')';
+        }
+
+        var html = '<thead><tr><th class="rh"></th>';
+        cols.forEach(function(c){ html += '<th>' + esc(c.toUpperCase()) + '</th>'; });
+        html += '</tr></thead><tbody>';
+        rows.forEach(function(s){
+          html += '<tr><th class="rh">' + esc(STATUS_LABEL[s] || s) + '</th>';
+          cols.forEach(function(c){
+            var v = Number((rep.matrix[s]||{})[c]) || 0;
+            if(!v){ html += '<td class="z">·</td>'; }
+            else { html += '<td style="background:' + mix(STATUS_COLOUR[s] || '--s-not', v / mx) + '">' + num(v) + '</td>'; }
+          });
+          html += '</tr>';
+        });
+        html += '</tbody>';
+        $('miniHeat').innerHTML = html;
+
+        $('heat-label').innerHTML = 'Example · ' + esc(rep.project.toUpperCase()) +
+          ' <span class="src">active elsewhere, no assembly yet · for display only</span>';
+
+        /* the largest cell, read as a sentence */
+        var top = null;
+        rows.forEach(function(s){ cols.forEach(function(c){
+          var v = Number((rep.matrix[s]||{})[c]) || 0;
+          if(!top || v > top.v) top = {v:v, s:s, c:c};
+        }); });
+        var P = esc(rep.project.toUpperCase());
+        $('heat-read').innerHTML = 'Rows: ' + P + '\'s own stage. Columns: other projects on the same species. ' +
+          'e.g. <b>' + num(top.v) + '</b> species ' + P + ' has ' + esc(STATUS_LABEL[top.s] || top.s) +
+          ' are also being worked on by ' + esc(top.c.toUpperCase()) + ', none assembled yet.';
       }
 
       /* ───────────── the two tool cards ─────────────
@@ -1863,12 +1975,12 @@
       /* ───────────── go ───────────── */
       buildNav();
       buildToolCard('card-prio', 'foot-prio', 'prioritization.html', null);
-      buildToolCard('card-dup',  'foot-dup',  'duplication.html', 'dup-stat');
+      buildToolCard('card-dup',  'foot-dup',  'duplication.html', null);
+      drawDuplicationPreview();
       loadHero();
       initPhyloControls();
       initPhyloHover();
       loadPhylumTree();
-      loadDuplicationPreview();
     })();
     </script>
 </body>

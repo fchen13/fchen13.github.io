@@ -464,7 +464,7 @@ const PrioritizationResults = (function () {
           <div id="ebp-chart-tax" class="ebp-res-chart"></div>
           <div id="ebp-chart-proj" class="ebp-res-chart"></div>
         </div>
-        <p class="ebp-res-cap">Left: taxonomic novelty, darkest at the broadest gap. Right: what the
+        <p class="ebp-res-cap">Left: phylogenetic novelty, darkest at the broadest gap. Right: what the
           network is already doing. The two are counted over the same species and do not add up to each
           other — read them as two questions, not one ranking.</p>
       </div>`;
@@ -491,7 +491,7 @@ const PrioritizationResults = (function () {
 
     ${warnings}
     <div class="ebp-res-note"><span aria-hidden="true">▸</span><span><b>Two independent dimensions.</b>
-      <em>Taxonomic novelty</em> — would sequencing this fill a phylogenetic gap? — and
+      <em>Phylogenetic novelty</em> — would sequencing this fill a phylogenetic gap? — and
       <em>project status</em> — is the network already on it? A species can be a first-in-genus
       <em>and</em> already being sequenced elsewhere: that is a coordination opportunity, not a low
       priority, which is why these are two filters and not one score.</span></div>
@@ -535,7 +535,7 @@ const PrioritizationResults = (function () {
         <table class="ebp-data">
           <thead><tr>
             <th class="srt" data-sort="name">Species <span class="ar"></span></th>
-            <th class="srt" data-sort="tax">Taxonomic novelty <span class="ar"></span></th>
+            <th class="srt" data-sort="tax">Phylogenetic novelty <span class="ar"></span></th>
             <th class="srt" data-sort="proj">Project status <span class="ar"></span></th>
             <th class="srt" data-sort="firsts">First in… (G·F·O·C·P) <span class="ar"></span></th>
             <th>Projects on this species</th>

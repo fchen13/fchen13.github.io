@@ -401,25 +401,15 @@
 
   <div class="guide" id="guide" hidden>
     <h2>How to read this</h2>
-    <p><b>The three reports do not overlap.</b> Report 1 selects species with an EBP-standard
-      assembly already in INSDC; reports 2 and 3 select species without one, split by whether your
-      project has started work. So a species appears in exactly one of them, and the three counts
-      add up to the total.</p>
-    <p><b>Every number counts species by <em>your</em> project’s sequencing status.</b> The other
-      project’s status for the same species is in GoaT — that is what the columns are: how many of
-      your species each of them also holds.</p>
-    <!-- Reworded 2026-08-23. This used to open "This page never queries GoaT", which was true of
-         the data path and confusing next to a button labelled "Open this target list in GoaT" —
-         and it described an implementation property when what a reader needs is WHEN the numbers
-         are from. -->
-    <p><b>These numbers are as of the capture date, not this moment.</b> Each project’s report is
-      built once a week from GoaT and stored; opening one reads the stored copy, which is what makes
-      it instant — rebuilding Darwin Tree of Life’s takes 16 GoaT queries and about 37 seconds. The
-      GoaT links on this page do open GoaT and will show you what is true there right now; the
-      counts here do not change until the next capture.</p>
-    <p><b>Where duplication is not the same as waste.</b> Two projects on one species may be a
-      deliberate reference-quality re-sequencing, a different population, or a collaboration already
-      under way. These reports say what GoaT records; the projects decide what to do about it.</p>
+    <!-- Trimmed to one short line each (Fang, 2026-10-28). What a reader needs is WHEN the
+         numbers are from (reworded so 2026-08-23), not how the capture works. -->
+    <p><b>Each species is in exactly one report.</b> Report 1: an EBP-standard assembly already
+      exists. Reports 2 and 3: none yet, split by whether your project has started.</p>
+    <p><b>Rows are your project’s stage.</b> Columns are other projects: how many of your species
+      each also holds.</p>
+    <p><b>Counts are as of the weekly capture date.</b> The GoaT links show GoaT as it is now.</p>
+    <p><b>Overlap isn’t always waste:</b> it may be deliberate re-sequencing, a different
+      population, or an existing collaboration. Projects decide.</p>
     <h2>Sequencing status</h2>
     <dl class="gloss" id="gloss"></dl>
   </div>
@@ -527,14 +517,9 @@
 
     const stale = el('stale');
     if (stored.stale) {
-      stale.innerHTML = '<b>⚠ You are looking at the previous report, not the newest one.</b> '
-        + 'The most recent capture attempt for this project (' + esc(stamp(stored.last_attempt_at))
-        + ') failed, and ' + (stored.consecutive_failures > 1
-          ? 'so did the ' + (stored.consecutive_failures - 1) + ' before it. '
-          : 'it is the first failure in a row. ')
-        + 'What is shown below was captured on <b>' + esc(generated) + '</b> and is otherwise '
-        + 'a complete, valid report — it is simply older than it should be, which the date on its '
-        + 'own cannot tell you.'
+      stale.innerHTML = '<b>⚠ This is an older report.</b> '
+        + 'The latest capture (' + esc(stamp(stored.last_attempt_at)) + ') failed; what’s below is '
+        + 'complete but dated <b>' + esc(generated) + '</b>.'
         + (stored.last_error ? '<br>Last error: <code>' + esc(stored.last_error) + '</code>' : '');
       stale.hidden = false;
     } else {
@@ -578,10 +563,9 @@
    * A 404 is four different situations and they need four different messages.
    *
    * `reason` is machine-readable precisely so this branch does not have to
-   * inspect prose — A-D2 split them for this page. Only `not_yet_computed` is
-   * actionable, so it is the only one that names the refresh route; telling
-   * someone to run a refresh for an umbrella project would send them after an
-   * answer that can never exist.
+   * inspect prose — A-D2 split them for this page. The messages are one short
+   * line each (Fang, 2026-10-28). The admin refresh route is no longer named:
+   * it is an administrator's command, not something a public reader can run.
    */
   function showMissing(project, detail) {
     const reason = (detail && detail.reason) || '';
@@ -589,33 +573,21 @@
     const name = (entry && entry.display_name) || project.toUpperCase();
     if (reason === 'not_yet_computed') {
       notice('<b class="hd">No report has been computed for ' + esc(name) + ' yet.</b>'
-        + '<p>This project <b>can</b> have one — it has a BioProject accession, and the weekly '
-        + 'capture job covers it — but the job has not produced a payload for it. This page never '
-        + 'builds a report on demand: doing so would be a 37-second GoaT query on a page load.</p>'
-        + '<p>The next weekly capture will pick it up. To have it sooner, an administrator can run '
-        + '<code>POST /api/admin/duplication/refresh?project=' + esc(project) + '</code>.</p>', true);
+        + '<p>The next weekly capture will create it.</p>', true);
       return;
     }
     if (reason === 'umbrella_project') {
-      notice('<b class="hd">' + esc(name) + ' is an umbrella project, and is not reported on.</b>'
-        + '<p>The projects underneath it do the sequencing, so asking which projects duplicate an '
-        + 'umbrella asks which projects overlap with <em>everything</em> — the answer is all of '
-        + 'them, and it says nothing. Choose one of its member projects instead.</p>'
-        + '<p>This is not a missing report and no refresh will produce one.</p>');
+      notice('<b class="hd">' + esc(name) + ' is an umbrella project and has no report.</b>'
+        + '<p>Choose one of its member projects.</p>');
       return;
     }
     if (reason === 'not_reportable') {
       notice('<b class="hd">' + esc(name) + ' has no BioProject accession on record.</b>'
-        + '<p>All three reports are defined against one — they compare the species registered under '
-        + 'your project’s accession in GoaT with those registered under everyone else’s. Without an '
-        + 'accession there is nothing to compare, and no report can be built.</p>'
-        + '<p>This resolves when the project is assigned a BioProject and it reaches the EBP '
-        + 'project registry.</p>');
+        + '<p>Reports compare projects by accession, so none can be built until it has one.</p>');
       return;
     }
     notice('<b class="hd">No EBP project called <code>' + esc(project) + '</code>.</b>'
-      + '<p>The backend’s registry has never heard of that name, which is almost always a typo in '
-      + 'the <code>?project=</code> link. Pick one from the list above.</p>');
+      + '<p>Probably a typo in the <code>?project=</code> link. Pick one from the list above.</p>');
   }
 
   /* ── open one project ────────────────────────────────────────────────────── */
@@ -716,9 +688,8 @@
     }
     el('report-host').innerHTML = '<div class="notice">'
       + '<b class="hd">Choose a project to see its duplication reports.</b>'
-      + '<p>Reports exist for the ' + num(index.with_report_count) + ' EBP projects whose target '
-      + 'species are registered against a BioProject accession in GoaT. Each is rebuilt weekly, and '
-      + 'the capture date is shown with it.</p></div>';
+      + '<p>Reports cover ' + num(index.with_report_count) + ' EBP projects with a BioProject in '
+      + 'GoaT, rebuilt weekly.</p></div>';
   })();
 })();
 </script>

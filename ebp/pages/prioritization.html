@@ -228,6 +228,16 @@
   .tabs button.on{background:var(--ink-2); color:var(--green-glow); font-weight:650;
     border:1px solid var(--line); border-bottom:none;}
   .tabs button[hidden]{display:none;}
+  /* The tabs a first visit cannot see yet, named under the tab bar (Fang,
+     2026-10-28). Outside the header so the active tab still sits on its rule. */
+  .tabs-next{font-size:13px; color:var(--paper-dim); margin:12px 0 0; line-height:1.5;}
+  .tabs-next b{color:var(--paper); font-weight:650;}
+  .tabs-next span{display:block;}
+  .tabs-next span + span{margin-top:4px;}
+  .tabs-next[hidden]{display:none;}
+  /* Its .wrap drops the usual 48px bottom padding: the origin-warning .wrap
+     right below already carries it, and two stacked read as a blank band. */
+  .tabs-next-wrap{padding-bottom:0;}
 
   .view{display:none;} .view.on{display:block;}
   .view-head{margin-bottom:18px;}
@@ -306,9 +316,8 @@
     <!-- Below .headrow, not inside .head-left: the strapline runs the full width
          of the page rather than being squeezed into the column left of the list
          stat, which pushed it to three short lines. -->
-    <p class="sub">Screen a species list against GoaT for <em>taxonomic novelty</em> and current
-      project status across the EBP network — the highest-novelty species with no project on them
-      are the strongest sequencing targets.</p>
+    <p class="sub">Screen a list for <em>phylogenetic novelty</em> and EBP project activity. Novel
+      species that no project is working on are the ideal sequencing targets.</p>
     <div class="tabs" role="tablist">
       <button data-tab="submit" role="tab" class="on" type="button">Submit</button>
       <button data-tab="results" role="tab" type="button">Results</button>
@@ -321,6 +330,9 @@
     </div>
   </div>
 </header>
+
+<!-- Names the tabs that are still hidden; filled and hidden by syncTabsNext(). -->
+<div class="wrap tabs-next-wrap"><p class="tabs-next" id="tabs-next" hidden></p></div>
 
 <!-- Filled in at boot only when the page cannot reach a backend from where it
      was opened. See the origin check at the bottom of this file. -->
@@ -357,8 +369,8 @@
         <button class="ebp-help-btn ebp-help-open-link" type="button">How to read results <span aria-hidden="true">→</span></button>
       </div>
       <div class="card">
-        <p><b>Nothing screened yet.</b> Submit a species list and its results open here — or open a
-          link of the form <code>?submission=&lt;id&gt;</code> to reopen a run.</p>
+        <p><b>Nothing screened yet.</b> Submit a list, or open a <code>?submission=&lt;id&gt;</code>
+          link to reopen a run.</p>
         <p><button class="btn" type="button" id="results-goto-submit">Go to Submit</button></p>
       </div>
     </div>
@@ -432,6 +444,34 @@
     if (name === 'results' && results) results.redraw();
   }
   tabs.forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.tab); }); });
+
+  /* A first visit sees Submit and Results only, so the line under the tab bar
+     names the tabs still to come and what they show. Each drops out when its
+     tab appears, and the line goes once both have. Watching the `hidden`
+     attribute keeps this in one place: whatever code reveals a tab, the line
+     follows. */
+  const TABS_NEXT = [
+    ['tab-coverage', 'The <b>Coverage</b> tab opens once a screening run finishes. It shows phylogenetic '
+      + 'coverage at the phylum level.'],
+    /* Only the secretariat can track a list (RUNBOOK_trend_link_for_a_PI):
+       a web submission never gains a history, so this says who to ask. No
+       contact address yet, by choice (Fang, 2026-10-28). */
+    ['tab-trends', 'The <b>Changes over time</b> tab opens from a private link the EBP secretariat '
+      + 'sends when they track your list. It shows how a list’s priority labels change between runs.'],
+  ];
+  function syncTabsNext() {
+    const still = TABS_NEXT.filter(function (t) { return document.getElementById(t[0]).hidden; });
+    const line = document.getElementById('tabs-next');
+    /* One line per tab, each saying when it opens, what it shows and how to get
+       it, for a first-time visitor: both features are live, and "later" alone
+       read as "not built yet" (Fang, 2026-10-28). */
+    line.innerHTML = still.map(function (t) { return '<span>' + t[1] + '</span>'; }).join('');
+    line.hidden = !still.length;
+  }
+  TABS_NEXT.forEach(function (t) {
+    new MutationObserver(syncTabsNext).observe(document.getElementById(t[0]), { attributes: true, attributeFilter: ['hidden'] });
+  });
+  syncTabsNext();
   document.getElementById('results-goto-submit')
     .addEventListener('click', function () { show('submit'); });
 

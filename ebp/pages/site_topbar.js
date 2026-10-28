@@ -337,7 +337,7 @@
       + '<div class="inner">'
       +   '<a class="logo" href="../index.html">'
       +     '<img src="../favicon.jpg" alt="">'
-      +     '<span>Earth BioGenome</span>'
+      +     '<span>Earth BioGenome Project</span>'
       +   '</a>'
       +   '<div class="ebp-search-wrap">'
       +     '<div class="ebp-search">'

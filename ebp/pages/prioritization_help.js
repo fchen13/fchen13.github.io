@@ -232,7 +232,7 @@ const PrioritizationHelp = (function () {
     const ctx = context || {};
     return `
       <h3 id="ebp-help-two">The two columns</h3>
-      <p>Every species gets <b>two independent labels</b>. <em>Taxonomic novelty</em> asks whether
+      <p>Every species gets <b>two independent labels</b>. <em>Phylogenetic novelty</em> asks whether
         sequencing it would fill a phylogenetic gap; <em>project status</em> asks whether the EBP
         network is already working on it. They are separate questions, and a species can score high on
         both — a first-in-genus that another project is already sequencing is a
@@ -243,7 +243,7 @@ const PrioritizationHelp = (function () {
       <table class="ebp-help-tbl"><thead><tr><th>Novelty + status</th><th>What it means for you</th></tr></thead>
         <tbody>${matrixRows(false)}</tbody></table>
 
-      <h3 id="ebp-help-novelty">Taxonomic novelty</h3>
+      <h3 id="ebp-help-novelty">Phylogenetic novelty</h3>
       <p>Would sequencing this species fill a phylogenetic gap? Independent of who is working on it.
         Where a species would be a first at several levels, the <b>broadest</b> one is shown — use the
         <code>First in…</code> column for the full picture.</p>
