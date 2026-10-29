@@ -244,6 +244,12 @@ const EBPBackend = (function () {
       // A label, stored with the run: it names the results header and the
       // exported workbook, and it confers no list identity (§12.6).
       if (opts.listName) form.append('list_name', opts.listName);
+      // The submitter's own calendar date, for the exported file's name. The
+      // server only knows UTC, which in the Americas turns over in the evening.
+      const now = new Date();
+      form.append('local_date', now.getFullYear() + '-'
+        + String(now.getMonth() + 1).padStart(2, '0') + '-'
+        + String(now.getDate()).padStart(2, '0'));
       return postForm('/api/submissions', form);
     },
 
