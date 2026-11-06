@@ -43,7 +43,7 @@ const PrioritizationHelp = (function () {
     'High_S', 'Already_Covered', 'Unknown_S', 'Unknown', 'Unknown_G',
   ];
   const PROJ_ORDER = [
-    'High_New', 'Low_Active', 'Low_Sample', 'Medium_Improve', 'Low_Done', 'Not_Assigned', 'Unknown',
+    'High_New', 'Medium_Improve', 'Low_Sample', 'Low_Active', 'Low_Done', 'Not_Assigned', 'Unknown',
   ];
 
   /* The FILTER MATRIX — the actionable half of the two-column split, and the one
@@ -99,7 +99,7 @@ const PrioritizationHelp = (function () {
      them "pill = read it, don't click it". Two things separate this one from a
      badge: the trailing arrow, carried at rest, and an underline on hover.
      Underline rather than a fill or a new hue because green already means links,
-     the active tab, "Export to Excel" and the High_New label -- a green help chip
+     the active tab, "Export to Excel" and the novelty labels -- a green help chip
      would compete with the view's one primary action. See also .ebp-help-link
      below: the drawer's other opener, styled as a link for the same reason.
      The outline takes --line-strong, not --line: --line is a hairline meant to
@@ -193,7 +193,7 @@ const PrioritizationHelp = (function () {
 
   function labelTable(kind, order, caption) {
     const rows = glossary(kind, order).map(function (entry) {
-      return '<tr><td><span class="ebp-help-chip ' + entry.cls + '">' + esc(entry.label)
+      return '<tr><td><span class="ebp-help-chip ' + entry.cls + '"' + (entry.style || '') + '>' + esc(entry.label)
         + '</span></td><td>' + esc(entry.text) + '</td></tr>';
     }).join('');
     return '<table class="ebp-help-tbl"><thead><tr><th>' + esc(caption)
@@ -202,11 +202,13 @@ const PrioritizationHelp = (function () {
 
   function matrixRows(only) {
     return MATRIX.filter((row) => !only || row.compact).map(function (row) {
-      const tax = gloss('tax', row.tax.indexOf('/') > 0 ? 'Highest_G' : row.tax);
-      const proj = row.proj === 'any' ? { cls: 'c-unknown' } : gloss('proj', row.proj);
-      return '<tr><td><span class="ebp-help-chip ' + tax.cls + '">' + esc(row.tax) + '</span>'
+      /* The combined Highest_* row takes Highest_P's fill, as on the workbook's
+         INSTRUCTIONS sheet. */
+      const tax = gloss('tax', row.tax.indexOf('/') > 0 ? 'Highest_P' : row.tax);
+      const proj = row.proj === 'any' ? { cls: 'c-unknown', style: '' } : gloss('proj', row.proj);
+      return '<tr><td><span class="ebp-help-chip ' + tax.cls + '"' + (tax.style || '') + '>' + esc(row.tax) + '</span>'
         + '<span class="ebp-help-arrow">+</span>'
-        + '<span class="ebp-help-chip ' + proj.cls + '">' + esc(row.proj) + '</span></td>'
+        + '<span class="ebp-help-chip ' + proj.cls + '"' + (proj.style || '') + '>' + esc(row.proj) + '</span></td>'
         + '<td>' + esc(row.act) + '</td></tr>';
     }).join('');
   }
@@ -214,11 +216,11 @@ const PrioritizationHelp = (function () {
   /** The compact matrix for the Results view. Collapsed by default. */
   function matrixHtml() {
     const rows = MATRIX.filter((row) => row.compact).map(function (row) {
-      const tax = gloss('tax', 'Highest_G');
+      const tax = gloss('tax', row.tax === 'High_S' ? 'High_S' : 'Highest_P');
       const proj = gloss('proj', row.proj);
-      return '<div class="row"><span class="ebp-help-chip ' + (row.tax === 'High_S' ? 'c-covered' : tax.cls)
-        + '">' + esc(row.tax) + '</span><span class="ebp-help-arrow">+</span>'
-        + '<span class="ebp-help-chip ' + proj.cls + '">' + esc(row.proj) + '</span>'
+      return '<div class="row"><span class="ebp-help-chip ' + tax.cls + '"' + (tax.style || '')
+        + '>' + esc(row.tax) + '</span><span class="ebp-help-arrow">+</span>'
+        + '<span class="ebp-help-chip ' + proj.cls + '"' + (proj.style || '') + '>' + esc(row.proj) + '</span>'
         + '<span class="ebp-help-arrow">→</span><span class="act">' + esc(row.act) + '</span></div>';
     }).join('');
     return '<details class="ebp-matrix"><summary>How to read the two columns together</summary>'

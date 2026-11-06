@@ -53,7 +53,7 @@ const PrioritizationResults = (function () {
     High_S: 6, Already_Covered: 7, Unknown_S: 8, Unknown: 9, Unknown_G: 10,
   };
   const PROJ_RANK = {
-    High_New: 1, Low_Active: 2, Low_Sample: 3, Medium_Improve: 4, Low_Done: 5, Not_Assigned: 6,
+    High_New: 1, Medium_Improve: 2, Low_Sample: 3, Low_Active: 4, Low_Done: 5, Not_Assigned: 6,
   };
   /* Most-threatened first, so a sort on this column answers "what is at risk".
      Anything outside the vocabulary — including a blank, which means the cached
@@ -105,11 +105,11 @@ const PrioritizationResults = (function () {
   .ebp-stat .l{font-size:13px; color:var(--paper-dim,#a6bcaf); margin-top:1px; line-height:1.4;}
   .ebp-stat .stripe{position:absolute; left:0; top:0; bottom:0; width:4px;}
   .ebp-stat.s-total .n{color:var(--paper,#e9f2ec);}
-  .ebp-stat.s-novel .stripe{background:var(--novel,#7aa2ff);} .ebp-stat.s-novel .n{color:var(--novel-ink,#7aa2ff);}
-  .ebp-stat.s-new .stripe{background:var(--green-glow,#5fd39a);} .ebp-stat.s-new .n{color:var(--green-glow,#5fd39a);}
-  .ebp-stat.s-improve .stripe{background:var(--improve,#e0a760);} .ebp-stat.s-improve .n{color:var(--improve-ink,#e0a760);}
-  .ebp-stat.s-low .stripe{background:var(--low,#8595a0);} .ebp-stat.s-low .n{color:var(--low-ink,#8595a0);}
-  .ebp-stat.s-na .stripe{background:var(--paper-mute,#6f8a7b);} .ebp-stat.s-na .n{color:var(--paper-mute,#6f8a7b);}
+  /* Each stripe is a label's workbook fill, set inline from Panel B's table (see
+     stripe()). The numbers stay in text ink: several fills (Medium_Improve, the
+     greys) are far too pale to be read as text. */
+  .ebp-stat .n{color:var(--paper,#e9f2ec);}
+  .ebp-stat.s-na .n{color:var(--paper-mute,#6f8a7b);}
 
   .ebp-res-charts{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
   @media (max-width:760px){ .ebp-res-charts{grid-template-columns:1fr;} }
@@ -154,9 +154,14 @@ const PrioritizationResults = (function () {
   .ebp-firsts{display:inline-flex; gap:4px; font-variant-numeric:tabular-nums;}
   .ebp-firsts b{width:19px; height:19px; border-radius:5px; font-size:13px; font-weight:700;
     display:inline-flex; align-items:center; justify-content:center; cursor:default;}
-  .ebp-firsts b.y{background:rgba(122,162,255,.18); color:var(--novel-ink,#7aa2ff);}
-  .ebp-firsts b.n{background:var(--ink-4,#1b2f24); color:var(--paper-mute,#6f8a7b);}
-  .ebp-firsts b.u{background:transparent; border:1px dashed var(--line,#22362b); color:var(--paper-mute,#6f8a7b);}
+  /* The workbook's First_in_X fills (FIRST_IN_FILLS in generate_prioritization_tool.py,
+     pinned by test_label_parity.py). No = already covered at that level, the answer
+     needing least attention, so it recedes: light grey, muted letter. Unknown (no
+     taxonomy at that level) is a step darker with a dashed edge, so a one-letter box
+     never reads as a No. */
+  .ebp-firsts b.y{background:#c6efce; color:#006100;}
+  .ebp-firsts b.n{background:#f2f2f2; color:#666666;}
+  .ebp-firsts b.u{background:#e0e0e0; color:#415047; border:1px dashed #8a8a8a; box-sizing:border-box;}
   .ebp-na{color:var(--paper-mute,#6f8a7b); cursor:default;}
   .ebp-projects{max-width:230px; overflow:hidden; text-overflow:ellipsis;}
   .ebp-iucn{font-weight:700; font-size:13px;}
@@ -192,7 +197,7 @@ const PrioritizationResults = (function () {
       return '<span class="ebp-res-chip c-unknown" title="This run produced no label for this species.">—</span>';
     }
     const g = gloss(kind, label);
-    return '<span class="ebp-res-chip ' + g.cls + '" title="' + esc(label + (g.text ? ' — ' + g.text : ''))
+    return '<span class="ebp-res-chip ' + g.cls + '"' + (g.style || '') + ' title="' + esc(label + (g.text ? ' — ' + g.text : ''))
       + '">' + esc(label) + '</span>';
   }
 
@@ -353,32 +358,26 @@ const PrioritizationResults = (function () {
     return (value || '').trim() || fallback;
   }
 
-  /* Chip classes carry the meaning of a colour on this page, so the bars read
-     from the same mapping rather than picking a palette of their own. */
-  const CHIP_VAR = {
-    'c-novel': ['--novel', '#7aa2ff'],
-    'c-new': ['--green-glow', '#5fd39a'],
-    'c-improve': ['--improve', '#e0a760'],
-    'c-low': ['--low', '#8595a0'],
-    'c-covered': ['--paper-mute', '#6f8a7b'],
-    'c-unknown': ['--paper-mute', '#6f8a7b'],
-  };
-
-  /* The five Highest_* labels are one family and share one colour, which makes a
-     chart of them a flat blue block. Fading the ramp by breadth keeps "first in
-     phylum" visually ahead of "first in genus" — the same ordering the workbook
-     gives them with its green gradient. The floor is 70%, not lower: at 60% a
-     lone `Highest_G` bar read as disabled rather than as the palest step of a
-     ramp whose other steps were not on screen to compare it against. Alpha is
-     appended as hex, which only works on a #rrggbb value; anything else keeps
-     the flat colour. */
-  const RAMP = { Highest_P: 'ff', Highest_C: 'ec', Highest_O: 'd9', Highest_F: 'c6', Highest_G: 'b3' };
-
+  /* A bar takes its label's workbook fill (Panel B's FILL_TAX / FILL_PROJ), so the
+     chart, the chips and the Excel cells are one colour code. The five Highest_*
+     steps are already a ramp there, darkest = broadest gap, so no fading is
+     applied here. */
   function colorFor(kind, label) {
-    const entry = CHIP_VAR[gloss(kind, label).cls] || CHIP_VAR['c-unknown'];
-    const base = cssVar(entry[0], entry[1]);
-    const alpha = RAMP[label];
-    return (alpha && /^#[0-9a-f]{6}$/i.test(base)) ? base + alpha : base;
+    return gloss(kind, label).fill || cssVar('--paper-mute', '#6f8a7b');
+  }
+
+  /* Already_Covered, Low_Done and the greys are near-white: a white bar on a white
+     card reads as no bar, so those get an outline. */
+  function isPale(hex) {
+    if (!/^#[0-9a-f]{6}$/i.test(hex)) return false;
+    const channel = (i) => parseInt(hex.slice(i, i + 2), 16) / 255;
+    return 0.2126 * channel(1) + 0.7152 * channel(3) + 0.0722 * channel(5) > 0.8;
+  }
+
+  /* A stat tile's stripe: the fill of the label it counts. */
+  function stripe(kind, label) {
+    const fill = gloss(kind, label).fill;
+    return fill ? ' style="background:' + fill + '"' : '';
   }
 
   function option(kind, counts, rank) {
@@ -412,7 +411,11 @@ const PrioritizationResults = (function () {
       series: [{
         type: 'bar', barMaxWidth: 15,
         data: labels.map((label) => ({
-          name: label, value: counts[label], itemStyle: { color: colorFor(kind, label), borderRadius: 3 },
+          name: label, value: counts[label], itemStyle: (function (color) {
+            const pale = isPale(color);
+            return { color: color, borderRadius: 3, borderWidth: pale ? 1 : 0,
+              borderColor: pale ? 'rgba(18,33,26,.35)' : 'transparent' };
+          })(colorFor(kind, label)),
         })),
         label: { show: true, position: 'right', color: mute, fontSize: 13, fontFamily: FONT, formatter: (p) => num(p.value) },
       }],
@@ -466,7 +469,7 @@ const PrioritizationResults = (function () {
         </div>
         <p class="ebp-res-cap">Left: phylogenetic novelty, darkest at the broadest gap. Right: what the
           network is already doing. The two are counted over the same species and do not add up to each
-          other — read them as two questions, not one ranking.</p>
+          other.</p>
       </div>`;
 
     return `
@@ -498,15 +501,15 @@ const PrioritizationResults = (function () {
 
     <div class="ebp-stats">
       <div class="ebp-stat s-total"><div class="n">${num(total)}</div><div class="l">Species screened</div></div>
-      <div class="ebp-stat s-novel"><span class="stripe"></span><div class="n">${num(novel)}</div>
+      <div class="ebp-stat s-novel"><span class="stripe"${stripe('tax', 'Highest_O')}></span><div class="n">${num(novel)}</div>
         <div class="l">Would be a phylogenetic first</div></div>
-      <div class="ebp-stat s-new"><span class="stripe"></span><div class="n">${num(proj.High_New)}</div>
+      <div class="ebp-stat s-new"><span class="stripe"${stripe('proj', 'High_New')}></span><div class="n">${num(proj.High_New)}</div>
         <div class="l">Open — no active project</div></div>
-      <div class="ebp-stat s-improve"><span class="stripe"></span><div class="n">${num(proj.Medium_Improve)}</div>
+      <div class="ebp-stat s-improve"><span class="stripe"${stripe('proj', 'Medium_Improve')}></span><div class="n">${num(proj.Medium_Improve)}</div>
         <div class="l">Improvable assembly</div></div>
-      <div class="ebp-stat s-low"><span class="stripe"></span><div class="n">${num(elsewhere)}</div>
+      <div class="ebp-stat s-low"><span class="stripe"${stripe('proj', 'Low_Active')}></span><div class="n">${num(elsewhere)}</div>
         <div class="l">Active or done elsewhere</div></div>
-      <div class="ebp-stat s-na"><span class="stripe"></span><div class="n">${num(proj.Not_Assigned)}</div>
+      <div class="ebp-stat s-na"><span class="stripe"${stripe('tax', 'Unknown_G')}></span><div class="n">${num(proj.Not_Assigned)}</div>
         <div class="l">Not found in GoaT — check the name</div></div>
     </div>
 

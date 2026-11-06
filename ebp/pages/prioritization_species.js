@@ -144,6 +144,50 @@ const PrioritizationSpecies = (function () {
     Unknown: ['c-unknown', 'the older spelling of Not_Assigned, on runs before 11 May 2026: status unverifiable because the species was not found in GoaT. Verify the name'],
   };
 
+  /* Each label's colour is the workbook's: the fill of its cell in ALL_SPECIES. A
+     chip, a Results bar and a Coverage segment on this page therefore match the
+     Excel file a PI opens (Fang, 2026-11-06). Novelty is the green ramp, darkest =
+     broadest gap; project status is the blue ramp; grey = could not be assessed.
+     [fill, text]. Pinned to TP_SHADES / TP_FLAT / PP_FILLS in
+     generate_prioritization_tool.py by test_label_parity.py, which reads these two
+     blocks by name. PROJ's historical `Unknown` takes Not_Assigned's grey. */
+  const FILL_TAX = {
+    Highest_P: ['#135718', '#ffffff'],
+    Highest_C: ['#1b6d21', '#ffffff'],
+    Highest_O: ['#2c8331', '#ffffff'],
+    Highest_F: ['#3d9a40', '#000000'],
+    Highest_G: ['#57b058', '#000000'],
+    High_S: ['#a5d6a7', '#000000'],
+    Already_Covered: ['#f1f8e9', '#000000'],
+    Unknown_S: ['#eeeeee', '#000000'],
+    Unknown_G: ['#bdbdbd', '#000000'],
+    Unknown: ['#e0e0e0', '#000000'],
+  };
+  const FILL_PROJ = {
+    High_New: ['#01579b', '#ffffff'],
+    Medium_Improve: ['#1473cf', '#ffffff'],
+    Low_Sample: ['#4e99dd', '#000000'],
+    Low_Active: ['#83bdeb', '#000000'],
+    Low_Done: ['#e3f2fd', '#000000'],
+    Not_Assigned: ['#e0e0e0', '#000000'],
+    Unknown: ['#e0e0e0', '#000000'],
+  };
+
+  function fill(kind, label) {
+    const entry = (kind === 'tax' ? FILL_TAX : FILL_PROJ)[label];
+    return entry ? { fill: entry[0], ink: entry[1] } : null;
+  }
+
+  /* Inline, so it wins over the chip classes' own tints in every module that
+     draws a label chip. The hairline keeps the palest fills (Already_Covered,
+     Low_Done) visible as a chip on a white card; the workbook gets that from its
+     cell grid. */
+  function chipStyle(kind, label) {
+    const swatch = fill(kind, label);
+    return swatch ? ' style="background:' + swatch.fill + '; color:' + swatch.ink
+      + '; box-shadow:inset 0 0 0 1px rgba(18,33,26,.16)"' : '';
+  }
+
   const LOOKUP = {
     not_found: 'not found in GoaT — assessed from the genus',
     skipped: 'GoaT was not queried for this name in this run',
@@ -406,7 +450,7 @@ const PrioritizationSpecies = (function () {
         + 'not recorded</span>';
     }
     const spec = glossary[value] || ['c-unknown', ''];
-    return '<span class="ebp-chip ' + spec[0] + '"'
+    return '<span class="ebp-chip ' + spec[0] + '"' + chipStyle(glossary === TAX ? 'tax' : 'proj', value)
       + (spec[1] ? ' title="' + esc(spec[1]) + '"' : '') + '>' + esc(value) + '</span>';
   }
 
@@ -645,7 +689,8 @@ const PrioritizationSpecies = (function () {
     element: element,
 
     /**
-     * The label glossary — a chip class and a plain-English reading. [Task 6]
+     * The label glossary — a chip class, the workbook's colour and a
+     * plain-English reading. [Task 6]
      *
      * Exported because the results table shows the same two labels this timeline
      * does, and this wording is the workbook's INSTRUCTIONS sheet in prose. Two
@@ -655,8 +700,14 @@ const PrioritizationSpecies = (function () {
      */
     gloss(kind, label) {
       const entry = (kind === 'tax' ? TAX : PROJ)[label];
-      return entry ? { cls: entry[0], text: entry[1] } : { cls: 'c-unknown', text: '' };
+      const swatch = fill(kind, label);
+      return entry
+        ? { cls: entry[0], text: entry[1], fill: swatch && swatch.fill, style: chipStyle(kind, label) }
+        : { cls: 'c-unknown', text: '', fill: null, style: '' };
     },
+
+    /** The workbook's {fill, ink} for a label, or null if it has none. */
+    fill: fill,
 
     /**
      * Every label of one vocabulary, as [{label, cls, text}]. [Task 6]
@@ -670,7 +721,7 @@ const PrioritizationSpecies = (function () {
     glossary(kind) {
       const table = kind === 'tax' ? TAX : PROJ;
       return Object.keys(table).map((label) => ({
-        label: label, cls: table[label][0], text: table[label][1],
+        label: label, cls: table[label][0], text: table[label][1], style: chipStyle(kind, label),
       }));
     },
   };

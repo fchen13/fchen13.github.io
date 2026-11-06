@@ -87,12 +87,19 @@
 <script src="../config.js"></script>
 <script src="./echarts.min.js"></script>
 <script src="./services_backend.js"></script>
-<script src="./prioritization_trend.js"></script>
-<script src="./prioritization_species.js"></script>
-<script src="./prioritization_submit.js"></script>
-<script src="./prioritization_results.js"></script>
-<script src="./prioritization_coverage.js"></script>
-<script src="./prioritization_help.js"></script>
+<!-- The ?v= stamp makes the page and its prioritization_* modules load as one set.
+     They depend on each other (Coverage, Results and the help drawer read label colours
+     from prioritization_species.js), and a browser that refetches one file but serves
+     another from cache runs a mix: on 2026-11-06 a new Coverage beside a cached
+     species module drew every bar grey. GitHub Pages lets browsers cache for 10
+     minutes, so the same mix can follow any deploy. Bump the stamp in every tag
+     whenever any of these modules changes. -->
+<script src="./prioritization_trend.js?v=2026-11-06.7"></script>
+<script src="./prioritization_species.js?v=2026-11-06.7"></script>
+<script src="./prioritization_submit.js?v=2026-11-06.7"></script>
+<script src="./prioritization_results.js?v=2026-11-06.7"></script>
+<script src="./prioritization_coverage.js?v=2026-11-06.7"></script>
+<script src="./prioritization_help.js?v=2026-11-06.7"></script>
 <script src="./site_topbar.js"></script>
 
 <script>

@@ -48,18 +48,35 @@ const PrioritizationCoverage = (function () {
   const NOVEL = NOVEL_LEVELS.map((level) => level[0]);
   const UNASSESSED = ['Unknown_G', 'Unknown_S', 'Unknown'];
 
-  /* Darkest = broadest gap, as the results chart and the workbook both do. The
-     floor is 60% rather than the chart's 70%: here five steps appear side by side
-     in a legend and inside one bar, so they have to be told apart from each
-     other, not just read as "blue". */
-  const RAMP = { Highest_P: 'ff', Highest_C: 'e6', Highest_O: 'cc', Highest_F: 'b3', Highest_G: '99' };
+  /* Every colour here is a label's workbook fill, read from Panel B's table
+     (FILL_TAX in prioritization_species.js), so a segment matches the chip in
+     Results and the cell in ALL_SPECIES (Fang, 2026-11-06). Novel = the green
+     ramp, darkest = broadest gap; covered = High_S's pale green; not assessable =
+     solid grey. Grey if this view is ever loaded without Panel B. */
+  let warned = false;
+  function swatch(label) {
+    const ready = typeof PrioritizationSpecies !== 'undefined' && PrioritizationSpecies.fill;
+    if (!ready && !warned) {
+      warned = true;
+      console.warn('Coverage: prioritization_species.js has no label colours (missing, or an '
+        + 'older cached copy), so every segment is drawn grey. Reload with the cache cleared.');
+    }
+    const found = ready ? PrioritizationSpecies.fill('tax', label) : null;
+    return found ? found.fill : '#9e9e9e';
+  }
+
+  /* Not assessable: solid, like the other segments (Fang, 2026-11-06; it was a
+     hatch). Not the workbook's Unknown_G BDBDBD: beside High_S's pale green that
+     scores OKLab dE 8.8, under the dataviz floor of 15. #8a8a8a clears covered and
+     every green step (worst dE 15.7 normal vision, 8.6 colour-blind) and reads
+     against the empty track at 3.2:1. */
+  const UNASSESSED_GREY = '#8a8a8a';
 
   const RANKS = ['Phylum', 'Class', 'Order', 'Family', 'Genus'];
 
   const esc = (value) => String(value === null || value === undefined ? '' : value)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const num = (value) => (value || 0).toLocaleString();
-  const pct = (part, whole) => (whole ? Math.round((part / whole) * 100) : 0);
 
   /* Bucket key for a row whose rank is blank. Underscored because a taxon name
      never contains one, so it cannot collide with a real group. */
@@ -102,20 +119,25 @@ const PrioritizationCoverage = (function () {
   .ebp-cov-open .caret{font-size:9px; color:var(--paper-mute,#6f8a7b); flex:none; width:9px;}
   .ebp-cov-open:hover .taxon{color:var(--green-glow,#5fd39a);}
 
-  .ebp-cov-bar{display:flex; height:15px; border-radius:4px; overflow:hidden;
+  /* Segments size by flex-grow = their species count, so they always fill the bar
+     exactly (rounded percentages used to leave a sliver of empty track), and a 2px
+     gap of track separates neighbours, so two close colours still read as two. */
+  /* Each bar's LENGTH is its species count on one scale, the largest phylum row
+     (Fang, 2026-11-06: a 190-species phylum and an 11-species one were the same
+     width). Expanded rows use the same scale, so a family reads as a piece of its
+     phylum rather than being re-stretched. min-width keeps a 1-species row visible. */
+  .ebp-cov-bar{display:flex; gap:2px; height:15px; border-radius:4px; overflow:hidden; min-width:6px;
     background:var(--ink,#0b1310); border:1px solid var(--line,#22362b);}
-  .ebp-cov-bar i{display:block; height:100%;}
-  /* --low, NOT --ink-4. That variable is a surface tint: in the light theme it is
-     #e2ede5, which on a white card is very nearly the empty track, so a rendered
-     bar read as "two thirds novel, one third nothing" when the last third was a
-     real finding. --low is a true mid grey with the same value in both themes, so
-     the three-way split survives the theme flip.
-     (No backticks in this block — it lives inside a template literal.) */
-  .ebp-cov-bar i.cov{background:var(--low,#8595a0); opacity:.55;}
-  /* Hatched, not a flat block: "we could not assess this" must not be able to be
-     mistaken for a measured category at a glance. */
-  .ebp-cov-bar i.un{background:repeating-linear-gradient(45deg,
-    var(--low,#8595a0) 0 3px, transparent 3px 7px);}
+  .ebp-cov-bar i{display:block; height:100%; flex:0 1 0; min-width:2px;}
+  /* Covered is High_S's pale green, set inline from swatch() like the novel
+     segments. Not a surface tint (--ink-4): on a white card that is very nearly
+     the empty track, so a covered third read as nothing. The pale green clears
+     the genus step by OKLab dE 16 (dataviz floor 15), the reason the green ramp
+     was re-stepped (2026-11-06). (No backticks in this block — it lives inside a
+     template literal.) */
+  /* Solid grey; see UNASSESSED_GREY. (No backticks in this block — it lives inside a
+     template literal.) */
+  .ebp-cov-bar i.un{background:#8a8a8a;}
 
   .ebp-cov-score{text-align:right; font-variant-numeric:tabular-nums;}
   .ebp-cov-score .big{font-size:15px; font-weight:700; color:var(--novel-ink,#7aa2ff);}
@@ -144,15 +166,8 @@ const PrioritizationCoverage = (function () {
     document.head.appendChild(tag);
   }
 
-  function cssVar(name, fallback) {
-    const value = getComputedStyle(document.documentElement).getPropertyValue(name);
-    return (value || '').trim() || fallback;
-  }
-
   function novelColor(label) {
-    const base = cssVar('--novel', '#7aa2ff');
-    const alpha = RAMP[label];
-    return (alpha && /^#[0-9a-f]{6}$/i.test(base)) ? base + alpha : base;
+    return swatch(label);
   }
 
   // ── aggregation ───────────────────────────────────────────────────────────
@@ -199,26 +214,31 @@ const PrioritizationCoverage = (function () {
 
   // ── rendering ─────────────────────────────────────────────────────────────
 
+  /* The species count of the largest top-level row; set by draw(). */
+  let scaleMax = 1;
+
   function bar(bucket) {
     const segments = NOVEL_LEVELS
       .filter((level) => bucket.levels[level[0]])
       .map(function (level) {
         const count = bucket.levels[level[0]];
-        return '<i style="width:' + pct(count, bucket.total) + '%; background:'
+        return '<i style="flex-grow:' + count + '; background:'
           + novelColor(level[0]) + '" title="' + esc(count + ' would be the first assembly in its '
           + level[1].toLowerCase()) + '"></i>';
       }).join('');
     const covered = bucket.covered
-      ? '<i class="cov" style="width:' + pct(bucket.covered, bucket.total) + '%" title="'
+      ? '<i class="cov" style="flex-grow:' + bucket.covered + '; background:' + swatch('High_S') + '" title="'
         + esc(bucket.covered + ' already covered — an assembly exists, or the taxon is already '
           + 'represented by a sequenced species') + '"></i>'
       : '';
     const unassessed = bucket.unassessed
-      ? '<i class="un" style="width:' + pct(bucket.unassessed, bucket.total) + '%" title="'
+      ? '<i class="un" style="flex-grow:' + bucket.unassessed + '" title="'
         + esc(bucket.unassessed + ' could not be assessed — not found in GoaT, or found without '
           + 'lineage. Not the same as “no gap here”; verify these names.') + '"></i>'
       : '';
-    return '<div class="ebp-cov-bar">' + segments + covered + unassessed + '</div>';
+    const width = Math.min(100, (bucket.total / scaleMax) * 100);
+    return '<div class="ebp-cov-bar" style="width:' + width.toFixed(2) + '%">'
+      + segments + covered + unassessed + '</div>';
   }
 
   function taxonCell(bucket, expandable, open, id) {
@@ -237,7 +257,7 @@ const PrioritizationCoverage = (function () {
         + '<div class="small">no firsts</div></div>';
     }
     const broadest = NOVEL_LEVELS.filter((level) => bucket.levels[level[0]])[0];
-    return '<div class="ebp-cov-score"><div class="big">' + num(bucket.novel) + '</div>'
+    return '<div class="ebp-cov-score"><div class="big" style="color:' + swatch('Highest_P') + '">' + num(bucket.novel) + '</div>'
       + '<div class="small">broadest: ' + esc(broadest[1].toLowerCase()) + '</div></div>';
   }
 
@@ -269,13 +289,14 @@ const PrioritizationCoverage = (function () {
 
   function draw() {
     const top = group(rows, 'Phylum');
+    scaleMax = Math.max(1, ...top.map((bucket) => bucket.total));
     if (!top.length) {
       els.table.innerHTML = '<div class="ebp-cov-empty">No species to place in the tree.</div>';
       return;
     }
 
     const html = ['<div class="ebp-cov-row head"><div>Phylum</div>'
-      + '<div>Novel · covered · unassessed</div><div style="text-align:right">Firsts</div></div>'];
+      + '<div aria-hidden="true"></div><div style="text-align:right">Firsts</div></div>'];
 
     top.forEach(function (bucket, index) {
       const id = 'ebp-cov-sub-' + index;
@@ -327,8 +348,8 @@ const PrioritizationCoverage = (function () {
     <div class="ebp-cov-key">
       ${NOVEL_LEVELS.map((level) => '<span><i style="background:' + novelColor(level[0]) + '"></i>first in '
         + level[1].toLowerCase() + '</span>').join('')}
-      <span><i style="background:var(--low,#8595a0); opacity:.55"></i>already covered</span>
-      <span><i style="background:repeating-linear-gradient(45deg,var(--low,#8595a0) 0 3px,transparent 3px 7px); border:1px solid var(--line,#22362b)"></i>not assessable</span>
+      <span><i style="background:${swatch('High_S')}"></i>already covered</span>
+      <span><i style="background:${UNASSESSED_GREY}"></i>not assessable</span>
       <span class="rk"><label for="ebp-cov-rank">Expand to</label>
         <select id="ebp-cov-rank">
           ${RANKS.slice(1).map((rank) => '<option value="' + rank + '"'
@@ -377,8 +398,8 @@ const PrioritizationCoverage = (function () {
     });
 
     draw();
-    /* Colours are read from the CSS variables at draw time, so a theme flip is
-       a redraw — the same contract Panels A and the results charts have. */
+    /* Colours are CSS custom properties, so a theme flip repaints without a
+       redraw; `redraw` stays for the contract Panel A and the results charts share. */
     return { redraw: draw };
   }
 

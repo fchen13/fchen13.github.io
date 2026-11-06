@@ -25,6 +25,14 @@ text reads the `-ink` twin (`--novel-ink #2f55b0`, `--improve-ink #8a5518`,
 `--low-ink #4f5a63`, `--gap-ink #2f55b0`, `--warn-ink #935f1d`), each ≥ 5.6:1 on
 its own chip tint. A dark-theme value must never reach light-theme text.
 
+**Priority labels are the exception: they wear the workbook's colours.** Every
+`Taxonomic_Priority` / `Project_Priority` chip, chart bar and Coverage segment takes
+the fill of that label's cell in the Excel workbook, from `FILL_TAX` / `FILL_PROJ` in
+`prioritization_species.js` (pinned to the pipeline by `test_label_parity.py`): green
+ramp for novelty, darkest = broadest gap; blue for project status; grey for not
+assessable. First_in cells use the workbook's green / red / grey. Do not restyle a
+label from the page tokens above (2026-11-06).
+
 ### Visualization files (`pages/*.html`) — inline values
 | Purpose | Value |
 |---|---|
