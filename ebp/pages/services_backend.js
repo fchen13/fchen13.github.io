@@ -384,6 +384,15 @@ const EBPBackend = (function () {
       return getJSON('/api/trends/' + encodeURIComponent(metricKey));
     },
 
+    /**
+     * Every series under a key prefix. → `{prefix, metrics: {key: points}}`
+     * Used for one project's partner series,
+     * `duplication.overlap_with.<project>.` (2026-11-06).
+     */
+    trends(prefix) {
+      return getJSON('/api/trends', { prefix: prefix });
+    },
+
     /** One species' timeline across the runs of a list — Panel B (A-T5). */
     speciesHistory(list, scientificName, token) {
       return getJSON(

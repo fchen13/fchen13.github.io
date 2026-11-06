@@ -201,14 +201,16 @@ const PrioritizationCoverage = (function () {
       }
     });
 
-    /* Most novel species first — the view's whole question is "where does this
-       list add most". Ties break on the size of the group, then the name, so the
-       order is stable across renders. Unresolved lineage always sorts last: it
-       is a data-quality row, not a finding. */
+    /* Largest group first (Fang, 2026-11-06; was most firsts first): the bars are
+       drawn to one species scale, so the list reads as one descending stack and
+       the firsts column says where the novelty sits. Ties break on firsts, then
+       the name, so the order is stable across renders. Sub-rows sort the same
+       way. Unresolved lineage always sorts last: it is a data-quality row, not a
+       finding. */
     return Array.from(buckets.values()).sort(function (a, b) {
       if (a.key === UNRESOLVED) return 1;
       if (b.key === UNRESOLVED) return -1;
-      return (b.novel - a.novel) || (b.total - a.total) || (a.key < b.key ? -1 : 1);
+      return (b.total - a.total) || (b.novel - a.novel) || (a.key < b.key ? -1 : 1);
     });
   }
 

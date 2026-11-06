@@ -95,9 +95,11 @@
 
 <script src="../config.js"></script>
 <script src="./echarts.min.js"></script>
-<script src="./services_backend.js"></script>
-<script src="./duplication_report.js"></script>
-<script src="./duplication_trend.js"></script>
+<!-- ?v= loads the page and its modules as one set (see prioritization.html);
+     bump it whenever any of these changes. -->
+<script src="./services_backend.js?v=2026-11-06.2"></script>
+<script src="./duplication_report.js?v=2026-11-06.2"></script>
+<script src="./duplication_trend.js?v=2026-11-06.2"></script>
 <script src="./site_topbar.js"></script>
 
 <script>
@@ -513,6 +515,7 @@
     const box = el('asof');
     box.className = 'asof';
     box.innerHTML = 'Report generated <span class="d">' + esc(generated || '—') + '</span>'
+      + ' · updated weekly'
       + '<br>' + networkLine();
 
     const stale = el('stale');
@@ -633,8 +636,12 @@
       { payload: payload, exportUrl: exportUrl });
 
     el('guide').hidden = false;
+    const names = {};
+    Object.keys(byKey).forEach(function (key) {
+      if (byKey[key].display_name) names[key] = byKey[key].display_name;
+    });
     trend = await DuplicationTrend.mount(el('trend-host'),
-      { project: payload.project || project, displayName: name });
+      { project: payload.project || project, displayName: name, names: names });
   }
 
   el('project').addEventListener('change', function () {

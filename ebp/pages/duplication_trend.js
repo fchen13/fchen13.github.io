@@ -26,6 +26,13 @@
  *     a trend would suggest a flat line where there is no line at all;
  *   * two or more — the lines.
  *
+ * A METRIC SELECTOR (Fang, 2026-11-06). The default is the three report lines
+ * below; the selector also offers each report alone, the total, the number of
+ * contributing projects (`duplication.partners.<project>`) and the overlap with
+ * one named project (`duplication.overlap_with.<project>.<partner>`). The last
+ * two began with the 2026-11-01 capture and cannot be backfilled, so each metric
+ * is put in its own honest state below rather than the reports' one.
+ *
  * THREE LINES, NOT FOUR. `duplication.total.<project>` is the sum of the other
  * three (the three report predicates are pairwise disjoint, which A-D5b's own
  * test asserts arithmetically), so a fourth line would add a channel and no
@@ -80,8 +87,14 @@ const DuplicationTrend = (function () {
   let project = '';
   let displayName = '';
   let dates = [];            // every capture date, ascending
-  let series = [];           // [{...SERIES entry, points: {date: value}}]
+  let series = [];           // what is drawn now: [{label, varn, ..., points}]
   let total = null;          // the newest `duplication.total.<project>` value
+  let names = {};            // project key -> display name, for partner labels
+  let selected = 'reports';  // the metric selector's value
+  let reportSeries = [];     // the three reports: [{...SERIES entry, points}]
+  let totalPoints = {};      // {date: value}
+  let partnersPoints = {};   // duplication.partners.<project>
+  let partnerPoints = {};    // partner key -> {date: value}
   let chart = null;          // the live ECharts instance, once there is a line
 
   // ── styles ────────────────────────────────────────────────────────────────
@@ -116,6 +129,13 @@ const DuplicationTrend = (function () {
   .ebp-trend-first ul{margin:9px 0 0; padding-left:19px;}
   .ebp-trend-first li{margin:3px 0;}
   .ebp-trend-first .v{font-variant-numeric:tabular-nums; font-weight:700; color:var(--paper,#e9f2ec);}
+  /* Its own row right under the title (Fang, 2026-11-06), so the choice reads
+     before the chart it changes. */
+  .ebp-trend-metric{display:flex; align-items:center; gap:8px; margin:4px 0 12px;
+    font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--paper-mute,#6f8a7b);}
+  .ebp-trend-metric select{text-transform:none; letter-spacing:normal; font-weight:500; max-width:100%;}
+  @media (max-width:640px){ .ebp-trend-metric select{flex:1; min-width:0;} }
   `;
 
   function injectStyles() {
@@ -209,7 +229,7 @@ const DuplicationTrend = (function () {
             /* The newest value rides in the label: it is the number a reader
                wants off a trend line, and putting it here means it is legible
                without hovering and without a fourth axis label. */
-            formatter: (point) => entry.short + '  ' + num(point.value),
+            formatter: (point) => (entry.short ? entry.short + '  ' : '') + num(point.value),
           },
           emphasis: { focus: 'series' },
         };
@@ -235,6 +255,7 @@ const DuplicationTrend = (function () {
   }
 
   function legendHtml() {
+    if (series.length < 2) return '';   // one line: the selector names it
     return '<div class="ebp-trend-legend">' + series.map(function (entry) {
       const style = 'border-top-color:' + cssVar(entry.varn, '#5fd39a') + ';'
         + 'border-top-style:' + entry.lineType + ';';
@@ -243,47 +264,144 @@ const DuplicationTrend = (function () {
     }).join('') + '</div>';
   }
 
+  // ── the metric selector (Fang, 2026-11-06) ────────────────────────────────
+
+  function partnerName(key) {
+    if (key === 'other') return 'Other (projects GoaT does not name)';
+    return names[key] || key.toUpperCase();
+  }
+
+  function newest(points) {
+    const keys = Object.keys(points || {}).sort();
+    return keys.length ? points[keys[keys.length - 1]] : null;
+  }
+
+  /* Partners largest first by their newest value, so the projects a reader most
+     needs to talk to head the list. */
+  function partnerKeys() {
+    return Object.keys(partnerPoints).sort(function (a, b) {
+      return (newest(partnerPoints[b]) || 0) - (newest(partnerPoints[a]) || 0) || (a < b ? -1 : 1);
+    });
+  }
+
+  /** What the selected metric draws: [{label, short, varn, lineType, hint, points}]. */
+  function visible() {
+    const who = displayName || project.toUpperCase();
+    const one = (label, points, hint) => [{
+      label: label, short: '', varn: '--paper-dim', lineType: 'solid', hint: hint, points: points || {},
+    }];
+    if (selected === 'reports') return reportSeries;
+    const report = reportSeries.find((entry) => entry.key === selected);
+    if (report) return [Object.assign({}, report, { short: '' })];
+    if (selected === 'total') {
+      return one('Total overlapping species', totalPoints,
+        'all three reports together: every species on ' + who + '’s list that another project is '
+        + 'also working on or has finished');
+    }
+    if (selected === 'partners') {
+      return one('Contributing projects', partnersPoints,
+        'how many named EBP projects share at least one species with ' + who
+        + ' (GoaT’s unnamed “other” bucket is not counted)');
+    }
+    const partner = selected.slice('with:'.length);
+    return one('Overlap with ' + partnerName(partner), partnerPoints[partner],
+      'species on ' + who + '’s list that ' + partnerName(partner)
+      + ' is also working on or has finished, across all three reports');
+  }
+
+  function unit() { return selected === 'partners' ? 'projects' : 'species'; }
+
+  function selectorHtml() {
+    const opt = (value, label) => '<option value="' + esc(value) + '"'
+      + (value === selected ? ' selected' : '') + '>' + esc(label) + '</option>';
+    const partners = partnerKeys();
+    return '<label class="ebp-trend-metric">Metric <select id="ebp-trend-metric">'
+      + '<optgroup label="Reports">' + opt('reports', 'All three reports')
+      + SERIES.map((entry) => opt(entry.key, entry.label)).join('')
+      + opt('total', 'Total overlapping species') + '</optgroup>'
+      + '<optgroup label="Network">' + opt('partners', 'Contributing projects') + '</optgroup>'
+      + '<optgroup label="Overlap with one project">'
+      + (partners.length
+        ? partners.map((key) => opt('with:' + key, partnerName(key) + ' · '
+          + num(newest(partnerPoints[key])))).join('')
+        : '<option disabled>recorded from the next weekly capture</option>')
+      + '</optgroup></select></label>';
+  }
+
+  function headHtml(badge) {
+    return '<div class="ebp-trend-head">'
+      + '<h2>How is ' + esc(displayName || project.toUpperCase()) + '’s overlap changing?</h2>'
+      + (badge || '') + '</div>' + selectorHtml();
+  }
+
+  function subHtml() {
+    if (selected === 'reports') {
+      return '<p class="ebp-trend-sub">Each of the three reports, one point per recorded capture. '
+        + 'Lines that <b>fall</b> are duplication being resolved — a species dropped, coordinated on, '
+        + 'or finished; lines that <b>rise</b> are new overlap appearing as other projects register '
+        + 'target species in GoaT.'
+        + (total !== null ? ' Newest total: <b>' + num(total) + '</b> species.' : '') + '</p>';
+    }
+    const entry = series[0];
+    return '<p class="ebp-trend-sub"><b>' + esc(entry.label) + '</b> — ' + esc(entry.hint)
+      + '. One point per recorded capture.</p>';
+  }
 
   function chartHtml(captures) {
-    return '<div class="ebp-trend-head">'
-      + '<h2>How is ' + esc(displayName || project.toUpperCase())
-      + '’s overlap changing?</h2>'
-      + '<span class="badge">' + captures + ' weekly captures</span>'
-      + (total !== null ? '<span class="tot">newest total <b>' + num(total)
-        + '</b> species</span>' : '')
-      + '</div>'
-      + '<p class="ebp-trend-sub">Each of the three reports, one point per recorded capture. '
-      + 'Lines that <b>fall</b> are duplication being resolved — a species dropped, coordinated on, '
-      + 'or finished; lines that <b>rise</b> are new overlap appearing as other projects register '
-      + 'target species in GoaT.</p>'
+    return headHtml('<span class="badge">' + captures + ' weekly captures</span>')
+      + subHtml()
       + '<div class="ebp-trend-chart" id="ebp-trend-chart"></div>'
       + legendHtml();
   }
 
   function firstCaptureHtml() {
     const date = dates[0];
-    return '<div class="ebp-trend-head">'
-      + '<h2>How is ' + esc(displayName || project.toUpperCase())
-      + '’s overlap changing?</h2>'
-      + '</div>'
+    return headHtml('<span class="badge thin">1 capture</span>')
       + '<div class="ebp-trend-first">'
       + '<b>One capture has been recorded, on ' + esc(date) + '.</b> A trend needs a second, and '
       + 'the next weekly run will produce it. These are the numbers a future line will start from:'
       + '<ul>' + series.map(function (entry) {
         const value = entry.points[date];
         return '<li>' + esc(entry.label) + ' — <span class="v">'
-          + (value === undefined ? '—' : num(value)) + '</span> species</li>';
+          + (value === undefined ? '—' : num(value)) + '</span> ' + unit() + '</li>';
       }).join('') + '</ul></div>';
   }
 
   function noHistoryHtml() {
-    return '<div class="ebp-trend-head">'
-      + '<h2>How is ' + esc(displayName || project.toUpperCase())
-      + '’s overlap changing?</h2>'
-      + '<span class="badge thin">no captures recorded</span></div>'
-      + '<div class="ebp-trend-first"><b>Nothing has been recorded for this project yet.</b> '
-      + 'The weekly capture writes one dated point per report per project; once it has reached this '
-      + 'project, its history starts accruing here.</div>';
+    const fresh = selected !== 'reports' && !reportSeries.some((entry) => entry.key === selected)
+      && selected !== 'total';
+    return headHtml('<span class="badge thin">no captures recorded</span>')
+      + '<div class="ebp-trend-first">'
+      + (fresh
+        ? '<b>This metric is new and has not been recorded for this project yet.</b> The weekly '
+          + 'capture (Sundays) records it from now on; earlier weeks cannot be recovered, because '
+          + 'GoaT keeps no history.'
+        : '<b>Nothing has been recorded for this project yet.</b> The weekly capture writes one '
+          + 'dated point per report per project; once it has reached this project, its history '
+          + 'starts accruing here.')
+      + '</div>';
+  }
+
+  /* Draw the selected metric, in whichever of the three honest states its own
+     captures put it: a new metric can have one point while the reports have ten. */
+  function render() {
+    dispose();
+    series = visible();
+    const seen = {};
+    series.forEach((entry) => Object.keys(entry.points).forEach((date) => { seen[date] = true; }));
+    dates = Object.keys(seen).sort();
+    if (!dates.length) host.innerHTML = noHistoryHtml();
+    else if (dates.length === 1) host.innerHTML = firstCaptureHtml();
+    else { host.innerHTML = chartHtml(dates.length); draw(); }
+    const select = host.querySelector('#ebp-trend-metric');
+    if (select) {
+      select.addEventListener('change', function () {
+        selected = this.value;
+        render();
+        const again = host.querySelector('#ebp-trend-metric');
+        if (again) again.focus();
+      });
+    }
   }
 
   // ── mount ─────────────────────────────────────────────────────────────────
@@ -292,7 +410,8 @@ const DuplicationTrend = (function () {
    * Load and render one project's duplication history.
    *
    * @param {Element} target
-   * @param {{project: string, displayName?: string}} opts
+   * @param {{project: string, displayName?: string, names?: Object<string,string>}} opts
+   *        `names` maps project keys to display names, for the partner options.
    * @returns {Promise<{redraw: function, captures: number}>}
    */
   async function mount(target, opts) {
@@ -300,6 +419,7 @@ const DuplicationTrend = (function () {
     host = target;
     project = (opts.project || '').toLowerCase();
     displayName = opts.displayName || '';
+    names = opts.names || {};
     /* A previous project's instance is bound to a DOM node this mount is about
        to replace; ECharts keeps a global registry keyed by element, so leaving
        it attached leaks the old chart and its resize listener. */
@@ -308,8 +428,8 @@ const DuplicationTrend = (function () {
     host.innerHTML = '<div class="ebp-trend-head"><h2>Loading history…</h2></div>';
 
     /* Four exact metric reads rather than one prefix sweep: `?prefix=duplication.`
-       returns all 184 series for the whole network, which grows by 184 points a
-       week and is 45× more than this panel draws. */
+       returns every series for the whole network, far more than this panel draws.
+       The partner series ARE one prefix read, but scoped to this project. */
     let results;
     try {
       results = await Promise.all(SERIES.concat([{ key: 'total' }]).map(function (entry) {
@@ -320,29 +440,33 @@ const DuplicationTrend = (function () {
         + '<div class="ebp-trend-first">' + EBPBackend.explain(err) + '</div>';
       return { redraw() {}, dispose: dispose, captures: 0 };
     }
+    /* The partner metrics began on 2026-11-01. Loaded apart, and a failure is an
+       empty selector group rather than a broken panel: the report lines above do
+       not depend on them. */
+    const [partnersResult, overlapResult] = await Promise.all([
+      EBPBackend.trend('duplication.partners.' + project).catch(() => ({ points: [] })),
+      EBPBackend.trends('duplication.overlap_with.' + project + '.').catch(() => ({ metrics: {} })),
+    ]);
 
-    const seen = {};
-    series = SERIES.map(function (entry, index) {
+    const toPoints = (rows) => {
       const points = {};
-      ((results[index] || {}).points || []).forEach(function (point) {
-        points[point.snapshot_date] = point.value;
-        seen[point.snapshot_date] = true;
-      });
-      return Object.assign({}, entry, { points: points });
+      (rows || []).forEach((point) => { points[point.snapshot_date] = point.value; });
+      return points;
+    };
+    reportSeries = SERIES.map((entry, index) =>
+      Object.assign({}, entry, { points: toPoints((results[index] || {}).points) }));
+    totalPoints = toPoints((results[SERIES.length] || {}).points);
+    total = newest(totalPoints);
+    partnersPoints = toPoints(partnersResult.points);
+    partnerPoints = {};
+    const prefix = 'duplication.overlap_with.' + project + '.';
+    Object.entries(overlapResult.metrics || {}).forEach(function ([key, rows]) {
+      partnerPoints[key.slice(prefix.length)] = toPoints(rows);
     });
-    const totalPoints = (results[SERIES.length] || {}).points || [];
-    total = totalPoints.length ? totalPoints[totalPoints.length - 1].value : null;
-    totalPoints.forEach(function (point) { seen[point.snapshot_date] = true; });
-    dates = Object.keys(seen).sort();
+    /* Keep the reader's choice across projects where it still exists. */
+    if (selected.indexOf('with:') === 0 && !partnerPoints[selected.slice(5)]) selected = 'reports';
 
-    if (!dates.length) {
-      host.innerHTML = noHistoryHtml();
-    } else if (dates.length === 1) {
-      host.innerHTML = firstCaptureHtml();
-    } else {
-      host.innerHTML = chartHtml(dates.length);
-      draw();
-    }
+    render();
     return { redraw: redraw, dispose: dispose, captures: dates.length };
   }
 
