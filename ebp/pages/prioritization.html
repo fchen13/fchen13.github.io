@@ -94,12 +94,12 @@
      species module drew every bar grey. GitHub Pages lets browsers cache for 10
      minutes, so the same mix can follow any deploy. Bump the stamp in every tag
      whenever any of these modules changes. -->
-<script src="./prioritization_trend.js?v=2026-11-06.8"></script>
-<script src="./prioritization_species.js?v=2026-11-06.8"></script>
-<script src="./prioritization_submit.js?v=2026-11-06.8"></script>
-<script src="./prioritization_results.js?v=2026-11-06.8"></script>
-<script src="./prioritization_coverage.js?v=2026-11-06.8"></script>
-<script src="./prioritization_help.js?v=2026-11-06.8"></script>
+<script src="./prioritization_trend.js?v=2026-11-06.14"></script>
+<script src="./prioritization_species.js?v=2026-11-06.14"></script>
+<script src="./prioritization_submit.js?v=2026-11-06.14"></script>
+<script src="./prioritization_results.js?v=2026-11-06.14"></script>
+<script src="./prioritization_coverage.js?v=2026-11-06.14"></script>
+<script src="./prioritization_help.js?v=2026-11-06.14"></script>
 <script src="./site_topbar.js"></script>
 
 <script>
@@ -650,9 +650,6 @@
        built from the same payload and never fetches anything of its own. */
     coverage = PrioritizationCoverage.render(document.getElementById('coverage-host'), {
       payload: payload,
-      onSpecies: tracked
-        ? function (name) { openTimeline(name, document.getElementById('tl-host-coverage')); }
-        : null,
     });
     document.getElementById('tab-coverage').hidden = false;
     PrioritizationHelp.setContext({ referenceCount: payload.reference_species_count || null });
