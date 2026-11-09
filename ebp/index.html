@@ -485,7 +485,7 @@
       /* preview shell */
       .preview{border:1px solid var(--line); border-radius:12px; background:var(--ink-3); padding:16px; margin:0;}
       .preview .pl{font-size:13px; letter-spacing:.09em; text-transform:uppercase; color:var(--paper-mute); font-weight:700; margin-bottom:13px; line-height:1.5;}
-      .preview .pl .src{font-weight:600; letter-spacing:.02em; text-transform:none;}
+      .preview .pl .src{display:block; font-weight:600; letter-spacing:.02em; text-transform:none;}
 
       /* prioritization preview: one worked example, as swatch | label |
          explanation rows. Written in, not fetched; the comment on the card in
@@ -1709,7 +1709,7 @@
         $('miniHeat').innerHTML = html;
 
         $('heat-label').innerHTML = 'Example · ' + esc(rep.project.toUpperCase()) +
-          ' <span class="src">· species it shares with other active projects · for display only</span>';
+          '<span class="src">species it shares with other active projects · for display only</span>';
 
         /* the largest cell, read as a sentence */
         var top = null;
