@@ -1639,7 +1639,7 @@
       /* ───────────── duplication preview (for display only) ─────────────
          The same heatmap the card drew live from /api/duplication/dtol, now
          drawn from one project's report written in below -- see the comment on
-         the card in the markup. Report 2 is "active elsewhere, no assembly yet":
+         the card in the markup. Report 2 is "active elsewhere, none at EBP standard yet":
          the case where coordination is still possible, which is the card's
          whole argument. Rows are CCGP's own status, columns the partner
          projects, as in the tool. */
@@ -1709,7 +1709,7 @@
         $('miniHeat').innerHTML = html;
 
         $('heat-label').innerHTML = 'Example · ' + esc(rep.project.toUpperCase()) +
-          ' <span class="src">active elsewhere, no assembly yet · for display only</span>';
+          ' <span class="src">· species it shares with other active projects · for display only</span>';
 
         /* the largest cell, read as a sentence */
         var top = null;
@@ -1720,7 +1720,7 @@
         var P = esc(rep.project.toUpperCase());
         $('heat-read').innerHTML = 'Rows: ' + P + '\'s own stage. Columns: other projects on the same species. ' +
           'e.g. <b>' + num(top.v) + '</b> species ' + P + ' has ' + esc(STATUS_LABEL[top.s] || top.s) +
-          ' are also being worked on by ' + esc(top.c.toUpperCase()) + ', none assembled yet.';
+          ' are also being worked on by ' + esc(top.c.toUpperCase()) + '; none has an EBP-standard assembly yet.';
       }
 
       /* ───────────── the two tool cards ─────────────
