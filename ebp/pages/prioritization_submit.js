@@ -86,7 +86,7 @@ const PrioritizationSubmit = (function () {
   .ebp-drop .icon{font-size:32px;}
   .ebp-drop .big{font-size:16px; font-weight:600; margin:10px 0 3px;}
   .ebp-drop .small{font-size:13px; color:var(--paper-mute,#6f8a7b);}
-  .ebp-drop .browse{color:var(--green-glow,#5fd39a); font-weight:600; text-decoration:underline;}
+  .ebp-drop .browse{color:var(--link-out,#7aa2ff); font-weight:600; text-decoration:underline;}  /* link blue, as the page's other links (Fang, 2026-11-09) */
 
   .ebp-file{display:flex; align-items:center; gap:10px; margin-top:12px; font-size:13px;
     background:var(--ink-3,#14231b); border:1px solid var(--line,#22362b); border-radius:9px; padding:9px 12px;}
