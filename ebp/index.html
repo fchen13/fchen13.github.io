@@ -66,20 +66,10 @@
            (Highest_P purple -> Highest_G green) and that card's accent gradient all
            read from it. Recolour one and the other two stop agreeing.
 
-           Kept viridis deliberately when aligning the scorecard to the tree's
-           orange was put (Fang, 2026-09-12). The page runs three colour languages
-           and each carries one meaning: viridis = rank, green = EBP progress
-           (hero progress bars, brand spine), --ebp-orange = has at least one EBP
-           assembly (the tree, quoting pages/phylotree.html). Spending orange on
-           rank rows would give it two meanings on one screen and break the novelty
-           ladder next to it.
-
-           The gap it was meant to close is that the tree's key and the taxa-reached
-           row's Phyla count are the same number reached through two different GoaT
-           reports (arc, and report=tree) -- each a check on the other. A sentence
-           saying so was written into .score-sub and then removed: a home-page
-           reader does not need it (Fang, 2026-09-12). It is recorded here and in
-           the checklist because the next person to edit either card does. */
+           The page runs two colour languages and each carries one meaning:
+           viridis = rank, green = EBP progress (hero progress bars, brand spine).
+           The phylum tree, which added orange for "has an EBP assembly", was
+           removed with the catalog layout (Fang, 2026-11-12). */
         --r-phylum:#440154; --r-class:#404387; --r-order:#2a788e; --r-family:#22a884; --r-genus:#7ad151; --r-species:#fde725;
         /* Sequencing-status ramp (duplication world). --s-not is the light
            variant's one ramp override; --s-published is darkened here because
@@ -98,29 +88,6 @@
            step darker, for the badges only (2026-09-25). */
         --novelty-ink:#3b6b17;   /* 5.75:1 on the Novelty tint */
         --coord-ink:#3d5f8f;     /* 5.71:1 on the Coordination tint */
-        /* "Has at least one EBP assembly", for the phylum tree. THE SAME ORANGE AS
-           THE ORDER-LEVEL TREE: pages/phylotree.html paints its branches the CSS
-           keyword `orange`, and its GoaT caption reads "Orange highlights represent
-           clades with at least one assembly published under the EBP umbrella
-           BioProject". The two figures are the overview and the detail of one
-           thing, so they carry one colour — Fang, 2026-09-12, after two darker
-           candidates were put and declined.
-           Known and accepted: #ffa500 is 1.97:1 on this pane's white ground, under
-           the 3:1 that a stroke as a graphical object would normally want. The
-           decision is cross-figure consistency over that ratio. Compensated where
-           it can be without touching the hue — lit strokes are 2px rather than 1.1,
-           tips are filled discs against hollow rings, so coverage is carried by
-           FILL as well as colour and survives being hard to see. Do not "fix" this
-           to a darker orange; it has been asked for twice. */
-        --ebp-orange:#ffa500;
-        /* Lineage highlight. Bright rather than the near-black it started as, which
-           read as ink rather than as a highlight (Fang, 2026-09-13). Blue and not a
-           warmer bright: --ebp-orange already MEANS something in this figure ("has
-           an EBP assembly"), so the highlight has to be a hue that cannot be
-           mistaken for it. 221 degrees against orange's 39 is very nearly the
-           complement, and at 84% saturation it still carries 5.17:1 on white --
-           these draw text as well as strokes, so they want text contrast. */
-        --focus:#2563eb;
         /* Phase I progress bars: all EBP assemblies in --green-soft, the share that
            meets the EBP standard solid --green-deep on top, on a white track.
            --green-soft is the previous home page's own fill (#6fbb8d); the lighter
@@ -198,31 +165,6 @@
       .res-foot{border-top:1px solid var(--line); margin-top:6px; padding:9px 10px 4px; font-size:13px; color:var(--paper-mute); line-height:1.4;}
       .res-foot b{color:var(--paper-dim);}
 
-      .topnav{margin-left:auto; display:flex; gap:3px; align-items:center;}
-      .topnav .n{font-size:13px; padding:8px 13px; border-radius:8px; color:var(--paper-dim); cursor:pointer; white-space:nowrap; background:none; border:none; font-family:inherit;}
-      .topnav .n:hover{color:var(--paper);}
-      .nav-menu{position:relative;}
-      .nav-menu .n{display:inline-flex; align-items:center; gap:6px;}
-      .nav-menu .caret{font-size:13px;}
-      .dropdown{position:absolute; right:0; top:calc(100% + 8px); background:var(--ink-2); border:1px solid var(--line); border-radius:12px; box-shadow:0 18px 44px rgba(18,33,26,.15); padding:7px; opacity:0; visibility:hidden; transform:translateY(-6px); transition:opacity .15s, transform .15s, visibility .15s; z-index:40;}
-      /* Titles only (Fang, 2026-09-25): the descriptions are in the search results
-         and on the tool cards below. Sized to the longest title, never narrower than a list. */
-      .dropdown.wide{width:max-content; min-width:265px;}
-      .dropdown.list{width:265px;}
-      .nav-menu:hover .dropdown, .nav-menu:focus-within .dropdown{opacity:1; visibility:visible; transform:translateY(0);}
-      /* rich tool items */
-      .dd-item{display:flex; gap:11px; align-items:center; padding:11px 12px; border-radius:9px; text-decoration:none;}
-      a.dd-item:hover{background:var(--ink-3);}
-      .dd-item.off{opacity:.6; cursor:default;}
-      .dd-item .di{width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; flex:none;}
-      .dd-item.prio .di{background:rgba(122,209,81,.18); border:1px solid rgba(122,209,81,.45); color:var(--genus-ink);}
-      .dd-item.dup .di{background:rgba(74,111,165,.13); border:1px solid rgba(74,111,165,.32); color:var(--gap);}
-      .dd-item .dt{font-size:13px; font-weight:700; color:var(--paper);}
-      .dd-item .soon{font-size:13px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--paper-mute); border:1px dashed var(--line); border-radius:999px; padding:1px 7px; margin-left:6px; white-space:nowrap;}
-      /* simple link items */
-      .dd-link{display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:8px; color:var(--paper-dim); font-size:13px; text-decoration:none;}
-      .dd-link:hover{background:var(--ink-3); color:var(--paper);}
-      .dd-link .dli{font-size:13px; width:20px; text-align:center; flex:none; color:var(--green-deep);}
       @media (max-width:900px){ .search-wrap{display:none;} }
 
 
@@ -298,111 +240,7 @@
       .progress-footnote{font-size:13px; color:var(--paper-mute); font-style:italic; text-align:right; margin:0;}
       .progress-footnote.warn{color:var(--warn); font-style:normal; font-weight:600;}
 
-      /* ── tree card (full width), then the scorecard below it (full width) ──
-         The mockup put these side by side and this page did too until 2026-09-12,
-         when the tree became a 79-tip radial figure: a circle in a 1.5fr column is
-         sized by the column's HEIGHT, so the narrower pane bought nothing and cost
-         the scorecard its room. Stacked, the tree gets the page's full width and
-         the four ranks sit in one row instead of a column. They still read as one
-         idea — the same phylum → order → family axis, drawn then counted — and the
-         figure's orange tips and the taxa-reached row's Phyla count are the same
-         number from two different GoaT reports. (Written when this card was the
-         scorecard; replaced by the taxa-reached row 2026-10-28.) */
-      .treecard{border:1px solid var(--line); border-radius:16px; background:var(--ink-2); overflow:hidden; margin-top:16px;}
-      .tree-pane{padding:18px 20px 20px; min-width:0;}
       .pane-h{font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--paper-mute); font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
-
-      /* The stage holds a figure this page draws itself — see loadPhylumTree().
-         Nothing here is animated; the geometry IS the measurement, same rule as
-         the note on .progress-completed. */
-      /* Taller since the card went full width: the figure is a CIRCLE, so its size
-         is set by the shorter side of the stage. Widening the card bought it
-         nothing; height is the only dimension that makes the tree bigger. */
-      .tree-stage{position:relative; height:620px; margin-top:12px; border:1px solid var(--line-soft); border-radius:10px; overflow:hidden; background:var(--ink-2);}
-      .tree-stage svg{display:block; width:100%; height:100%; cursor:grab; touch-action:none;}
-      .tree-stage svg.dragging{cursor:grabbing;}
-
-      /* The wheel zooms directly (Fang, 2026-09-12) — no +/− cluster in the corner.
-         What is left is a single Reset, and it appears ONLY once the view has been
-         moved: a control that is always there is clutter, and one that is never
-         there strands a reader who has zoomed into a corner. */
-      .tree-zoom{position:absolute; right:10px; top:10px; z-index:2;}
-      .tree-zoom[hidden]{display:none;}
-      .tree-zoom button{padding:5px 11px; font:inherit; font-size:13px; font-weight:650; line-height:1;
-        color:var(--paper-dim); background:var(--ink-2); border:1px solid var(--line); border-radius:999px;
-        cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 1px 3px rgba(18,33,26,.08);}
-      .tree-zoom button:hover{background:var(--ink-3); color:var(--paper);}
-      @media (max-width:820px){ .tree-stage{height:460px;} }
-      @media (max-width:640px){ .tree-stage{height:380px;} }
-
-      /* Loading / failure state. One element, centred, replaced by the figure. */
-      .tree-msg{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
-        gap:10px; text-align:center; padding:24px 20px; background:var(--ink-2); color:var(--paper-mute); font-size:13px;}
-      .tree-msg[hidden]{display:none;}
-      .tree-msg .tree-ic{width:46px; height:46px; border-radius:13px; display:flex; align-items:center; justify-content:center;
-        font-size:19px; color:var(--green-deep); background:rgba(22,163,74,.10); border:1px solid rgba(22,163,74,.28);}
-
-      /* The figure. Covered phyla carry an EBP assembly; gaps do not. The two are
-         distinguished by COLOUR AND FILL together, never colour alone — a hollow
-         ring reads as absence without depending on hue, which keeps the pair
-         legible to a colour-blind or contrast-reduced reader. */
-      .phylo .edge{fill:none; stroke:var(--line); stroke-width:1.1;}
-      .phylo .edge.lit{stroke:var(--ebp-orange); stroke-width:2;}
-      .phylo .tip{fill:var(--ink-2); stroke:var(--paper-mute); stroke-width:1.2;}
-      .phylo .tip.lit{fill:var(--ebp-orange); stroke:var(--ebp-orange);}
-      /* The key swatch sits on the card ground, not the white stage, where the
-         same orange is fainter still — a hairline keeps the dot from dissolving. */
-      .tree-key i.on{box-shadow:0 0 0 1px rgba(18,33,26,.22);}
-      .phylo .lbl{fill:var(--paper-mute); font-size:10px; font-family:inherit;}
-      .phylo .lbl.lit{fill:var(--paper); font-weight:700;}
-      .phylo g.leaf, .phylo g.node{cursor:default;}
-      /* Internal nodes get an invisible hit target so a clade can be hovered at
-         all -- before this only the 79 tips had anything to point at, and the
-         clades the tree exists to show (Metazoa, Fungi, Bilateria, Sar) were
-         unreachable. `fill:transparent` rather than `fill:none`: none is not a
-         hit target. */
-      .phylo .hit{fill:transparent; stroke:none;}
-      .phylo g.node:hover .ring, .phylo g.leaf:hover .tip{stroke:var(--paper); stroke-width:1.6;}
-      .phylo .ring{fill:var(--ink-2); stroke:var(--line); stroke-width:1.1; opacity:0;}
-      .phylo g.node:hover .ring{opacity:1;}
-
-      /* Lineage highlight. Hovering any node lifts the path from it to the root:
-         the node, every ancestor, and the segments between them. The rest of the
-         tree drops back rather than being hidden, so the highlighted path is read
-         against the whole shape and not in isolation. Opacity only -- no geometry
-         depends on it, and nothing here is timed. */
-      .phylo.focus .edge{opacity:.18;}
-      .phylo.focus g.leaf .tip{opacity:.3;}
-      .phylo.focus g.leaf .lbl{opacity:.22;}
-      /* the hovered tip keeps its own name at full strength -- it is the one label
-         that must stay readable, and the overlay does not redraw it */
-      .phylo.focus g.leaf.on .lbl{opacity:1; fill:var(--focus);}
-      .phylo.focus g.leaf.on .tip{opacity:1;}
-      .phylo .lin-path{fill:none; stroke:var(--focus); stroke-width:2.6; stroke-linejoin:round; stroke-linecap:round;}
-      .phylo .lin-node{fill:var(--focus); stroke:var(--ink-2); stroke-width:1.4;}
-      .phylo .lin-lbl{fill:var(--focus); font-size:11.5px; font-weight:800; font-family:inherit;
-        paint-order:stroke; stroke:var(--ink-2); stroke-width:3.5px; stroke-linejoin:round;}
-
-
-      /* Figure key. Sits under the stage, above the caption. */
-      /* One centred note under the figure. It replaced a swatch legend reading
-         "33 phyla with an EBP assembly / 46 still with none" (Fang, 2026-09-13):
-         those two counts were a third copy of a number the scorecard directly above
-         already carries live, and what a first-time reader lacks is not the count
-         but what they are looking at. Deliberately carries NO figures, so it cannot
-         go stale.
-
-         Written for someone who has never heard of GoaT (Fang, 2026-09-13). It said
-         "Every eukaryotic phylum in GoaT, on GoaT's own topology"; naming the
-         database explains nothing to a visitor and reads as jargon. "arranged by
-         shared ancestry" says what the shape IS, which is the thing they cannot see
-         for themselves. Attribution is not lost with it -- the page footer credits
-         GoaT and states the permission, which is where a source belongs. */
-      .tree-key{margin-top:12px; font-size:13px; color:var(--paper-mute);
-        text-align:center; line-height:1.5;}
-      .tree-key b{color:var(--paper-dim); font-weight:700;}
-      .tree-key .warn{display:block; margin-top:4px; color:var(--warn); font-weight:600;}
-
 
       /* ── Taxa reached by EBP: one count per rank, phylum → genus ──
          Replaced the "taxonomic milestone scorecard" (Fang, 2026-10-28), which gave
@@ -419,8 +257,11 @@
 
          Text stays in text tokens; the rank dot carries the rank colour, the same
          swatch as the novelty ladder in the prioritization card. */
-      .reach{border:1px solid var(--line); border-radius:16px; background:var(--ink-3);
-        margin-top:24px; padding:18px 20px 20px; min-width:0;}
+      /* Its own card between the progress card and the catalog (Fang, 2026-11-12),
+         no longer inside the hero. Each count links to the GoaT search that
+         returns it -- see goatSearchUrl(). */
+      .reach{border:1px solid var(--line); border-radius:16px; background:var(--ink-2);
+        margin-top:28px; padding:18px 20px 20px; min-width:0;}
       .reach-sub{font-size:13px; color:var(--paper-mute); margin:0 0 14px; line-height:1.45;}
       .reach-row{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:16px 0;}
       /* Each tile is centred in its fifth, so the "›" on the boundary sits midway
@@ -432,12 +273,46 @@
         line-height:1.1; color:var(--paper);}
       .reach-dot{width:11px; height:11px; border-radius:3px; flex:none;}
       .reach-l{font-size:13px; color:var(--paper-dim); margin-top:3px;}
+      /* The tile is the link: the count in link blue (it leaves the site, as every
+         blue link here does), the label under it, both one target. */
+      .reach-row a{display:flex; flex-direction:column; align-items:inherit; text-decoration:none; border-radius:8px; padding:2px 8px;}
+      .reach-row a .reach-n{color:var(--link-out);}
+      .reach-row a:hover .reach-n span.v{text-decoration:underline;}
+      .reach-l .ext{font-size:13px; margin-left:5px; color:var(--paper-mute);}
 
       /* ── section scaffolding ── */
       section{padding:34px 0 8px;}
       .sec-h{display:flex; align-items:baseline; gap:12px; margin-bottom:16px; flex-wrap:wrap;}
       .sec-h h2{font-size:20px; font-weight:750; letter-spacing:-.01em; margin:0;}
       .sec-h .sub{font-size:13px; color:var(--paper-mute);}
+
+      /* ── Explore visualizations: the catalog ──
+         The official dashboard's layout (earthbiogenome.github.io/dashboard), back by
+         request (Fang, 2026-11-12): every category in config.js, a title and a grid
+         of link cards, each opening in a new tab. The Sequencing coordination
+         toolset holds the two tool cards below instead of two plain links.
+         Styled in this page's tokens rather than the official page's. */
+      .catalog{padding:34px 0 8px;}
+      .catalog-heading{font-size:13px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--paper-mute);
+        margin:0 0 24px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+      .category{margin-bottom:36px;}
+      .category-title{font-size:19px; font-weight:750; letter-spacing:-.01em; color:var(--paper); margin:0 0 14px;
+        display:flex; align-items:center; gap:10px;}
+      .category-title::before{content:''; width:3px; height:18px; border-radius:2px; background:var(--green-deep); flex:none;}
+      .links-container{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px;}
+      .link{display:flex; align-items:flex-start; gap:13px; padding:16px 18px; background:var(--ink-2); border:1px solid var(--line);
+        border-radius:12px; color:var(--paper); text-decoration:none; transition:border-color .15s, box-shadow .15s, transform .15s;}
+      a.link:hover{border-color:rgba(13,122,71,.45); box-shadow:0 10px 26px rgba(18,33,26,.10); transform:translateY(-1px);}
+      .link.unavailable{border-style:dashed; background:var(--ink-3); cursor:default;}
+      .link-icon{width:36px; height:36px; border-radius:9px; background:rgba(22,163,74,.10); border:1px solid rgba(22,163,74,.24);
+        display:flex; align-items:center; justify-content:center; flex:none; color:var(--green-deep); font-size:15px;}
+      .link-content{flex:1; min-width:0;}
+      .link-title{font-size:15px; font-weight:700; color:var(--paper); line-height:1.35; margin-bottom:3px;}
+      .link-description{font-size:13px; color:var(--paper-mute); line-height:1.45;}
+      .link-badge{display:inline-block; font-size:13px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--paper-mute);
+        border:1px dashed var(--paper-mute); border-radius:999px; padding:1px 8px; margin:2px 0 4px;}
+      .link-arrow{font-size:13px; color:var(--green-deep); margin-top:4px; transition:transform .15s;}
+      a.link:hover .link-arrow{transform:translateX(3px);}
 
       /* ── the two tool cards ── */
       .tools{display:flex; flex-direction:column; gap:16px;}
@@ -467,6 +342,7 @@
       .tool .soon{font-size:13px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; padding:3px 9px; border-radius:999px; color:var(--paper-mute); border:1px dashed var(--paper-mute);}
       .tool .qq{font-size:13.5px; color:var(--paper-dim); font-style:italic; margin:3px 0 0;}
       .tool .desc{font-size:13.5px; color:var(--paper-dim); margin:0 0 14px;}
+      .tool .desc + .desc{margin-top:-6px;}
       .tool .desc b{color:var(--paper);}
       .tool .foot{display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
       .tool .stat{font-size:13px; color:var(--paper-mute);}
@@ -505,7 +381,6 @@
       .ex-name{font-size:15px; font-weight:700; color:var(--paper); margin:0 0 12px;}
       .ex-name b{font-weight:800;}
       .ex-name .ex-tax{font-weight:400; color:var(--paper-dim);}
-      .ex-foot{font-size:13px; color:var(--paper-dim); margin:12px 0 0; padding-top:10px; border-top:1px dashed var(--line);}
       .heat-msg{font-size:13px; color:var(--paper-mute); padding:14px 2px; line-height:1.45;}
 
       /* duplication preview: mini heatmap */
@@ -525,16 +400,6 @@
       @media (max-width:640px){
         .wrap{padding:0 16px;}
         .topbar .inner{padding:11px 16px 9px; gap:8px;}
-        /* Measured at a true 400px viewport: the logo and three nav menus on one
-           row come to 430px, i.e. 30px of horizontal scroll. The nav takes its own
-           row instead. */
-        .topnav{margin-left:0; width:100%; justify-content:space-between; gap:2px;}
-        .topnav .n{padding:7px 10px; font-size:13px;}
-        /* With .nav-menu static, the panels hang off the sticky topbar instead of
-           off a menu button near the right edge — so a 300px panel cannot push the
-           page sideways, and none of them opens off-screen. */
-        .nav-menu{position:static;}
-        .dropdown, .dropdown.wide, .dropdown.list{left:16px; right:16px; width:auto;}
         header.hero .inner{padding:26px 16px 26px;}
         /* Below 640px the label goes above its bar, as on the previous home page. */
         .progress-chart{flex-direction:column; align-items:stretch; gap:6px;}
@@ -548,11 +413,14 @@
         .progress-axis-tick.desk-only{display:none;}
         .progress-axis-tick.phone-only{display:flex;}
         .tool .body{padding:18px 16px 20px;}
-        .tree-pane, .reach{padding:16px 16px 18px;}
+        .reach{padding:16px 16px 18px;}
+        .catalog{padding-top:26px;}
+        .links-container{grid-template-columns:minmax(0,1fr);}
         /* Three across, then two; the arrows only make sense in one line. */
         .reach-row{grid-template-columns:repeat(3,minmax(0,1fr));}
         .reach-row li{align-items:flex-start; padding-right:8px;}
         .reach-l{padding-left:19px;}
+        .reach-row a{padding:2px 0;}
         .reach-row li + li::before{display:none;}
         .lad{grid-template-columns:10px max-content 1fr; gap:8px;}
         footer{padding:28px 16px 36px;}
@@ -575,10 +443,6 @@
           </div>
           <div class="results" id="results" role="listbox" aria-label="Search results"></div>
         </div>
-        <!-- Built from config.js at load — see buildNav(). There is no hand-written
-             list of pages anywhere on this page, so adding a report to config.js
-             adds it to both the nav and the search index at once. -->
-        <nav class="topnav" id="topnav" aria-label="Main"></nav>
       </div>
     </div>
 
@@ -625,45 +489,28 @@
           </div>
         </div>
 
-        <!-- A PHYLUM-level tree, drawn by this page from GoaT's own report=tree
-             response — the same report pages/phylotree.html uses, walked up two
-             ranks. The order-level tree draws 491 tips into this pane and none of
-             them can be read; 79 phyla can. Measured 2026-09-12: the phylum report
-             is 4.00 MB / ~2.8 s against the order report's 9.97 MB / 6.7 s, and
-             because 107 nodes need no phylogenetics library it costs none of the
-             ~1.1 MB of d3 + phylotree.js + underscore + jQuery the iframe did. That
-             is what makes it affordable to draw on load rather than on a click.
-             The order-level page is unchanged and is one link away, below. -->
-        <div class="reach">
-          <div class="pane-h">Taxa reached by EBP</div>
-          <p class="reach-sub">Taxa with at least one EBP assembly, at each rank.</p>
-          <ul class="reach-row" id="reach"></ul>
-        </div>
-
-        <div class="treecard">
-          <div class="tree-pane">
-            <div class="pane-h">The tree of life</div>
-            <div class="tree-stage" id="treeStage">
-              <div class="tree-msg" id="treeMsg">
-                <span class="tree-ic" aria-hidden="true"><i class="fas fa-circle-nodes"></i></span>
-                <span>Drawing the phylum tree…</span>
-              </div>
-              <div class="tree-zoom" id="treeZoom" hidden>
-                <button type="button" id="zoomReset" title="Reset the view (or double-click the tree)" aria-label="Reset the view">↺ Reset</button>
-              </div>
-            </div>
-            <div class="tree-key" id="treeKey" hidden>Every eukaryotic phylum, arranged by shared ancestry — <b>orange</b> where EBP has sequenced at least one species. Hover any node to trace its lineage; scroll to zoom, drag to pan.</div>
-          </div>
-        </div>
       </div>
     </header>
 
     <div class="wrap">
-      <section>
-        <!-- The visible "Two tools" heading was removed (Fang, 2026-10-28); this
-             one is for screen readers, so the outline still goes h1 -> h2 -> the
-             cards' h3s. -->
-        <h2 class="vh">Tools</h2>
+      <section class="reach" aria-labelledby="reach-h">
+        <h2 class="pane-h" id="reach-h">Taxa reached by EBP</h2>
+        <p class="reach-sub">Taxa with at least one EBP assembly, at each rank. Each count opens its query in GoaT.</p>
+        <ul class="reach-row" id="reach"></ul>
+      </section>
+
+      <!-- Built from config.js at load — see buildCatalog(). There is no
+           hand-written list of pages here, so adding a report to config.js adds
+           it to the catalog and the search index at once. -->
+      <main class="catalog">
+        <p class="catalog-heading">Explore visualizations</p>
+        <div id="content-container"></div>
+      </main>
+
+      <!-- The two tool cards. buildCatalog() MOVES them into the Sequencing
+           coordination toolset, so their example previews stay; this holder is
+           only seen if config.js has no such category. -->
+      <div id="tool-holder">
         <div class="tools" id="tools">
 
           <!-- PRIORITIZATION -->
@@ -675,10 +522,11 @@
                   <span class="ic" aria-hidden="true"><i class="fas fa-bullseye"></i></span>
                   <div>
                     <h3 class="tt">Species prioritization <span class="badge">Novelty</span></h3>
-                    <p class="qq">“Is my species list worth sequencing?”</p>
+                    <p class="qq">“Is a species on my target list worth sequencing?”</p>
                   </div>
                 </div>
-                <p class="desc">Screen a list → each species labelled by <b>phylogenetic novelty</b> (would it be a phylogenetic first?) and by what the network is already doing, so the two can be filtered separately.</p>
+                <p class="desc">Each species is labelled by <b>phylogenetic novelty</b> (would it be the first representative species of that taxon?).</p>
+                <p class="desc">Are other projects in the EBP network working on a particular species?</p>
                 <div class="foot" id="foot-prio"></div>
               </div>
               <!-- One example result instead of the label vocabulary (Fang,
@@ -702,11 +550,10 @@
                 <figcaption class="pl">Example · one species from a screened list</figcaption>
                 <div class="ex-name"><i>Pyrgulopsis trivialis</i> <span class="ex-tax">· a freshwater springsnail</span></div>
                 <div class="ladder ex">
-                  <div class="lad"><span class="sw" style="background:var(--r-family)"></span><span class="lb">Highest_F</span><span class="ds">First genome in its family</span></div>
-                  <div class="lad"><span class="sw" style="background:var(--green-deep)"></span><span class="lb">High_New</span><span class="ds">No assembly, no active EBP project working on the species</span></div>
+                  <div class="lad"><span class="sw" style="background:var(--r-family)"></span><span class="lb">Highest_F</span><span class="ds">First genome in its family, the highest taxonomical level not represented by another species in NCBI</span></div>
+                  <div class="lad"><span class="sw" style="background:var(--green-deep)"></span><span class="lb">High_New</span><span class="ds">No assembly, no active EBP project working on the species; high priority for sequencing</span></div>
                   <div class="lad"><span class="sw" style="background:var(--iucn-cr)"></span><span class="lb">CR</span><span class="ds">Critically Endangered (IUCN)</span></div>
                 </div>
-                <p class="ex-foot">Ideal sequencing target</p>
               </figure>
             </div>
           </article>
@@ -720,10 +567,11 @@
                   <span class="ic" aria-hidden="true"><i class="fas fa-shuffle"></i></span>
                   <div>
                     <h3 class="tt">Cross-project duplication <span class="badge">Coordination</span></h3>
-                    <p class="qq">“Is another project already sequencing these?”</p>
+                    <p class="qq">“Is another project already sequencing species on my target list?”</p>
                   </div>
                 </div>
-                <p class="desc">For one project, <b>who else has touched each species</b> and how far they have taken it — coordinate before sequencing in parallel.</p>
+                <p class="desc">For my target list, <b>who else is working on these species</b> and where in the sequencing pipeline are they?</p>
+                <p class="desc">Purpose: coordination between projects to avoid duplicative sequencing.</p>
                 <div class="foot" id="foot-dup"></div>
               </div>
               <!-- The heatmap as it was, showing B10K instead of DTOL (Fang,
@@ -746,7 +594,7 @@
           </article>
 
         </div>
-      </section>
+      </div>
 
     </div>
 
@@ -755,7 +603,7 @@
       <div>© 2026 THE EARTH BIOGENOME PROJECT</div>
     </footer>
 
-    <script src="config.js"></script>
+    <script src="config.js?v=2026-11-12.1"></script>
     <!-- Loaded for one reason: `EBPBackend.backendBase()` is the single source of
          truth for whether a backend exists for this deployment, and the two tool
          cards below are only real if one does. Defining the client is side-effect
@@ -801,24 +649,20 @@
         /* One call, six ranks. `x` = taxa at that rank carrying an EBP assembly,
            `y` = every eukaryotic taxon at that rank in GoaT. This single request
            answers the taxa-reached row AND the family progress bar. */
-        ebpArc:       'https://goat.genomehubs.org/api/v2/report?report=arc&x=assembly_span%20AND%20bioproject%3DPRJNA533106&rank=phylum%2Cclass%2Corder%2Cfamily%2Cgenus%2Cspecies&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&caption=EBP%20taxa&taxonomy=ncbi&result=taxon&queryId=8EWp2aVcZB',
-        /* The tree behind the left pane. Same `report=tree` that
-           pages/phylotree.html runs, with two deliberate differences:
-
-           x asks for EVERY eukaryotic phylum -- `tax_tree(Eukaryota) AND
-           tax_rank(phylum)` -- and NOT only those under the EBP BioProject. That
-           is what lets the figure show gaps: 79 tips come back, y marks the 33
-           that hold an EBP assembly, and the 46 unmarked ones are the whole point.
-           Filtering x by bioproject returns x=79 -> x=33 and the gaps vanish, which
-           is the same failure mode as WCP-1 -- a query narrowed until the absence
-           it should reveal is no longer in the answer. Measured: 4.00 MB either
-           way, so the gaps cost nothing.
-
-           And it asks at PHYLUM rather than order: 79 tips a reader can take in,
-           against 491 that cannot be drawn legibly at this size. */
-        phylumTree:   'https://goat.genomehubs.org/api/v2/report?report=tree&x=tax_tree%28Eukaryota%29%20AND%20tax_rank%28phylum%29&y=assembly_span%3E0%20AND%20bioproject%3DPRJNA533106&includeEstimates=true&collapseMonotypic=true&yOpts=10000%2C100000000000&taxonomy=ncbi&result=taxon&treeThreshold=2000&queryId=npteKzDhXt'
+        ebpArc:       'https://goat.genomehubs.org/api/v2/report?report=arc&x=assembly_span%20AND%20bioproject%3DPRJNA533106&rank=phylum%2Cclass%2Corder%2Cfamily%2Cgenus%2Cspecies&includeEstimates=true&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject&caption=EBP%20taxa&taxonomy=ncbi&result=taxon&queryId=8EWp2aVcZB'
       };
       var PHASE_I_SPECIES_GOAL = 10000;   /* the published EBP Phase I goal */
+
+      /* The GoaT search behind one taxa-reached count: the arc report's `x` at one
+         rank, as a search a reader can open. Checked 2026-11-12: its hits equal
+         the arc's x at every rank (phylum 34, class 126, order 504, family 1,770,
+         genus 5,095), so the link opens exactly the number on the tile. */
+      function goatSearchUrl(rank){
+        return 'https://goat.genomehubs.org/search?query=' +
+          encodeURIComponent('tax_rank(' + rank + ') AND assembly_span AND bioproject=PRJNA533106') +
+          '&result=taxon&includeEstimates=true&taxonomy=ncbi' +
+          '&excludeAncestral%5B0%5D=bioproject&excludeMissing%5B0%5D=bioproject';
+      }
 
       function getJSON(url){
         return fetch(url).then(function(r){
@@ -924,8 +768,12 @@
             RANKS.forEach(function(rk){
               var a = arc[rk.key];
               if(!a) return;
-              html += '<li><div class="reach-n"><span class="reach-dot" style="background:' + rk.colour + '" aria-hidden="true"></span>' +
-                        num(a.x) + '</div><div class="reach-l">' + rk.plural + '</div></li>';
+              html += '<li><a href="' + esc(goatSearchUrl(rk.key)) + '" target="_blank" rel="noopener noreferrer"' +
+                        ' title="Open this query in GoaT">' +
+                        '<div class="reach-n"><span class="reach-dot" style="background:' + rk.colour + '" aria-hidden="true"></span>' +
+                        '<span class="v">' + num(a.x) + '</span></div><div class="reach-l">' + rk.plural +
+                        '<i class="fas fa-arrow-up-right-from-square ext" aria-hidden="true"></i>' +
+                        '<span class="vh"> (opens GoaT in a new tab)</span></div></a></li>';
             });
             $('reach').innerHTML = html;
           } else {
@@ -933,708 +781,6 @@
           }
         });
       }
-
-      /* ───────── the phylum tree ─────────
-         Drawn by this page, from GoaT's own `report=tree` — the same report
-         pages/phylotree.html renders, asked at PHYLUM rank instead of order.
-
-         Why not the order-level tree in an iframe, which is what this pane held
-         first: 491 tips cannot be read in a 678x520 box, which was the whole
-         complaint. 79 phyla can. Measured 2026-09-12:
-
-             order   9.97 MB   6.70 s   753 nodes, 491 tips
-             phylum  4.00 MB   2.75 s   107 nodes,  79 tips
-
-         The payload does NOT shrink in proportion to the tree, because every node
-         carries a `fields.bioproject.value` array of every accession in its clade
-         — the Eukaryota root alone holds thousands. `fields=none` drops four of the
-         six fields and saves 10 KB; the query cannot be asked in a way that omits
-         `bioproject`, because `bioproject` is what is being asked about. So 4.00 MB
-         is the floor for this report, and the real saving is elsewhere: 107 nodes
-         need no phylogenetics library, so d3 (618 KB), phylotree.js (479 KB),
-         underscore, services.js and jQuery all go, and with them the iframe, the
-         injected viewBox and the injected toggle-hiding.
-
-         GoaT-only. Nothing here touches the backend, so the figure renders
-         identically in EarthBiogenome/dashboard with BACKEND_BASE_PRODUCTION empty.
-
-         `includeEstimates=true` is load-bearing: with it false the report comes
-         back with no tree at all, not a smaller one. */
-      /* No link out of this card: the caption that carried one was removed on
-         2026-09-12. The order-level tree is still reachable from the Report menu,
-         which renders from config.js like every other page. */
-      function treeMessage(text){
-        var el = $('treeMsg');
-        if(!el) return;
-        el.hidden = false;
-        var span = el.querySelector('span:not(.tree-ic)');
-        if(span) span.textContent = text;
-      }
-      function treeMessageHide(){ var el = $('treeMsg'); if(el) el.hidden = true; }
-
-      /* Turn GoaT's flat `treeNodes` map into a hierarchy.
-
-         `status === 1` marks a node the y query matched — here, holds at least one
-         assembly under the EBP BioProject. Anything else (null, absent) is a gap.
-         Checked against the counts the same response reports: 33 lit and 46 not,
-         out of 79, which is the arc call's phylum row exactly. If those stop
-         agreeing, one of the two is wrong and the key says so rather than drawing
-         over the disagreement. */
-      function buildHierarchy(nodes, rootId){
-        /* `parent` makes the tree walkable upwards, which is the whole lineage
-           feature. It is a cycle, so this structure must never be JSON-stringified
-           or deep-cloned. */
-        function build(id, depth, parent){
-          var n = nodes[String(id)];
-          if(!n) return null;
-          var kidIds = Object.keys(n.children || {});
-          var node = {
-            id: String(id),
-            name: n.scientific_name || '',
-            rank: n.taxon_rank || '',
-            lit: n.status === 1,
-            depth: depth,
-            parent: parent || null,
-            children: []
-          };
-          for(var k = 0; k < kidIds.length; k++){
-            var c = build(kidIds[k], depth + 1, node);
-            if(c) node.children.push(c);
-          }
-          /* a clade counts as covered when anything below it is, and carries how
-             many of the phyla under it are -- which is what makes hovering a clade
-             worth doing rather than just naming it */
-          if(node.children.length){
-            node.lit = node.children.some(function(c){ return c.lit; });
-            node.tips = 0; node.litTips = 0;
-            node.children.forEach(function(c){
-              node.tips += c.tips; node.litTips += c.litTips;
-            });
-          } else {
-            node.tips = 1; node.litTips = node.lit ? 1 : 0;
-          }
-          return node;
-        }
-        return build(rootId, 0, null);
-      }
-
-      function leavesOf(root){
-        var out = [];
-        (function rec(n){
-          if(!n.children.length){ out.push(n); return; }
-          n.children.forEach(rec);
-        })(root);
-        return out;
-      }
-
-      /* Radial cladogram with aligned tips: every leaf sits on the outer circle so
-         the labels form one ring, and internal nodes sit at depth/maxDepth. Tip
-         alignment is what phylotree.html does too (`alignTips(true)`). */
-      function layoutRadial(root, radius){
-        var leaves = leavesOf(root);
-        var maxDepth = 0;
-        (function rec(n){ if(n.depth > maxDepth) maxDepth = n.depth; n.children.forEach(rec); })(root);
-        if(!leaves.length || !maxDepth) return null;
-
-        var step = (Math.PI * 2) / leaves.length;
-        leaves.forEach(function(lf, i){ lf.angle = i * step - Math.PI / 2; });
-
-        (function rec(n){
-          if(!n.children.length){ n.r = radius; return; }
-          n.children.forEach(rec);
-          var a = n.children.map(function(c){ return c.angle; });
-          n.angle = (Math.min.apply(null, a) + Math.max.apply(null, a)) / 2;
-          n.r = (n.depth / maxDepth) * radius;
-        })(root);
-
-        return {leaves: leaves, maxDepth: maxDepth};
-      }
-
-      function polar(cx, cy, r, a){ return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
-
-      /* What a hovered node says about itself. Written as data- attributes at draw
-         time so the tooltip is a pure read: no lookup back into the hierarchy, and
-         nothing to fall out of step with what was drawn.
-
-         GoaT's ranks here are real and varied -- domain, kingdom, subkingdom,
-         clade, phylum, "no rank" -- so the rank is shown as GoaT gives it rather
-         than being mapped onto a tidier vocabulary the data does not have. */
-      function tipData(n){
-        var rank = n.rank && n.rank !== 'no rank' ? n.rank : '';
-        /* Only what identifies the node. The tooltip used to carry assembly status
-           too; it was dropped (Fang, 2026-09-13) -- the colour already says it, and
-           what hovering is FOR is the lineage. */
-        return ' data-id="' + esc(n.id) + '"' +
-               ' data-name="' + esc(n.name) + '"' +
-               ' data-rank="' + esc(rank) + '"' +
-               ' role="img" aria-label="' + esc(n.name) + (rank ? ', ' + esc(rank) : '') + '"';
-      }
-
-      /* id -> laid-out node, rebuilt on every draw. The lineage overlay reads r and
-         angle straight off these, so it is always the geometry now on screen. */
-      var nodeById = {};
-
-      function indexNodes(root){
-        nodeById = {};
-        (function rec(n){ nodeById[n.id] = n; n.children.forEach(rec); })(root);
-      }
-
-      /* Measure every label instead of guessing at them.
-
-         Two things need real text widths. The obvious one is that a guessed
-         reservation is either wasted radius or a clipped name. The other is the
-         fit: the figure is drawn in its own coordinate space and then framed by a
-         viewBox computed from where the drawing ACTUALLY reaches, and that box is
-         only right if the label lengths in it are real.
-
-         Laid out in a hidden <text> carrying the same class as the real ones, so
-         it resolves the same font stack and size. Falls back to an estimate if the
-         browser will not measure (getComputedTextLength can throw, and a webfont
-         still loading would measure short). */
-      var labelWidthCache = null;
-      var labelFontPx = 11.6;   /* overwritten from the CSS on first measure */
-
-      /* SVG text is NOT page text, and the page's type floor does not reach it:
-         it lives in the figure's coordinate space and the viewBox rescales it, so
-         the declared size is not the painted one. See the note in drawPhylo() for
-         why the figure is exempt. */
-
-      function measureLabels(names){
-        if(labelWidthCache) return labelWidthCache;
-        var NS = 'http://www.w3.org/2000/svg';
-        var svg = document.createElementNS(NS, 'svg');
-        svg.setAttribute('class', 'phylo');
-        svg.setAttribute('aria-hidden', 'true');
-        svg.style.cssText = 'position:absolute; left:-9999px; top:0; width:10px; height:10px; overflow:visible;';
-        var t = document.createElementNS(NS, 'text');
-        /* 'lit' as well as 'lbl': the covered phyla are drawn BOLD, and bold is
-           wider -- 151.4px against 139.7px for "Platyhelminthes" at this size.
-           Measuring the regular face under-reserves the label ring, and the
-           longest bold name then runs past the edge of the stage and is clipped
-           by overflow:hidden. It did so by 5.6px here; at the old 10px it was
-           under 3px, which is why it went unnoticed. Measure the widest case. */
-        t.setAttribute('class', 'lbl lit');
-        svg.appendChild(t);
-        document.body.appendChild(svg);
-        labelFontPx = parseFloat(getComputedStyle(t).fontSize) || 11.6;
-        var out = {}, ok = false;
-        try {
-          for(var i = 0; i < names.length; i++){
-            t.textContent = names[i];
-            var wdt = t.getComputedTextLength();
-            if(wdt > 0) ok = true;
-            out[names[i]] = wdt;
-          }
-        } catch(e){ ok = false; }
-        document.body.removeChild(svg);
-        if(!ok){
-          out = {};
-          for(var j = 0; j < names.length; j++) out[names[j]] = names[j].length * 5.6;
-        }
-        labelWidthCache = out;
-        return out;
-      }
-
-      /* Draw at a nominal radius, then frame what was drawn.
-
-         Reserving a uniform label ring wastes whatever the longest name does not
-         use in each direction, and the longest names are not evenly distributed --
-         at 620px that left ~90px empty above and below the tree. Computing the real
-         extent instead and handing it to the viewBox lets the browser scale the
-         figure to fill the stage exactly, in whichever dimension is tighter. */
-      var NOMINAL_R = 300;
-      var TIP_GAP = 7, TIP_R = 2.8, TEXT_HALF = 5.5;
-
-      function renderPhylo(root, w, h, showLabels){
-        var leaves = leavesOf(root);
-        if(!leaves.length) return null;
-
-        var laid = layoutRadial(root, NOMINAL_R);
-        if(!laid) return null;
-        indexNodes(root);
-
-        var widths = showLabels ? measureLabels(leaves.map(function(l){ return l.name; })) : null;
-        var cx = 0, cy = 0;
-
-        var parts = [], nodeMarks = [];
-        (function rec(n){
-          if(!n.children.length) return;
-          var a = n.children.map(function(c){ return c.angle; });
-          var a0 = Math.min.apply(null, a), a1 = Math.max.apply(null, a);
-          if(a1 > a0){
-            var p0 = polar(cx, cy, n.r, a0), p1 = polar(cx, cy, n.r, a1);
-            var large = (a1 - a0) > Math.PI ? 1 : 0;
-            parts.push('<path class="edge' + (n.lit ? ' lit' : '') + '" d="M' +
-              p0[0].toFixed(1) + ',' + p0[1].toFixed(1) + ' A' + n.r.toFixed(1) + ',' + n.r.toFixed(1) +
-              ' 0 ' + large + ' 1 ' + p1[0].toFixed(1) + ',' + p1[1].toFixed(1) + '"/>');
-          }
-          n.children.forEach(function(c){
-            var q0 = polar(cx, cy, n.r, c.angle), q1 = polar(cx, cy, c.r, c.angle);
-            parts.push('<path class="edge' + (c.lit ? ' lit' : '') + '" d="M' +
-              q0[0].toFixed(1) + ',' + q0[1].toFixed(1) + 'L' + q1[0].toFixed(1) + ',' + q1[1].toFixed(1) + '"/>');
-            rec(c);
-          });
-          /* the clade's own hoverable point, at its junction */
-          var np = polar(cx, cy, n.r, n.angle);
-          nodeMarks.push('<g class="node"' + tipData(n) + '>' +
-            '<circle class="ring" cx="' + np[0].toFixed(1) + '" cy="' + np[1].toFixed(1) + '" r="3.4"/>' +
-            '<circle class="hit" cx="' + np[0].toFixed(1) + '" cy="' + np[1].toFixed(1) + '" r="9"/>' +
-            '</g>');
-        })(root);
-
-        /* extents of everything actually drawn */
-        var minX = -NOMINAL_R - TIP_R, maxX = NOMINAL_R + TIP_R;
-        var minY = -NOMINAL_R - TIP_R, maxY = NOMINAL_R + TIP_R;
-        function grow(x, y){
-          if(x < minX) minX = x; if(x > maxX) maxX = x;
-          if(y < minY) minY = y; if(y > maxY) maxY = y;
-        }
-
-        leaves.forEach(function(lf){
-          var p = polar(cx, cy, lf.r, lf.angle);
-          var deg = lf.angle * 180 / Math.PI;
-          var flip = (deg > 90 || deg < -90);
-          var tp = polar(cx, cy, lf.r + TIP_GAP, lf.angle);
-          var rot = flip ? deg + 180 : deg;
-          var lbl = '';
-          if(showLabels){
-            var tw = (widths && widths[lf.name]) || 0;
-            /* the text runs outward along the leaf's own angle */
-            var far = polar(cx, cy, lf.r + TIP_GAP + tw, lf.angle);
-            var nx = -Math.sin(lf.angle) * TEXT_HALF, ny = Math.cos(lf.angle) * TEXT_HALF;
-            grow(far[0] + nx, far[1] + ny); grow(far[0] - nx, far[1] - ny);
-            grow(tp[0] + nx, tp[1] + ny);   grow(tp[0] - nx, tp[1] - ny);
-            lbl = '<text class="lbl' + (lf.lit ? ' lit' : '') + '" x="' + tp[0].toFixed(1) +
-                  '" y="' + tp[1].toFixed(1) + '" text-anchor="' + (flip ? 'end' : 'start') +
-                  '" dominant-baseline="middle" transform="rotate(' + rot.toFixed(1) + ',' +
-                  tp[0].toFixed(1) + ',' + tp[1].toFixed(1) + ')">' + esc(lf.name) + '</text>';
-          }
-          /* No <title>: the native tooltip waits about a second, cannot be styled
-             and would appear alongside the real one. The accessible name goes on
-             the group instead, which reads the same and shows nothing. */
-          parts.push(
-            '<g class="leaf"' + tipData(lf) + '>' +
-              '<circle class="tip' + (lf.lit ? ' lit' : '') + '" cx="' + p[0].toFixed(1) +
-                 '" cy="' + p[1].toFixed(1) + '" r="' + TIP_R + '"/>' +
-              '<circle class="hit" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="8"/>' +
-              lbl +
-            '</g>');
-        });
-
-        var pad = 4;
-        var box = {x: minX - pad, y: minY - pad,
-                   w: (maxX - minX) + pad * 2, h: (maxY - minY) + pad * 2};
-
-        var svg = '<svg class="phylo" viewBox="' + box.x.toFixed(2) + ' ' + box.y.toFixed(2) + ' ' +
-                  box.w.toFixed(2) + ' ' + box.h.toFixed(2) + '" preserveAspectRatio="xMidYMid meet" ' +
-                  'role="img" aria-label="Radial tree of every eukaryotic phylum in GoaT, ' +
-                  'with those holding at least one EBP assembly marked">' +
-                  parts.join('') + nodeMarks.join('') + '</svg>';
-        return {svg: svg, box: box};
-      }
-
-      var phyloRoot = null;
-
-      function drawPhylo(){
-        var stage = $('treeStage');
-        if(!stage || !phyloRoot) return;
-        var w = Math.round(stage.clientWidth), h = Math.round(stage.clientHeight);
-        if(!w || !h) return;
-        /* Labels are drawn only if they will clear the type floor once the viewBox
-           has scaled them. Rendering first and checking after is the only honest
-           way round: the scale depends on the figure's extent, which depends on
-           the label ring, which depends on whether there are labels at all. So
-           draw with them, work out what they would actually paint at, and draw
-           again without if it is under the floor. The ring keeps its shape either
-           way, and a tap still names any node and its whole lineage. */
-        /* THE FIGURE IS EXEMPT FROM THE PAGE'S TYPE FLOOR (Fang, 2026-09-13; the
-           floor was 15px when this was decided and is 13px now).
-           It was made to comply -- 20px in figure units, a 700px stage, labels
-           painting at 15.4px -- and reverted: *"the previous version looks better"*.
-           It is the right call. This is a diagram, not prose: its text scales with
-           the drawing the way a map's does, and forcing 79 names to 15px shrinks
-           the tree they belong to until the ring of type dominates the shape it is
-           annotating. The clearance is a fixed geometric ratio (2*pi*R/n against the
-           line height), so a bigger stage does NOT buy room -- at 15px it came to
-           3.7%, which one new phylum would spend.
-           These labels paint at roughly 8px. That is deliberate, and it is why
-           every node is also reachable by hover and by tap.
-
-           Labels are still dropped rather than shrunk below ~560px, and now also
-           if they would COLLIDE -- the figure is live, so the tip count can grow. */
-        var showLabels = w >= 560 && h >= 420;
-        var out = renderPhylo(phyloRoot, w, h, showLabels);
-        if(!out){ treeMessage('The pane is too small to draw the tree.'); return; }
-        if(showLabels){
-          var scale = Math.min(w / out.box.w, h / out.box.h);
-          var tipCount = leavesOf(phyloRoot).length;
-          var ringPitch = tipCount ? (2 * Math.PI * NOMINAL_R * scale) / tipCount : 0;
-          if(ringPitch < labelFontPx * scale * 1.15){
-            out = renderPhylo(phyloRoot, w, h, false);
-            if(!out){ treeMessage('The pane is too small to draw the tree.'); return; }
-          }
-        }
-        /* Captured BEFORE innerHTML: these live inside the stage, so the
-           assignment below destroys them and a lookup after it returns null. */
-        var msg = $('treeMsg'), zoom = $('treeZoom');
-        stage.innerHTML = out.svg;
-        if(msg) stage.appendChild(msg);
-        if(zoom) stage.appendChild(zoom);   /* applyView() decides if it shows */
-        treeMessageHide();
-        /* A redraw is a fresh layout for a new box size, so the view starts over
-           rather than carrying a pan that pointed at the old geometry. The base is
-           the figure's own extent, which is what makes it fill the stage. */
-        baseView = {x:out.box.x, y:out.box.y, w:out.box.w, h:out.box.h};
-        view = {x:out.box.x, y:out.box.y, w:out.box.w, h:out.box.h};
-        applyView();
-      }
-
-      /* ───────── pan and zoom ─────────
-         Done by moving the svg's own viewBox: no library, and the figure stays
-         vector-sharp at every scale because nothing is being rasterised or
-         transformed after the fact.
-
-         The wheel needs Ctrl/Cmd deliberately. This figure is 620px tall and the
-         full width of the page, so a bare wheel over it has to keep scrolling the
-         PAGE — otherwise a reader on their way past the tree is caught in it with
-         no way out. The buttons are the discoverable route; drag works unmodified. */
-      var view = null, baseView = null;
-      var MAX_ZOOM = 12;
-
-      function phyloSvg(){ return document.querySelector('#treeStage svg.phylo'); }
-
-      function atBase(){ return !view || !baseView || view.w >= baseView.w - 0.5; }
-      function atMax(){ return !!view && !!baseView && view.w <= baseView.w / MAX_ZOOM + 0.5; }
-
-      function applyView(){
-        var svg = phyloSvg();
-        if(!svg || !view) return;
-        svg.setAttribute('viewBox',
-          view.x.toFixed(2) + ' ' + view.y.toFixed(2) + ' ' +
-          view.w.toFixed(2) + ' ' + view.h.toFixed(2));
-        /* Shown only when there is something to reset. */
-        var zoomBox = $('treeZoom');
-        if(zoomBox) zoomBox.hidden = atBase();
-      }
-
-      /* Keep the view inside the figure. Panning off into blank space loses the
-         tree with no clue how to get back, and at 1x there is nowhere to pan to. */
-      function clampView(){
-        if(view.w > baseView.w){ view.w = baseView.w; view.h = baseView.h; }
-        view.x = Math.max(baseView.x, Math.min(view.x, baseView.x + baseView.w - view.w));
-        view.y = Math.max(baseView.y, Math.min(view.y, baseView.y + baseView.h - view.h));
-      }
-
-      function zoomAt(factor, px, py){
-        if(!view || !baseView) return;
-        var nw = view.w / factor;
-        nw = Math.max(baseView.w / MAX_ZOOM, Math.min(nw, baseView.w));
-        var actual = view.w / nw;
-        var nh = view.h / actual;
-        view.x = px - (px - view.x) / actual;
-        view.y = py - (py - view.y) / actual;
-        view.w = nw; view.h = nh;
-        clampView();
-        applyView();
-      }
-
-      /* screen px -> viewBox units */
-      function toViewBox(svg, clientX, clientY){
-        var r = svg.getBoundingClientRect();
-        return [view.x + (clientX - r.left) / r.width * view.w,
-                view.y + (clientY - r.top) / r.height * view.h];
-      }
-
-      /* ───────── tooltip ─────────
-         Every tip AND every clade is hoverable. Before this only the 79 tips
-         carried a native <title>, so the internal nodes — Eukaryota, Opisthokonta,
-         Metazoa, Fungi, Bilateria, Sar — could not be pointed at at all, which is
-         most of what a tree is for.
-
-         A clade says how much of itself is covered ("15 of 18 phyla"), because
-         that is the thing the figure is showing and it is the question the shape
-         provokes. A tip says only whether it is covered; "1 of 1" would be noise. */
-      /* root -> node, the way a lineage is normally written */
-      function lineageOf(node){
-        var chain = [];
-        for(var n = node; n; n = n.parent) chain.unshift(n);
-        return chain;
-      }
-
-      /* ───────── lineage overlay ─────────
-         Drawn fresh on hover rather than by restyling existing elements, because
-         the path from a node to the root does not correspond to whole elements.
-         Each step up is a RADIAL segment at the child's angle from the child's
-         radius out to the parent's, and then an ARC at the parent's radius from
-         the child's angle round to the parent's own. The base drawing puts one arc
-         across ALL of a parent's children, so highlighting it would light up
-         siblings that are not on the path. This traces the exact route.
-
-         The geometry is read from nodeById, which is rebuilt every draw, so the
-         overlay always matches the tree currently on screen (zoom included -- it
-         is inside the same viewBox). */
-      var SVG_NS = 'http://www.w3.org/2000/svg';
-
-      function arcSeg(R, a0, a1){
-        var x = (R * Math.cos(a1)).toFixed(2), y = (R * Math.sin(a1)).toFixed(2);
-        var large = Math.abs(a1 - a0) > Math.PI ? 1 : 0;
-        var sweep = a1 > a0 ? 1 : 0;
-        return 'A' + R.toFixed(2) + ',' + R.toFixed(2) + ' 0 ' + large + ' ' + sweep + ' ' + x + ',' + y;
-      }
-
-      function clearLineage(){
-        var svg = phyloSvg();
-        if(!svg) return;
-        svg.classList.remove('focus');
-        var old = svg.querySelector('g.lineage');
-        if(old) old.parentNode.removeChild(old);
-        var on = svg.querySelector('.on');
-        if(on) on.classList.remove('on');
-      }
-
-      function drawLineage(node){
-        var svg = phyloSvg();
-        if(!svg || !node) return;
-        clearLineage();
-        var chain = lineageOf(node);
-        if(chain.length < 2) return;
-
-        var d = '', i;
-        /* start at the hovered node and walk up */
-        for(i = chain.length - 1; i > 0; i--){
-          var c = chain[i], par = chain[i - 1];
-          if(i === chain.length - 1){
-            d += 'M' + (c.r * Math.cos(c.angle)).toFixed(2) + ',' + (c.r * Math.sin(c.angle)).toFixed(2);
-          }
-          /* radial in to the parent's circle, then round it to the parent's point */
-          d += 'L' + (par.r * Math.cos(c.angle)).toFixed(2) + ',' + (par.r * Math.sin(c.angle)).toFixed(2);
-          d += arcSeg(par.r, c.angle, par.angle);
-        }
-
-        var host = svg.querySelector('[data-id="' + node.id + '"]');
-        if(host) host.classList.add('on');
-
-        var g = document.createElementNS(SVG_NS, 'g');
-        g.setAttribute('class', 'lineage');
-
-        var path = document.createElementNS(SVG_NS, 'path');
-        path.setAttribute('class', 'lin-path');
-        path.setAttribute('d', d);
-        g.appendChild(path);
-
-        /* a marker and a name at every ancestor, and at the node itself */
-        chain.forEach(function(n, idx){
-          var x = n.r * Math.cos(n.angle), y = n.r * Math.sin(n.angle);
-          var dot = document.createElementNS(SVG_NS, 'circle');
-          dot.setAttribute('class', 'lin-node');
-          dot.setAttribute('cx', x.toFixed(2));
-          dot.setAttribute('cy', y.toFixed(2));
-          dot.setAttribute('r', idx === chain.length - 1 ? '4.2' : '3.4');
-          g.appendChild(dot);
-
-          /* the hovered tip already has its own label at full width; naming it
-             again on top of that just doubles the text */
-          /* skip only the hovered TIP, whose own label is already on the figure
-             and is un-dimmed above; ancestors always get one */
-          var isHovered = idx === chain.length - 1;
-          if(isHovered && !n.children.length && host && host.querySelector('text.lbl')) return;
-
-          var deg = n.angle * 180 / Math.PI;
-          var flip = (deg > 90 || deg < -90);
-          var off = 9;
-          var lx = (n.r + off) * Math.cos(n.angle), ly = (n.r + off) * Math.sin(n.angle);
-          var t = document.createElementNS(SVG_NS, 'text');
-          t.setAttribute('class', 'lin-lbl');
-          t.setAttribute('x', lx.toFixed(2));
-          t.setAttribute('y', ly.toFixed(2));
-          t.setAttribute('text-anchor', flip ? 'end' : 'start');
-          t.setAttribute('dominant-baseline', 'middle');
-          t.setAttribute('transform', 'rotate(' + (flip ? deg + 180 : deg).toFixed(1) + ',' +
-                         lx.toFixed(2) + ',' + ly.toFixed(2) + ')');
-          t.textContent = n.name;
-          g.appendChild(t);
-        });
-
-        svg.appendChild(g);
-        svg.classList.add('focus');
-      }
-
-      /* ───────── hover: trace the lineage ─────────
-         There is no tooltip. One was built and then removed (Fang, 2026-09-13):
-         the overlay already writes every node on the path onto the figure, so a
-         floating box repeated names that were on screen a centimetre away, and
-         covered the tree while doing it. */
-      function initPhyloHover(){
-        var stage = $('treeStage');
-        if(!stage) return;
-        var current = null;
-
-        function hide(){ current = null; clearLineage(); }
-
-        stage.addEventListener('pointermove', function(e){
-          /* while panning the pointer is holding the tree, not asking about it */
-          if(stage.querySelector('svg.dragging')){ hide(); return; }
-          var g = e.target.closest ? e.target.closest('g.leaf, g.node') : null;
-          if(!g){ hide(); return; }
-          if(g !== current){
-            current = g;
-            drawLineage(nodeById[g.dataset.id]);
-          }
-        });
-        /* Mouse only. A touch pointer ceases to exist the moment the finger
-           lifts, so the browser fires pointerleave straight after pointerup --
-           which cleared the tapped lineage in the same tick it was drawn. */
-        stage.addEventListener('pointerleave', function(e){
-          if(e.pointerType === 'mouse') hide();
-        });
-        /* a wheel-zoom moves the geometry out from under the cursor */
-        stage.addEventListener('wheel', hide, {passive:true});
-
-        /* Touch has no hover, and below 560px the tips carry no labels either --
-           so without this a phone shows 79 dots and no way to learn what any of
-           them is. A TAP traces one lineage, and names every node on it. It has
-           to be told apart from a pan, which starts the same way, so the gesture
-           only counts if the pointer barely moved between down and up. */
-        var downX = 0, downY = 0, downT = 0;
-        stage.addEventListener('pointerdown', function(e){
-          downX = e.clientX; downY = e.clientY; downT = Date.now();
-          if(e.pointerType === 'mouse') hide();
-        });
-        stage.addEventListener('pointerup', function(e){
-          if(e.pointerType === 'mouse') return;          /* hover already covers it */
-          var moved = Math.abs(e.clientX - downX) + Math.abs(e.clientY - downY);
-          if(moved > 8 || Date.now() - downT > 700){ hide(); return; }
-          /* NOT e.target: the pan handler has taken pointer capture on the
-             stage by now, so every pointer event retargets there and closest()
-             would find nothing. Ask the document what is under the finger. */
-          var under = document.elementFromPoint(e.clientX, e.clientY);
-          var g = (under && under.closest) ? under.closest('g.leaf, g.node') : null;
-          if(!g){ hide(); return; }
-          current = g;
-          drawLineage(nodeById[g.dataset.id]);
-        });
-      }
-
-      function initPhyloControls(){
-        var stage = $('treeStage');
-        if(!stage) return;
-
-        var rst = $('zoomReset');
-        if(rst) rst.addEventListener('click', function(){
-          if(!baseView) return;
-          view = {x:baseView.x, y:baseView.y, w:baseView.w, h:baseView.h};
-          applyView();
-        });
-
-        /* The wheel zooms with no modifier (Fang, 2026-09-12).
-
-           The hazard that guarded is real — this figure is 620px tall and the full
-           width of the page, so a reader scrolling past it would be caught zooming
-           with no way out. The guard is now conditional instead of modal: THE
-           FIGURE CONSUMES THE WHEEL ONLY WHEN IT CAN ACT ON IT. Scrolling down
-           zooms out, and once the view is back at base the event is left alone and
-           the page scrolls on — so the ordinary act of scrolling past the tree
-           always completes. Same at the far end: at 12x, scrolling further in is
-           released rather than swallowed. */
-        stage.addEventListener('wheel', function(e){
-          var svg = phyloSvg();
-          if(!svg || !view || !baseView) return;
-          var zoomIn = e.deltaY < 0;
-          if(zoomIn && atMax()) return;    /* nothing left to give: let the page have it */
-          if(!zoomIn && atBase()) return;  /* already whole: scroll on past the figure */
-          e.preventDefault();
-          var pt = toViewBox(svg, e.clientX, e.clientY);
-          zoomAt(zoomIn ? 1.18 : 1 / 1.18, pt[0], pt[1]);
-        }, {passive:false});
-
-        var dragging = false, lastX = 0, lastY = 0;
-        stage.addEventListener('pointerdown', function(e){
-          var svg = phyloSvg();
-          if(!svg || !view || e.button !== 0) return;
-          if(e.target.closest('.tree-zoom')) return;
-          dragging = true; lastX = e.clientX; lastY = e.clientY;
-          svg.classList.add('dragging');
-          stage.setPointerCapture(e.pointerId);
-        });
-        stage.addEventListener('pointermove', function(e){
-          if(!dragging) return;
-          var svg = phyloSvg();
-          if(!svg) return;
-          var r = svg.getBoundingClientRect();
-          view.x -= (e.clientX - lastX) / r.width * view.w;
-          view.y -= (e.clientY - lastY) / r.height * view.h;
-          lastX = e.clientX; lastY = e.clientY;
-          clampView();
-          applyView();
-        });
-        function endDrag(e){
-          if(!dragging) return;
-          dragging = false;
-          var svg = phyloSvg();
-          if(svg) svg.classList.remove('dragging');
-          try { stage.releasePointerCapture(e.pointerId); } catch(err){}
-        }
-        stage.addEventListener('pointerup', endDrag);
-        stage.addEventListener('pointercancel', endDrag);
-
-        /* double-click anywhere on the figure returns it */
-        stage.addEventListener('dblclick', function(e){
-          if(!baseView || e.target.closest('.tree-zoom')) return;
-          view = {x:baseView.x, y:baseView.y, w:baseView.w, h:baseView.h};
-          applyView();
-        });
-      }
-
-      function loadPhylumTree(){
-        getJSON(GOAT.phylumTree).then(function(d){
-          var t = d && d.report && d.report.report && d.report.report.tree;
-          var inner = t && t.tree;
-          if(!inner || !inner.treeNodes || !inner.lca) throw new Error('no tree');
-
-          phyloRoot = buildHierarchy(inner.treeNodes, inner.lca.taxon_id);
-          if(!phyloRoot) throw new Error('no root');
-
-          /* The note carries no counts, but the check behind them is kept: `x` is
-             every phylum the tree holds and `y` those the EBP query matched, and
-             the drawn tree must agree with both. It is silent when it agrees and
-             says so when it does not, rather than being dropped along with the
-             numbers it used to sit beside. */
-          var leaves = leavesOf(phyloRoot);
-          var lit = leaves.filter(function(l){ return l.lit; }).length;
-          var total = (typeof t.x === 'number') ? t.x : leaves.length;
-          var covered = (typeof t.y === 'number') ? t.y : lit;
-          var key = $('treeKey');
-          if(key){
-            if(leaves.length !== total || lit !== covered){
-              key.innerHTML += '<span class="warn">\u26a0\ufe0f Drawn ' + num(leaves.length) + '/' +
-                num(lit) + ' but GoaT reports ' + num(total) + '/' + num(covered) +
-                ' \u2014 read the full page instead.</span>';
-            }
-            key.hidden = false;
-          }
-          drawPhylo();
-          /* Libre Franklin is a webfont: if the tree drew before it arrived, the
-             label ring was measured in the fallback face and cached. Measure again
-             once it is here. A no-op redraw when it was already loaded. */
-          if(document.fonts && document.fonts.ready){
-            document.fonts.ready.then(function(){ labelWidthCache = null; drawPhylo(); });
-          }
-        }).catch(function(){
-          /* Names no database: the visitor cannot act on which one it was, and
-             the footer credits the source. Says what failed and what to do. */
-          treeMessage('The tree data did not load, so no tree is shown. Reload to try again.');
-        });
-      }
-
-      /* Redraw on resize: the layout is computed from the stage's real size, so a
-         rotated phone or a dragged window gets a tree laid out for the box it is
-         actually in rather than a stretched copy of an older one. */
-      var phyloTimer = null;
-      window.addEventListener('resize', function(){
-        if(!phyloRoot) return;
-        clearTimeout(phyloTimer);
-        phyloTimer = setTimeout(drawPhylo, 150);
-      });
 
       /* ───────────── duplication preview (for display only) ─────────────
          The same heatmap the card drew live from /api/duplication/dtol, now
@@ -1665,10 +811,14 @@
         insdc_open:'--s-published', published:'--s-published'
       };
       var STATUS_LABEL = {
-        not_started:'not started', sample_collected:'sample coll.', sample_acquired:'sample acq.',
+        not_started:'not started', sample_collected:'sample collection', sample_acquired:'sample acq.',
         data_generation:'data gen.', in_assembly:'in assembly', in_progress:'in progress',
         open:'open', insdc_open:'in INSDC', published:'published'
       };
+      /* Display names, as the projects write them (Fang, 2026-11-12: "DToL"). A
+         project not listed here falls back to upper case. */
+      var PROJECT_LABEL = { dtol:'DToL', b10k:'B10K', africabp:'AfricaBP', canbp:'CanBP', ccgp:'CCGP' };
+      function projectLabel(p){ return PROJECT_LABEL[p] || String(p).toUpperCase(); }
       /* CSS custom property, read at run time (heat cells, hero background). */
       function cvar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
 
@@ -1694,7 +844,7 @@
         }
 
         var html = '<thead><tr><th class="rh"></th>';
-        cols.forEach(function(c){ html += '<th>' + esc(c.toUpperCase()) + '</th>'; });
+        cols.forEach(function(c){ html += '<th>' + esc(projectLabel(c)) + '</th>'; });
         html += '</tr></thead><tbody>';
         rows.forEach(function(s){
           html += '<tr><th class="rh">' + esc(STATUS_LABEL[s] || s) + '</th>';
@@ -1708,7 +858,7 @@
         html += '</tbody>';
         $('miniHeat').innerHTML = html;
 
-        $('heat-label').innerHTML = 'Example · ' + esc(rep.project.toUpperCase()) +
+        $('heat-label').innerHTML = 'Example · ' + esc(projectLabel(rep.project)) +
           '<span class="src">species it shares with other active projects · for display only</span>';
 
         /* the largest cell, read as a sentence */
@@ -1717,10 +867,10 @@
           var v = Number((rep.matrix[s]||{})[c]) || 0;
           if(!top || v > top.v) top = {v:v, s:s, c:c};
         }); });
-        var P = esc(rep.project.toUpperCase());
-        $('heat-read').innerHTML = 'Rows: ' + P + '\'s own stage. Columns: other projects on the same species. ' +
-          'e.g. <b>' + num(top.v) + '</b> species ' + P + ' has ' + esc(STATUS_LABEL[top.s] || top.s) +
-          ' are also being worked on by ' + esc(top.c.toUpperCase()) + '; none has an EBP-standard assembly yet.';
+        var P = esc(projectLabel(rep.project));
+        $('heat-read').innerHTML = 'Rows: ' + P + '’s sequencing status. Columns: Other projects that list the same species. ' +
+          'e.g. <b>' + num(top.v) + '</b> species on ' + P + '’s list are ' + esc(STATUS_LABEL[top.s] || top.s) +
+          ' and also being worked on by ' + esc(projectLabel(top.c)) + '.';
       }
 
       /* ───────────── the two tool cards ─────────────
@@ -1753,6 +903,8 @@
           var a = document.createElement('a');
           a.className = 'open';
           a.href = entry.file;
+          a.target = '_blank';          /* new tab, like every catalog card (Fang, 2026-11-12) */
+          a.rel = 'noopener';
           a.innerHTML = 'Open ' + esc(entry.name) + ' <span class="arr" aria-hidden="true">→</span>';
           foot.appendChild(a);
         } else {
@@ -1771,68 +923,53 @@
         }
       }
 
-      /* ───────────── nav and search, both from config.js ─────────────
-         SHORT_LABEL renames a category for the top bar (config.js's "Assembly
-         Progress" reads as "Report" there). A category it does not know keeps its
-         own name, so a new one in config.js still appears rather than silently
-         vanishing.
+      /* ───────────── the catalog, from config.js ─────────────
+         The official dashboard's builder (Dashboard reports/index.html), without its
+         analytics. Every link opens in a new tab: this page is the index, and a
+         report opened from it should not replace it. `rel="noopener"` because
+         `target="_blank"` otherwise hands the opened page a live `window.opener`.
 
-         The top-bar menus are now the ONLY route to the report pages — the
-         "All reports" grid below the tool cards was removed on request
-         2026-09-12. Nothing else lists them, so a report missing from
-         config.js is unreachable, not merely unlisted. */
-      var SHORT_LABEL = {
-        'Assembly progress': 'Report',
-        'Network visualization': 'Network',
-        'Sequencing coordination toolset': 'Tools'
-      };
+         The header's Report / Network / Tools menus were removed (Fang,
+         2026-11-12); this catalog and the search are the routes to every page, so a
+         report missing from config.js is unreachable, not merely unlisted. */
       var TOOL_CATEGORY = 'Sequencing coordination toolset';
-
-      /* Top-bar links open in a new tab. This page is the index — you come back
-         to it — and a report opened from here should not replace it.
-         `rel="noopener"` because `target="_blank"` otherwise hands the opened
-         page a live `window.opener` reference back to this one.
-
-         DELIBERATELY ONLY THE TOP BAR. The tool cards below and the search
-         results still navigate in place, and the header that site_topbar.js puts
-         on the tool pages does too: if every link everywhere opened a tab, three
-         clicks would leave you with four. One tab per thing you opened from
-         here, and none after that. */
-      var NEW_TAB = ' target="_blank" rel="noopener"';
 
       function catalogue(){ return (typeof pages !== 'undefined' && Array.isArray(pages)) ? pages : []; }
       function isOff(p){ return !!(p.requiresBackend && !backendConfigured); }
 
-      function buildNav(){
-        var nav = $('topnav');
-        if(!nav) return;
-        var html = '';
+      function linkCard(p){
+        var off = isOff(p);
+        var inner = '<div class="link-icon" aria-hidden="true"><i class="fas ' + esc(p.icon || 'fa-circle') + '"></i></div>' +
+                    '<div class="link-content"><div class="link-title">' + esc(p.name) + '</div>' +
+                      (off ? '<span class="link-badge">Coming soon</span>' : '') +
+                      (p.description ? '<div class="link-description">' + esc(p.description) + '</div>' : '') +
+                    '</div>' +
+                    (off ? '' : '<i class="fas fa-arrow-right link-arrow" aria-hidden="true"></i>');
+        return off
+          ? '<div class="link unavailable">' + inner + '</div>'
+          : '<a class="link" href="' + esc(p.file) + '" target="_blank" rel="noopener">' + inner + '</a>';
+      }
+
+      function buildCatalog(){
+        var host = $('content-container');
+        if(!host) return;
+        var tools = $('tools'), holder = $('tool-holder'), moved = false;
         catalogue().forEach(function(cat){
-          var label = SHORT_LABEL[cat.category] || cat.category;
-          var rich = cat.category === TOOL_CATEGORY;
-          html += '<div class="nav-menu">' +
-                    '<span class="n" tabindex="0" role="button" aria-haspopup="true">' + esc(label) +
-                      ' <span class="caret" aria-hidden="true">▾</span></span>' +
-                    '<div class="dropdown ' + (rich ? 'wide' : 'list') + '">';
-          (cat.pages || []).forEach(function(p){
-            var off = isOff(p);
-            if(rich){
-              var cls = p.file.indexOf('prioritization') > -1 ? 'prio' : 'dup';
-              var inner = '<span class="di" aria-hidden="true"><i class="fas ' + esc(p.icon || 'fa-circle') + '"></i></span>' +
-                          '<div><div class="dt">' + esc(p.name) +
-                            (off ? '<span class="soon">Soon</span>' : '') + '</div></div>';
-              html += off
-                ? '<div class="dd-item off ' + cls + '">' + inner + '</div>'
-                : '<a class="dd-item ' + cls + '" href="' + esc(p.file) + '"' + NEW_TAB + '>' + inner + '</a>';
-            } else {
-              html += '<a class="dd-link" href="' + esc(p.file) + '"' + NEW_TAB + '>' +
-                        '<span class="dli" aria-hidden="true"><i class="fas ' + esc(p.icon || 'fa-circle') + '"></i></span>' +
-                        esc(p.name) + '</a>';
-            }
-          });
-          html += '</div></div>';
+          var div = document.createElement('div');
+          div.className = 'category';
+          div.innerHTML = '<h2 class="category-title">' + esc(cat.category) + '</h2>';
+          if(cat.category === TOOL_CATEGORY && tools){
+            div.appendChild(tools);          /* the two rich cards, previews and all */
+            moved = true;
+          } else {
+            var grid = document.createElement('div');
+            grid.className = 'links-container';
+            grid.innerHTML = (cat.pages || []).map(linkCard).join('');
+            div.appendChild(grid);
+          }
+          host.appendChild(div);
         });
-        nav.innerHTML = html;
+        if(moved && holder) holder.remove();
       }
 
 
@@ -1973,14 +1110,11 @@
       })();
 
       /* ───────────── go ───────────── */
-      buildNav();
+      buildCatalog();
       buildToolCard('card-prio', 'foot-prio', 'prioritization.html', null);
       buildToolCard('card-dup',  'foot-dup',  'duplication.html', null);
       drawDuplicationPreview();
       loadHero();
-      initPhyloControls();
-      initPhyloHover();
-      loadPhylumTree();
     })();
     </script>
 </body>

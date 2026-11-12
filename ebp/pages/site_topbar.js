@@ -5,16 +5,14 @@
  * two-item Prioritization/Duplication switcher and a theme button — so the
  * only way back to a report was the browser's Back button, and a reader who
  * arrived on a tool page directly had no route to the rest of the site at all.
- * This replaces that strip with the home page's: the same logo, the same
- * search, the same Report / Network / Tools menus.
+ * This replaces that strip with the home page's: the same logo and the same
+ * search. The Report / Network / Tools menus it also carried were removed
+ * (Fang, 2026-11-12); the home page's catalog lists every page, and the logo
+ * goes there.
  *
- * BUILT FROM config.js, LIKE THE HOME PAGE'S. There is no hand-written list of
- * pages here. `index.html` builds its nav from the same `pages` array, so a
- * report added there appears in both without a second edit — which is the
- * property that matters, since the two are separate implementations. They are
- * separate because unifying them means rewriting the home page's working
- * header, and the brief was the smallest change that puts the header on the
- * tools. If a third page ever needs this, unify then.
+ * SEARCH IS BUILT FROM config.js, LIKE THE HOME PAGE'S. There is no
+ * hand-written list of pages here; a report added to the `pages` array is found
+ * by both searches without a second edit.
  *
  * LINKS STAY IN THIS TAB. The home page opens tools and reports in a new tab,
  * deliberately: it is the index, and you go back to it. A header that did the
@@ -82,69 +80,11 @@
   .ebp-results .row:hover,.ebp-results .row.on{background:var(--ink-3,#eef5f0); color:var(--paper,#12211a);}
   .ebp-results .row .ri{width:20px; text-align:center; flex:none; color:var(--green-glow,#0d7846);}
   .ebp-results .none{padding:14px 12px; color:var(--paper-mute,#5a6e62); font-size:13px;}
-  .ebp-topnav{margin-left:auto; display:flex; gap:3px; align-items:center;}
-  .ebp-topnav .n{font-size:13px; padding:8px 13px; border-radius:8px; color:var(--paper-dim,#3e5548);
-    cursor:pointer; white-space:nowrap; background:none; border:none; font-family:inherit;}
-  .ebp-topnav .n:hover{color:var(--paper,#12211a);}
-  .ebp-nav-menu{position:relative;}
-  .ebp-nav-menu .n{display:inline-flex; align-items:center; gap:6px;}
-  .ebp-nav-menu .caret{font-size:13px;}
-  .ebp-dropdown{position:absolute; right:0; top:calc(100% + 8px); background:var(--ink-2,#fff);
-    border:1px solid var(--line,#d6e3d9); border-radius:12px; box-shadow:0 18px 44px rgba(18,33,26,.15);
-    padding:7px; opacity:0; visibility:hidden; transform:translateY(-6px);
-    transition:opacity .15s, transform .15s, visibility .15s; z-index:40;}
-  /* Titles only (Fang, 2026-09-25): the descriptions are in the search results
-     and on the home cards. Sized to the longest title, never narrower than a list. */
-  .ebp-dropdown.wide{width:max-content; min-width:265px;}
-  .ebp-dropdown.list{width:265px;}
-  .ebp-nav-menu:hover .ebp-dropdown,.ebp-nav-menu:focus-within .ebp-dropdown{
-    opacity:1; visibility:visible; transform:translateY(0);}
-  .ebp-dd-item{display:flex; gap:11px; align-items:center; padding:11px 12px; border-radius:9px;
-    text-decoration:none;}
-  a.ebp-dd-item:hover{background:var(--ink-3,#eef5f0); text-decoration:none;}
-  .ebp-dd-item.off{opacity:.6; cursor:default;}
-  /* The page you are on: marked, not dimmed. Sharing the .off styling here
-     made the current tool read as unavailable. The tint and aria-current say it;
-     there is no added label, because the row already names the page you are on.
-     NOTE: no backticks anywhere in this block. It is a template literal, so a
-     backtick ENDS it -- quoting a class name that way silently truncated the
-     stylesheet and turned the rest into a tagged-template call. */
-  .ebp-dd-item.here{background:var(--ink-3,#eef5f0); cursor:default;}
-  .ebp-dd-item .di{width:32px; height:32px; border-radius:8px; display:flex; align-items:center;
-    justify-content:center; font-size:14px; flex:none;}
-  .ebp-dd-item.prio .di{background:rgba(122,209,81,.18); border:1px solid rgba(122,209,81,.45);
-    color:var(--genus-ink,#2f6b1f);}
-  .ebp-dd-item.dup .di{background:rgba(74,111,165,.13); border:1px solid rgba(74,111,165,.32);
-    color:var(--gap,#4a6fa5);}
-  .ebp-dd-item .dt{font-size:13px; font-weight:700; color:var(--paper,#12211a);}
-  .ebp-dd-item .soon{font-size:13px; font-weight:800; letter-spacing:.05em; text-transform:uppercase;
-    color:var(--paper-mute,#5a6e62); border:1px dashed var(--line,#d6e3d9); border-radius:999px;
-    padding:1px 7px; margin-left:6px; white-space:nowrap;}
-  .ebp-dd-link{display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:8px;
-    color:var(--paper-dim,#3e5548); font-size:13px; text-decoration:none;}
-  .ebp-dd-link:hover{background:var(--ink-3,#eef5f0); color:var(--paper,#12211a); text-decoration:none;}
-  .ebp-dd-link.on{background:var(--ink-3,#eef5f0); color:var(--paper,#12211a); font-weight:700;}
-  .ebp-dd-link .dli{font-size:13px; width:20px; text-align:center; flex:none;
-    color:var(--green-deep,#0d7846);}
   @media (max-width:900px){ .ebp-search-wrap{display:none;} }
   @media (max-width:640px){
     .ebp-topbar .inner{padding:11px 16px 9px; gap:8px;}
-    .ebp-topnav{margin-left:0; width:100%; justify-content:space-between; gap:2px;}
-    .ebp-topnav .n{padding:7px 10px; font-size:13px;}
-    .ebp-nav-menu{position:static;}
-    .ebp-dropdown{left:8px; right:8px; width:auto;}
   }
   `;
-
-  /* index.html's own renaming, repeated because the source of truth for it is
-     the home page's nav and not config.js. A category this does not know keeps
-     its own name, so a new one still appears rather than silently vanishing. */
-  var SHORT_LABEL = {
-    'Assembly progress': 'Report',
-    'Network visualization': 'Network',
-    'Sequencing coordination toolset': 'Tools'
-  };
-  var TOOL_CATEGORY = 'Sequencing coordination toolset';
 
   function esc(value) {
     return String(value === null || value === undefined ? '' : value)
@@ -181,55 +121,6 @@
      has to come off — otherwise every link 404s at `pages/pages/x.html`. */
   function href(file) {
     return String(file || '').replace(/^\.\/pages\//, './').replace(/^pages\//, './');
-  }
-
-  function basename(path) {
-    return String(path || '').split('/').pop().split('?')[0];
-  }
-
-  function isCurrent(file) {
-    return basename(file) && basename(file) === basename(window.location.pathname);
-  }
-
-  function buildNav() {
-    var configured = backendConfigured();
-    var html = '';
-    catalogue().forEach(function (cat) {
-      var label = SHORT_LABEL[cat.category] || cat.category;
-      var rich = cat.category === TOOL_CATEGORY;
-      html += '<div class="ebp-nav-menu">'
-        + '<span class="n" tabindex="0" role="button" aria-haspopup="true">' + esc(label)
-        + ' <span class="caret" aria-hidden="true">▾</span></span>'
-        + '<div class="ebp-dropdown ' + (rich ? 'wide' : 'list') + '">';
-      (cat.pages || []).forEach(function (p) {
-        var off = !!(p.requiresBackend && !configured);
-        var here = isCurrent(p.file);
-        if (rich) {
-          var cls = p.file.indexOf('prioritization') > -1 ? 'prio' : 'dup';
-          var inner = '<span class="di" aria-hidden="true"><i class="fas '
-            + esc(p.icon || 'fa-circle') + '"></i></span>'
-            + '<div><div class="dt">' + esc(p.name)
-            + (off ? '<span class="soon">Soon</span>' : '') + '</div></div>';
-          if (off) {
-            html += '<div class="ebp-dd-item off ' + cls + '">' + inner + '</div>';
-          } else if (here) {
-            html += '<div class="ebp-dd-item here ' + cls + '" aria-current="page">'
-              + inner + '</div>';
-          } else {
-            html += '<a class="ebp-dd-item ' + cls + '" href="' + esc(href(p.file)) + '">'
-              + inner + '</a>';
-          }
-        } else {
-          html += '<a class="ebp-dd-link' + (here ? ' on' : '') + '" href="' + esc(href(p.file)) + '"'
-            + (here ? ' aria-current="page"' : '') + '>'
-            + '<span class="dli" aria-hidden="true"><i class="fas '
-            + esc(p.icon || 'fa-circle') + '"></i></span>'
-            + esc(p.name) + '</a>';
-        }
-      });
-      html += '</div></div>';
-    });
-    return html;
   }
 
   function flatPages() {
@@ -275,7 +166,7 @@
       hits.forEach(function (entry) {
         if (entry.category !== seen) {
           seen = entry.category;
-          html += '<div class="grp">' + esc(SHORT_LABEL[seen] || seen) + '</div>';
+          html += '<div class="grp">' + esc(seen) + '</div>';
         }
         var off = !!(entry.page.requiresBackend && !configured);
         html += '<a class="row" href="' + esc(href(entry.page.file)) + '" role="option">'
@@ -349,7 +240,6 @@
       +     '</div>'
       +     '<div class="ebp-results" id="ebpResults" role="listbox" aria-label="Search results"></div>'
       +   '</div>'
-      +   '<nav class="ebp-topnav" aria-label="Main">' + buildNav() + '</nav>'
       + '</div>';
 
     document.body.insertBefore(bar, document.body.firstChild);

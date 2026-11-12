@@ -93,14 +93,14 @@ const pages = [
       {
         name: "Species prioritization",
         file: "./pages/prioritization.html",
-        description: "Is my species list worth sequencing? Each species labelled by phylogenetic novelty and by what the network is already doing",
+        description: "Is a species on my target list worth sequencing? Each species is labelled by phylogenetic novelty (would it be the first representative species of that taxon?) and by whether other projects in the EBP network are working on it",
         icon: "fa-bullseye",
         requiresBackend: true
       },
       {
         name: "Cross-project duplication",
         file: "./pages/duplication.html",
-        description: "Is another project already sequencing these? Species one project shares with every other, by sequencing stage",
+        description: "Is another project already sequencing species on my target list? Who else is working on these species, and where in the sequencing pipeline they are",
         icon: "fa-shuffle",
         requiresBackend: true
       }

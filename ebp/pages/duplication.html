@@ -93,14 +93,14 @@
   reason was re-examined and did not hold.
 -->
 
-<script src="../config.js"></script>
+<script src="../config.js?v=2026-11-12.1"></script>
 <script src="./echarts.min.js"></script>
 <!-- ?v= loads the page and its modules as one set (see prioritization.html);
      bump it whenever any of these changes. -->
-<script src="./services_backend.js?v=2026-11-06.2"></script>
-<script src="./duplication_report.js?v=2026-11-06.2"></script>
-<script src="./duplication_trend.js?v=2026-11-06.2"></script>
-<script src="./site_topbar.js"></script>
+<script src="./services_backend.js?v=2026-11-12.1"></script>
+<script src="./duplication_report.js?v=2026-11-12.1"></script>
+<script src="./duplication_trend.js?v=2026-11-12.1"></script>
+<script src="./site_topbar.js?v=2026-11-12.1"></script>
 
 <script>
 /* ---------------------------------------------------------------------------
@@ -355,7 +355,7 @@
 <body>
 
 <!-- The header is injected by site_topbar.js, which builds the home page's own
-     logo, search and Report / Network / Tools menus from config.js. What stood
+     logo and search (its Report / Network / Tools menus went 2026-11-12). What stood
      here was a two-item Prioritization/Duplication switcher, so the only route
      to a report page was the browser's Back button — and a reader who arrived
      here directly had no route to the rest of the site at all. -->
@@ -365,7 +365,7 @@
     <div class="qrow">
       <div class="q-left">
         <div class="qeyebrow">Coordination · one question</div>
-        <h1>Is another project already sequencing the species on my list?</h1>
+        <h1>Is another project already sequencing species on my target list?</h1>
         <p>Cross-project overlap in GoaT, one project at a time.</p>
       </div>
     </div>

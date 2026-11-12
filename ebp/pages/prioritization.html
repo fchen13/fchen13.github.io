@@ -84,7 +84,7 @@
       `package.json`.
 -->
 
-<script src="../config.js"></script>
+<script src="../config.js?v=2026-11-12.1"></script>
 <script src="./echarts.min.js"></script>
 <script src="./services_backend.js"></script>
 <!-- The ?v= stamp makes the page and its prioritization_* modules load as one set.
@@ -94,13 +94,13 @@
      species module drew every bar grey. GitHub Pages lets browsers cache for 10
      minutes, so the same mix can follow any deploy. Bump the stamp in every tag
      whenever any of these modules changes. -->
-<script src="./prioritization_trend.js?v=2026-11-09.1"></script>
-<script src="./prioritization_species.js?v=2026-11-09.1"></script>
-<script src="./prioritization_submit.js?v=2026-11-09.1"></script>
-<script src="./prioritization_results.js?v=2026-11-09.1"></script>
-<script src="./prioritization_coverage.js?v=2026-11-09.1"></script>
-<script src="./prioritization_help.js?v=2026-11-09.1"></script>
-<script src="./site_topbar.js"></script>
+<script src="./prioritization_trend.js?v=2026-11-12.1"></script>
+<script src="./prioritization_species.js?v=2026-11-12.1"></script>
+<script src="./prioritization_submit.js?v=2026-11-12.1"></script>
+<script src="./prioritization_results.js?v=2026-11-12.1"></script>
+<script src="./prioritization_coverage.js?v=2026-11-12.1"></script>
+<script src="./prioritization_help.js?v=2026-11-12.1"></script>
+<script src="./site_topbar.js?v=2026-11-12.1"></script>
 
 <script>
 /* ---------------------------------------------------------------------------
@@ -298,7 +298,7 @@
 <body>
 
 <!-- The header is injected by site_topbar.js, which builds the home page's own
-     logo, search and Report / Network / Tools menus from config.js. What stood
+     logo and search (its Report / Network / Tools menus went 2026-11-12). What stood
      here was a two-item Prioritization/Duplication switcher, so the only route
      to a report page was the browser's Back button — and a reader who arrived
      here directly had no route to the rest of the site at all. -->
@@ -308,7 +308,7 @@
     <div class="headrow">
       <div class="head-left">
         <div class="crumb">Prioritization · one question</div>
-        <h1>Is my species list worth sequencing?</h1>
+        <h1>Is a species on my target list worth sequencing?</h1>
       </div>
       <!-- Populated by whichever of the two identities the page has. They are
            not the same claim, so the unit is not the same word: a tracked list
