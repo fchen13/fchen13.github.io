@@ -179,9 +179,14 @@ const PrioritizationHelp = (function () {
     color:var(--paper-dim,#a6bcaf);}
   .ebp-matrix .act{color:var(--paper,#e9f2ec); font-weight:600;}
   .ebp-matrix .all{margin-top:9px; font-size:13px;}
-  .ebp-help-link{background:none; border:none; padding:0; font:inherit; font-size:13px;
-    color:var(--green-glow,#5fd39a); cursor:pointer; text-decoration:underline;}
+  /* Dark text and the same info mark as "How to read results" (Fang,
+     2026-11-17): both open the same drawer, so they look like one family. */
+  .ebp-help-link{background:none; border:none; padding:0; font:inherit; font-size:13px; font-weight:650;
+    color:var(--paper,#e9f2ec); cursor:pointer; text-decoration:underline;
+    display:inline-flex; align-items:center; gap:7px;}
   .ebp-help-link:hover{text-decoration:none;}
+  .ebp-help-link:hover .ebp-help-i,
+  .ebp-help-link:focus-visible .ebp-help-i{background:var(--green-glow,#5fd39a);}
 
   @media (max-width:640px){ .ebp-help-body{padding:6px 16px 40px;} .ebp-help-top{padding:16px;} }
   `;
@@ -232,7 +237,8 @@ const PrioritizationHelp = (function () {
     return '<div class="ebp-matrix"><div class="ebp-matrix-h">How to read the two columns together</div>'
       + '<div class="rows">' + rows + '</div>'
       + '<div class="all"><button type="button" class="ebp-help-open-link ebp-help-link" '
-      + 'data-section="matrix">all combinations, and what every label means →</button></div>'
+      + 'data-section="matrix"><span class="ebp-help-i" aria-hidden="true">i</span>'
+      + 'all combinations, and what every label means →</button></div>'
       + '</div>';
   }
 
