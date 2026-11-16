@@ -454,6 +454,20 @@ const PrioritizationResults = (function () {
     const elsewhere = (proj.Low_Active || 0) + (proj.Low_Sample || 0) + (proj.Low_Done || 0);
     const reference = payload.reference_species_count;
 
+    /* Which column of an upload the names were read from, and why (Fang,
+       2026-11-16): the pick is a judgement wherever no column is headed
+       "Scientific Name", so it is shown, not left to be inferred. Absent for a
+       paste and for submissions stored before the field existed. */
+    const NAME_BASIS = {
+      'heading contains': ' (the first heading with “species” or “name”)',
+      content: ' (its values read as species names)',
+      'first column': ' (the first column: none read as species names)',
+    };
+    const nc = payload.name_column;
+    const nameColumn = nc && nc.column
+      ? ' · names from column “' + esc(nc.column) + '”' + esc(NAME_BASIS[nc.basis] || '')
+      : '';
+
     const warnings = (payload.warnings || []).length
       ? '<div class="ebp-res-note ebp-res-warn"><span aria-hidden="true">▲</span><div><b>Worth reading '
         + 'before you act on this:</b><ul>'
@@ -476,7 +490,7 @@ const PrioritizationResults = (function () {
     <div class="view-head row">
       <div>
         <div class="vt">Results</div>
-        <div class="vs">${num(total)} species${opts.source ? ' · ' + esc(opts.source) : ''}${
+        <div class="vs">${num(total)} species${opts.source ? ' · ' + esc(opts.source) : ''}${nameColumn}${
           reference ? ' · screened against ' + num(reference) + ' species with assemblies in GoaT' : ''}</div>
         <!-- Same chip as the empty state's, so the glossary stays reachable
              once a run has replaced that state. No wiring needed: the
