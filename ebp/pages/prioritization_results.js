@@ -1,7 +1,7 @@
 /**
  * The Results view of prioritization.html — one submission, every species. [Task 6]
  *
- *   const view = PrioritizationResults.render(host, {payload, exportUrl, onSpecies, onNew});
+ *   const view = PrioritizationResults.render(host, {payload, exportUrl, onSpecies});
  *   view.redraw();   // after a theme flip, or when the tab becomes visible
  *
  * The two-filter workflow the workbook was built around (CLAUDE.md, "Priority
@@ -464,9 +464,18 @@ const PrioritizationResults = (function () {
       'first column': ' (the first column: none read as species names)',
     };
     const nc = payload.name_column;
-    const nameColumn = nc && nc.column
-      ? ' · names from column “' + esc(nc.column) + '”' + esc(NAME_BASIS[nc.basis] || '')
-      : '';
+    /* The line under "Results". The species count and the file name were
+       dropped from it (Fang, 2026-11-17): the page header already shows both, and
+       the count is the first stat tile. What is left says how the run was read. */
+    const subParts = [];
+    if (nc && nc.column) {
+      subParts.push('Names from column “' + esc(nc.column) + '”' + esc(NAME_BASIS[nc.basis] || ''));
+    }
+    if (reference) {
+      subParts.push((subParts.length ? 's' : 'S') + 'creened against ' + num(reference)
+        + ' species with assemblies in GoaT');
+    }
+    const subLine = subParts.length ? '<div class="vs">' + subParts.join(' · ') + '</div>' : '';
 
     const warnings = (payload.warnings || []).length
       ? '<div class="ebp-res-note ebp-res-warn"><span aria-hidden="true">▲</span><div><b>Worth reading '
@@ -474,32 +483,46 @@ const PrioritizationResults = (function () {
         + payload.warnings.map((line) => '<li>' + esc(line) + '</li>').join('') + '</ul></div></div>'
       : '';
 
-    const chartsCard = typeof echarts === 'undefined' ? '' : `
+    /* One caption for the two charts, merged with the "Two independent
+       dimensions" note that stood above the stat tiles and said half of it
+       again (Fang, 2026-11-17). Shown without the charts too, if ECharts fails
+       to load, because the two-label point does not depend on them. */
+    const dimsCaption = `<p class="ebp-res-cap">Each species carries two independent labels.
+          <b>${typeof echarts === 'undefined' ? 'Phylogenetic' : 'Left: phylogenetic'} novelty</b>, whether it would be
+          the first representative species of its taxon${typeof echarts === 'undefined' ? '' : ', darkest at the broadest gap'}.
+          <b>${typeof echarts === 'undefined' ? 'Project' : 'Right: project'} status</b>, whether other projects in the EBP
+          network are working on it.${typeof echarts === 'undefined' ? '' : ' Both charts count the same species, so they do not add up to each other.'}
+          A species can be a first in its genus <em>and</em> already be sequenced elsewhere: that is a
+          coordination opportunity, not a low priority.</p>`;
+    const chartsCard = typeof echarts === 'undefined' ? `
+      <div class="card">
+        <h2>Two independent dimensions</h2>
+        ${dimsCaption}
+      </div>` : `
       <div class="card">
         <h2>Where this list sits on each dimension</h2>
         <div class="ebp-res-charts">
           <div id="ebp-chart-tax" class="ebp-res-chart"></div>
           <div id="ebp-chart-proj" class="ebp-res-chart"></div>
         </div>
-        <p class="ebp-res-cap">Left: phylogenetic novelty, darkest at the broadest gap. Right: what the
-          network is already doing. The two are counted over the same species and do not add up to each
-          other.</p>
+        ${dimsCaption}
       </div>`;
 
     return `
     <div class="view-head row">
       <div>
         <div class="vt">Results</div>
-        <div class="vs">${num(total)} species${opts.source ? ' · ' + esc(opts.source) : ''}${nameColumn}${
-          reference ? ' · screened against ' + num(reference) + ' species with assemblies in GoaT' : ''}</div>
+        ${subLine}
         <!-- Same chip as the empty state's, so the glossary stays reachable
              once a run has replaced that state. No wiring needed: the
              document-level .ebp-help-open-link handler mount() installs picks
              it up wherever it is drawn. -->
-        <button class="ebp-help-btn ebp-help-open-link" type="button">How to read results <span aria-hidden="true">→</span></button>
+        <button class="ebp-help-btn ebp-help-open-link" type="button"><span class="ebp-help-i" aria-hidden="true">i</span>How to read results <span aria-hidden="true">→</span></button>
       </div>
+      <!-- "↩ New submission" stood here until 2026-11-17 (Fang): it did what
+           the Submit tab does, plus clearing the form, and competed with the
+           view's one action. The Submit tab is the way back. -->
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn" id="ebp-res-new" type="button">↩ New submission</button>
         ${opts.exportUrl
           ? '<a class="btn primary" id="ebp-res-export" href="' + esc(opts.exportUrl) + '">⤓ Export to Excel</a>'
           : ''}
@@ -507,16 +530,11 @@ const PrioritizationResults = (function () {
     </div>
 
     ${warnings}
-    <div class="ebp-res-note"><span aria-hidden="true">▸</span><span><b>Two independent dimensions.</b>
-      <em>Phylogenetic novelty</em> — would sequencing this fill a phylogenetic gap? — and
-      <em>project status</em> — is the network already on it? A species can be a first-in-genus
-      <em>and</em> already being sequenced elsewhere: that is a coordination opportunity, not a low
-      priority, which is why these are two filters and not one score.</span></div>
 
     <div class="ebp-stats">
       <div class="ebp-stat s-total"><div class="n">${num(total)}</div><div class="l">Species screened</div></div>
       <div class="ebp-stat s-novel"><span class="stripe"${stripe('tax', 'Highest_O')}></span><div class="n">${num(novel)}</div>
-        <div class="l">Would be a phylogenetic first</div></div>
+        <div class="l">First representative of its taxon</div></div>
       <div class="ebp-stat s-new"><span class="stripe"${stripe('proj', 'High_New')}></span><div class="n">${num(proj.High_New)}</div>
         <div class="l">Open — no active project</div></div>
       <div class="ebp-stat s-improve"><span class="stripe"${stripe('proj', 'Medium_Improve')}></span><div class="n">${num(proj.Medium_Improve)}</div>
@@ -576,7 +594,7 @@ const PrioritizationResults = (function () {
    *
    * @param {Element} host
    * @param {{payload: object, exportUrl?: string, source?: string,
-   *          onNew?: function, onSpecies?: function}} opts
+   *          onSpecies?: function}} opts
    *        onSpecies(name) — pass only where a tracked list is open; without it
    *        the species names are text rather than links to nothing.
    * @returns {{redraw: function, select: function, payload: object}}
@@ -633,7 +651,6 @@ const PrioritizationResults = (function () {
         if (button) hooks.onSpecies(button.dataset.name);
       });
     }
-    if (hooks.onNew) host.querySelector('#ebp-res-new').addEventListener('click', hooks.onNew);
 
     buildCharts(payload.summary || {});
     apply();

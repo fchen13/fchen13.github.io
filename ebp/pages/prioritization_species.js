@@ -123,11 +123,12 @@ const PrioritizationSpecies = (function () {
      May 2026 runs, an older spelling the 11 May run renamed, so it is glossed
      under PROJ as what it meant then rather than left to render bare. */
   const TAX = {
-    Highest_P: ['c-novel', 'would be the first assembly in its phylum — the broadest gap there is'],
-    Highest_C: ['c-novel', 'would be the first assembly in its class'],
-    Highest_O: ['c-novel', 'would be the first assembly in its order'],
-    Highest_F: ['c-novel', 'would be the first assembly in its family'],
-    Highest_G: ['c-novel', 'would be the first assembly in its genus'],
+    /* Worded as the home page's prioritization card (Fang, 2026-11-17). */
+    Highest_P: ['c-novel', 'first genome in its phylum, the highest taxonomic level not represented by another species in NCBI'],
+    Highest_C: ['c-novel', 'first genome in its class, the highest taxonomic level not represented by another species in NCBI'],
+    Highest_O: ['c-novel', 'first genome in its order, the highest taxonomic level not represented by another species in NCBI'],
+    Highest_F: ['c-novel', 'first genome in its family, the highest taxonomic level not represented by another species in NCBI'],
+    Highest_G: ['c-novel', 'first genome in its genus, the highest taxonomic level not represented by another species in NCBI'],
     High_S: ['c-covered', 'no assembly, but not a first at any level — the taxon is already covered'],
     Already_Covered: ['c-covered', 'an assembly already exists for this species, so novelty does not apply'],
     Unknown_S: ['c-unknown', 'not found in GoaT; its genus was found and is not first at any level. Verify the name'],
@@ -135,7 +136,7 @@ const PrioritizationSpecies = (function () {
     Unknown: ['c-unknown', 'found in GoaT, but its lineage above genus is missing there — a GoaT data gap'],
   };
   const PROJ = {
-    High_New: ['c-new', 'no active project and no assembly — an open sequencing opportunity'],
+    High_New: ['c-new', 'no assembly, no active EBP project working on the species; high priority for sequencing'],
     Medium_Improve: ['c-improve', 'an assembly exists but is not EBP standard, and no project is active'],
     Low_Active: ['c-low', 'an EBP project is sequencing this species now, or has submitted an assembly to INSDC'],
     Low_Sample: ['c-low', 'an EBP project holds samples; sequencing has not started'],

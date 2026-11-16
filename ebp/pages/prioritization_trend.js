@@ -51,8 +51,8 @@ const PrioritizationTrend = (function () {
   const BASE_METRICS = [
     { key: 'open', label: 'Open opportunities',
       gloss: 'no active project and no assembly — the clearest sequencing targets' },
-    { key: 'first_in_genus', label: 'Would be a phylogenetic first',
-      gloss: 'would be the first assembly in its genus. Identical to the Highest_* set by construction, so it is one line, not two' },
+    { key: 'first_in_genus', label: 'First representative of its taxon',
+      gloss: 'would be the first genome in its genus, or a broader taxon. Identical to the Highest_* set by construction, so it is one line, not two' },
     { key: 'active', label: 'Active elsewhere',
       gloss: 'an EBP project is sequencing this species now (Low_Active). Species only at the sample stage are counted separately' },
     { key: 'improve', label: 'Improvable assembly',

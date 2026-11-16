@@ -53,7 +53,7 @@ const PrioritizationHelp = (function () {
      `compact` is what the Results view shows inline, beside the two filters,
      because that is where the decision is actually made. */
   const MATRIX = [
-    { tax: 'Highest_G/F/O/C/P', proj: 'High_New', act: 'Ideal sequencing target', compact: true },
+    { tax: 'Highest_G/F/O/C/P', proj: 'High_New', act: 'High priority for sequencing', compact: true },
     { tax: 'Highest_G/F/O/C/P', proj: 'Low_Active', act: 'Coordinate with the indicated project(s)', compact: true },
     { tax: 'Highest_G/F/O/C/P', proj: 'Low_Sample', act: 'Coordinate with the indicated project(s)' },
     { tax: 'High_S', proj: 'High_New', act: 'Secondary target — the genus is already covered by another sequenced species, but this is still a valid candidate', compact: true },
@@ -105,9 +105,19 @@ const PrioritizationHelp = (function () {
      The outline takes --line-strong, not --line: --line is a hairline meant to
      separate panels, and at 1.23:1 on the light ground the pill all but vanished,
      leaving the arrow to carry the affordance alone. */
-  .ebp-help-btn{background:transparent; border:1px solid var(--line-strong,#4a6b57); color:var(--paper-dim,#a6bcaf);
-    border-radius:999px; padding:7px 13px; font:inherit; font-size:13px; font-weight:600; cursor:pointer;
-    white-space:nowrap;}
+  /* Raised from a bare outline (Fang, 2026-11-17: it read as a label, not a
+     control). A tinted fill, full-strength text and a leading info mark say
+     "help, click me" at rest; still not green, which stays the view's one
+     primary action and the links. */
+  .ebp-help-btn{background:var(--ink-3,#14231b); border:1px solid var(--line-strong,#4a6b57); color:var(--paper,#e9f2ec);
+    border-radius:999px; padding:7px 14px 7px 8px; font:inherit; font-size:13px; font-weight:650; cursor:pointer;
+    white-space:nowrap; display:inline-flex; align-items:center; gap:7px;
+    box-shadow:0 1px 2px rgba(0,0,0,.08);}
+  .ebp-help-i{display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px;
+    border-radius:50%; background:var(--paper-dim,#a6bcaf); color:var(--ink-2,#0f1a14);
+    font-size:12px; font-weight:800; font-style:italic; font-family:Georgia,'Times New Roman',serif; line-height:1;}
+  .ebp-help-btn:hover .ebp-help-i,
+  .ebp-help-btn:focus-visible .ebp-help-i{background:var(--green-glow,#5fd39a);}
   /* Solid --green-glow, not the rgba(63,191,127,.4) the page's other quiet
      controls hover to: at 40% over the light ground that composites to 1.36:1,
      which is FAINTER than this control's 3.19:1 rest outline -- the ring would
@@ -235,8 +245,8 @@ const PrioritizationHelp = (function () {
     return `
       <h3 id="ebp-help-two">The two columns</h3>
       <p>Every species gets <b>two independent labels</b>. <em>Phylogenetic novelty</em> asks whether
-        sequencing it would fill a phylogenetic gap; <em>project status</em> asks whether the EBP
-        network is already working on it. They are separate questions, and a species can score high on
+        it would be the first representative species of its taxon; <em>project status</em> asks whether
+        other projects in the EBP network are working on it. They are separate questions, and a species can score high on
         both — a first-in-genus that another project is already sequencing is a
         <b>coordination opportunity</b>, not a low priority. That is why this page gives you two
         filters and never a single ranking.</p>
@@ -246,7 +256,8 @@ const PrioritizationHelp = (function () {
         <tbody>${matrixRows(false)}</tbody></table>
 
       <h3 id="ebp-help-novelty">Phylogenetic novelty</h3>
-      <p>Would sequencing this species fill a phylogenetic gap? Independent of who is working on it.
+      <p>Would this species be the first representative species of its taxon? Independent of who is
+        working on it.
         Where a species would be a first at several levels, the <b>broadest</b> one is shown — use the
         <code>First in…</code> column for the full picture.</p>
       ${labelTable('tax', TAX_ORDER, 'Label')}

@@ -84,7 +84,7 @@
       `package.json`.
 -->
 
-<script src="../config.js?v=2026-11-16.1"></script>
+<script src="../config.js?v=2026-11-17.2"></script>
 <script src="./echarts.min.js"></script>
 <script src="./services_backend.js"></script>
 <!-- The ?v= stamp makes the page and its prioritization_* modules load as one set.
@@ -94,13 +94,13 @@
      species module drew every bar grey. GitHub Pages lets browsers cache for 10
      minutes, so the same mix can follow any deploy. Bump the stamp in every tag
      whenever any of these modules changes. -->
-<script src="./prioritization_trend.js?v=2026-11-16.1"></script>
-<script src="./prioritization_species.js?v=2026-11-16.1"></script>
-<script src="./prioritization_submit.js?v=2026-11-16.1"></script>
-<script src="./prioritization_results.js?v=2026-11-16.1"></script>
-<script src="./prioritization_coverage.js?v=2026-11-16.1"></script>
-<script src="./prioritization_help.js?v=2026-11-16.1"></script>
-<script src="./site_topbar.js?v=2026-11-16.1"></script>
+<script src="./prioritization_trend.js?v=2026-11-17.2"></script>
+<script src="./prioritization_species.js?v=2026-11-17.2"></script>
+<script src="./prioritization_submit.js?v=2026-11-17.2"></script>
+<script src="./prioritization_results.js?v=2026-11-17.2"></script>
+<script src="./prioritization_coverage.js?v=2026-11-17.2"></script>
+<script src="./prioritization_help.js?v=2026-11-17.2"></script>
+<script src="./site_topbar.js?v=2026-11-17.2"></script>
 
 <script>
 /* ---------------------------------------------------------------------------
@@ -323,8 +323,9 @@
     <!-- Below .headrow, not inside .head-left: the strapline runs the full width
          of the page rather than being squeezed into the column left of the list
          stat, which pushed it to three short lines. -->
-    <p class="sub">Screen a list for <em>phylogenetic novelty</em> and EBP project activity. Novel
-      species that no project is working on are the ideal sequencing targets.</p>
+    <p class="sub">Each species is labelled by <em>phylogenetic novelty</em> (would it be the first
+      representative species of that taxon?). Are other projects in the EBP network working on a
+      particular species?</p>
     <div class="tabs" role="tablist">
       <button data-tab="submit" role="tab" class="on" type="button">Submit</button>
       <button data-tab="results" role="tab" type="button">Results</button>
@@ -373,7 +374,7 @@
              prioritization_help.js opens it from wherever it is rendered —
              here, and again in the results prioritization_results.js draws once
              a run lands. -->
-        <button class="ebp-help-btn ebp-help-open-link" type="button">How to read results <span aria-hidden="true">→</span></button>
+        <button class="ebp-help-btn ebp-help-open-link" type="button"><span class="ebp-help-i" aria-hidden="true">i</span>How to read results <span aria-hidden="true">→</span></button>
       </div>
       <div class="card">
         <p><b>Nothing screened yet.</b> Submit a list, or open a <code>?submission=&lt;id&gt;</code>
@@ -637,7 +638,6 @@
       payload: payload,
       exportUrl: exportUrl,
       source: label,
-      onNew: function () { show('submit'); submit.reset(); },
       /* Only where a tracked list is open — the history endpoint has nothing to
          key a submission by (§12.6). Without it the names stay plain text
          rather than becoming links to nothing. */
