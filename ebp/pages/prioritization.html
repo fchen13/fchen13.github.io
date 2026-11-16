@@ -84,7 +84,7 @@
       `package.json`.
 -->
 
-<script src="../config.js?v=2026-11-17.2"></script>
+<script src="../config.js?v=2026-11-17.4"></script>
 <script src="./echarts.min.js"></script>
 <script src="./services_backend.js"></script>
 <!-- The ?v= stamp makes the page and its prioritization_* modules load as one set.
@@ -94,13 +94,13 @@
      species module drew every bar grey. GitHub Pages lets browsers cache for 10
      minutes, so the same mix can follow any deploy. Bump the stamp in every tag
      whenever any of these modules changes. -->
-<script src="./prioritization_trend.js?v=2026-11-17.2"></script>
-<script src="./prioritization_species.js?v=2026-11-17.2"></script>
-<script src="./prioritization_submit.js?v=2026-11-17.2"></script>
-<script src="./prioritization_results.js?v=2026-11-17.2"></script>
-<script src="./prioritization_coverage.js?v=2026-11-17.2"></script>
-<script src="./prioritization_help.js?v=2026-11-17.2"></script>
-<script src="./site_topbar.js?v=2026-11-17.2"></script>
+<script src="./prioritization_trend.js?v=2026-11-17.4"></script>
+<script src="./prioritization_species.js?v=2026-11-17.4"></script>
+<script src="./prioritization_submit.js?v=2026-11-17.4"></script>
+<script src="./prioritization_results.js?v=2026-11-17.4"></script>
+<script src="./prioritization_coverage.js?v=2026-11-17.4"></script>
+<script src="./prioritization_help.js?v=2026-11-17.4"></script>
+<script src="./site_topbar.js?v=2026-11-17.4"></script>
 
 <script>
 /* ---------------------------------------------------------------------------
@@ -268,6 +268,12 @@
   .btn.primary{background:var(--green-deep); color:#fff; border-color:transparent; padding:12px 22px;
     font-size:14px; font-weight:700;}
   .btn.primary:hover{background:var(--green); color:#fff;}
+  /* The same size as .btn.primary, outlined: a second action beside the main
+     one (Results: "How to read results" beside "Export to Excel"). */
+  .btn.outline{background:var(--ink-2); color:var(--paper); border:1px solid var(--line-strong);
+    padding:12px 22px; font-size:14px; font-weight:700;}
+  .btn.outline:hover{border-color:var(--green-glow); color:var(--paper);}
+  .btn.outline:hover .ebp-help-i{background:var(--green-glow);}
   .btn:disabled{background:var(--ink-4); color:var(--paper-mute); cursor:not-allowed;}
   .btn[hidden]{display:none;}
 

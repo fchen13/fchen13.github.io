@@ -114,6 +114,9 @@ const PrioritizationResults = (function () {
   .ebp-res-charts{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
   @media (max-width:760px){ .ebp-res-charts{grid-template-columns:1fr;} }
   .ebp-res-chart{height:190px;}
+  .ebp-res-actions{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px;}
+  /* One line box for both, so the arrow glyph in Export cannot make it taller. */
+  .ebp-res-actions .btn{line-height:20px;}
   .ebp-res-cap{font-size:13px; color:var(--paper-mute,#6f8a7b); margin:8px 0 0; line-height:1.5;}
 
   .ebp-filters{display:flex; gap:10px 14px; flex-wrap:wrap; align-items:center; margin-bottom:12px;}
@@ -255,14 +258,22 @@ const PrioritizationResults = (function () {
     return '<div class="ebp-projects" title="' + esc(value) + '">' + esc(value) + '</div>';
   }
 
+  /* As the workbook's goat_query_link reads (Fang, 2026-11-17): "open ↗" for
+     the species' own record, "open genus ↗" where GoaT did not find the species
+     and the link opens its genus instead. */
   function goat(row) {
     const link = (row.goat_query_link || '').trim();
-    if (link) {
-      return '<a href="' + esc(link) + '" target="_blank" rel="noopener noreferrer">open ↗</a>';
-    }
     const status = (row.goat_lookup_status || '').trim();
+    if (link) {
+      const genus = status === 'not_found';
+      return '<a href="' + esc(link) + '" target="_blank" rel="noopener noreferrer"'
+        + (genus ? ' title="This name is not in GoaT; the link opens its genus."' : '')
+        + '>' + (genus ? 'open genus ↗' : 'open ↗') + '</a>';
+    }
+    /* No link: for a not-found name that means its genus could not be used
+       either (Unknown_G), so novelty was NOT assessed from it. */
     return '<span class="ebp-na" title="' + esc(status === 'not_found'
-      ? 'This name is not in GoaT, so there is no record to open. Its novelty was assessed from the genus.'
+      ? 'Not in GoaT, and its genus could not be used either, so there is no record to open. Verify the name.'
       : 'No GoaT record was resolved for this name' + (status ? ' (' + status + ')' : '') + '.')
       + '">—</span>';
   }
@@ -483,29 +494,19 @@ const PrioritizationResults = (function () {
         + payload.warnings.map((line) => '<li>' + esc(line) + '</li>').join('') + '</ul></div></div>'
       : '';
 
-    /* One caption for the two charts, merged with the "Two independent
-       dimensions" note that stood above the stat tiles and said half of it
-       again (Fang, 2026-11-17). Shown without the charts too, if ECharts fails
-       to load, because the two-label point does not depend on them. */
-    const dimsCaption = `<p class="ebp-res-cap">Each species carries two independent labels.
-          <b>${typeof echarts === 'undefined' ? 'Phylogenetic' : 'Left: phylogenetic'} novelty</b>, whether it would be
-          the first representative species of its taxon${typeof echarts === 'undefined' ? '' : ', darkest at the broadest gap'}.
-          <b>${typeof echarts === 'undefined' ? 'Project' : 'Right: project'} status</b>, whether other projects in the EBP
-          network are working on it.${typeof echarts === 'undefined' ? '' : ' Both charts count the same species, so they do not add up to each other.'}
-          A species can be a first in its genus <em>and</em> already be sequenced elsewhere: that is a
-          coordination opportunity, not a low priority.</p>`;
-    const chartsCard = typeof echarts === 'undefined' ? `
-      <div class="card">
-        <h2>Two independent dimensions</h2>
-        ${dimsCaption}
-      </div>` : `
+    /* The charts' caption says only what the charts need (Fang, 2026-11-17):
+       what the two labels ask is the page strapline's job, and was said twice. */
+    const chartsCard = typeof echarts === 'undefined' ? '' : `
       <div class="card">
         <h2>Where this list sits on each dimension</h2>
         <div class="ebp-res-charts">
           <div id="ebp-chart-tax" class="ebp-res-chart"></div>
           <div id="ebp-chart-proj" class="ebp-res-chart"></div>
         </div>
-        ${dimsCaption}
+        <p class="ebp-res-cap"><b>Left: phylogenetic novelty</b>, darkest at the broadest gap.
+          <b>Right: project status.</b> Both charts count the same species, so they do not add up to
+          each other. A species can be a first in its genus <em>and</em> already be sequenced
+          elsewhere: that is a coordination opportunity, not a low priority.</p>
       </div>`;
 
     return `
@@ -513,19 +514,18 @@ const PrioritizationResults = (function () {
       <div>
         <div class="vt">Results</div>
         ${subLine}
-        <!-- Same chip as the empty state's, so the glossary stays reachable
-             once a run has replaced that state. No wiring needed: the
-             document-level .ebp-help-open-link handler mount() installs picks
-             it up wherever it is drawn. -->
-        <button class="ebp-help-btn ebp-help-open-link" type="button"><span class="ebp-help-i" aria-hidden="true">i</span>How to read results <span aria-hidden="true">→</span></button>
-      </div>
-      <!-- "↩ New submission" stood here until 2026-11-17 (Fang): it did what
-           the Submit tab does, plus clearing the form, and competed with the
-           view's one action. The Submit tab is the way back. -->
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        ${opts.exportUrl
-          ? '<a class="btn primary" id="ebp-res-export" href="' + esc(opts.exportUrl) + '">⤓ Export to Excel</a>'
-          : ''}
+        <!-- The view's two actions, side by side under the subtitle and the same
+             size (Fang, 2026-11-17): Export keeps the green fill as the main
+             action; the glossary is the outlined twin. "↩ New submission" stood
+             beside Export until the same day; the Submit tab is the way back.
+             The glossary needs no wiring: the document-level
+             .ebp-help-open-link handler in prioritization_help.js picks it up. -->
+        <div class="ebp-res-actions">
+          ${opts.exportUrl
+            ? '<a class="btn primary" id="ebp-res-export" href="' + esc(opts.exportUrl) + '">⤓ Export to Excel</a>'
+            : ''}
+          <button class="btn outline ebp-help-open-link" type="button"><span class="ebp-help-i" aria-hidden="true">i</span>How to read results <span aria-hidden="true">→</span></button>
+        </div>
       </div>
     </div>
 

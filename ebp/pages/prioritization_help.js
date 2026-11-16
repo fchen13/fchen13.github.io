@@ -173,12 +173,7 @@ const PrioritizationHelp = (function () {
   /* The compact matrix, inline in the Results view beside the two filters. */
   .ebp-matrix{border:1px solid var(--line,#22362b); border-radius:10px; background:var(--ink-2,#0f1a14);
     padding:10px 14px; margin-bottom:12px; font-size:13px;}
-  .ebp-matrix > summary{cursor:pointer; color:var(--paper-dim,#a6bcaf); font-weight:600;
-    list-style:none; display:flex; align-items:center; gap:8px;}
-  .ebp-matrix > summary::-webkit-details-marker{display:none;}
-  .ebp-matrix > summary::before{content:"▸"; font-size:10px; color:var(--paper-mute,#6f8a7b);}
-  .ebp-matrix[open] > summary::before{content:"▾";}
-  .ebp-matrix > summary:hover{color:var(--paper,#e9f2ec);}
+  .ebp-matrix-h{color:var(--paper,#e9f2ec); font-weight:650;}
   .ebp-matrix .rows{display:grid; gap:6px; margin-top:10px;}
   .ebp-matrix .row{display:flex; align-items:center; gap:7px; flex-wrap:wrap;
     color:var(--paper-dim,#a6bcaf);}
@@ -223,7 +218,8 @@ const PrioritizationHelp = (function () {
     }).join('');
   }
 
-  /** The compact matrix for the Results view. Collapsed by default. */
+  /** The compact matrix for the Results view. Shown, not collapsed (Fang,
+      2026-11-17): three rows did not need a click to open. */
   function matrixHtml() {
     const rows = MATRIX.filter((row) => row.compact).map(function (row) {
       const tax = gloss('tax', row.tax === 'High_S' ? 'High_S' : 'Highest_P');
@@ -233,11 +229,11 @@ const PrioritizationHelp = (function () {
         + '<span class="ebp-help-chip ' + proj.cls + '"' + (proj.style || '') + '>' + esc(row.proj) + '</span>'
         + '<span class="ebp-help-arrow">→</span><span class="act">' + esc(row.act) + '</span></div>';
     }).join('');
-    return '<details class="ebp-matrix"><summary>How to read the two columns together</summary>'
+    return '<div class="ebp-matrix"><div class="ebp-matrix-h">How to read the two columns together</div>'
       + '<div class="rows">' + rows + '</div>'
       + '<div class="all"><button type="button" class="ebp-help-open-link ebp-help-link" '
       + 'data-section="matrix">all combinations, and what every label means →</button></div>'
-      + '</details>';
+      + '</div>';
   }
 
   function body(context) {
