@@ -479,8 +479,13 @@ const PrioritizationResults = (function () {
        dropped from it (Fang, 2026-11-17): the page header already shows both, and
        the count is the first stat tile. What is left says how the run was read. */
     const subParts = [];
+    /* "Names from the “X” column of file.csv" (Fang, 2026-11-17). The file
+       name comes with the payload since that day; for a run this page started
+       itself, it falls back to the file it just uploaded. */
+    const fileName = (nc && nc.file) || opts.fileName || '';
     if (nc && nc.column) {
-      subParts.push('Names from column “' + esc(nc.column) + '”' + esc(NAME_BASIS[nc.basis] || ''));
+      subParts.push('Names from the “' + esc(nc.column) + '” column'
+        + (fileName ? ' of ' + esc(fileName) : '') + esc(NAME_BASIS[nc.basis] || ''));
     }
     if (reference) {
       subParts.push((subParts.length ? 's' : 'S') + 'creened against ' + num(reference)
@@ -498,7 +503,7 @@ const PrioritizationResults = (function () {
        what the two labels ask is the page strapline's job, and was said twice. */
     const chartsCard = typeof echarts === 'undefined' ? '' : `
       <div class="card">
-        <h2>Where this list sits on each dimension</h2>
+        <h2>Where this list sits on each priority dimension</h2>
         <div class="ebp-res-charts">
           <div id="ebp-chart-tax" class="ebp-res-chart"></div>
           <div id="ebp-chart-proj" class="ebp-res-chart"></div>

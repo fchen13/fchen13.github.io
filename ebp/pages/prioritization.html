@@ -84,7 +84,7 @@
       `package.json`.
 -->
 
-<script src="../config.js?v=2026-11-17.5"></script>
+<script src="../config.js?v=2026-11-17.6"></script>
 <script src="./echarts.min.js"></script>
 <script src="./services_backend.js"></script>
 <!-- The ?v= stamp makes the page and its prioritization_* modules load as one set.
@@ -94,13 +94,13 @@
      species module drew every bar grey. GitHub Pages lets browsers cache for 10
      minutes, so the same mix can follow any deploy. Bump the stamp in every tag
      whenever any of these modules changes. -->
-<script src="./prioritization_trend.js?v=2026-11-17.5"></script>
-<script src="./prioritization_species.js?v=2026-11-17.5"></script>
-<script src="./prioritization_submit.js?v=2026-11-17.5"></script>
-<script src="./prioritization_results.js?v=2026-11-17.5"></script>
-<script src="./prioritization_coverage.js?v=2026-11-17.5"></script>
-<script src="./prioritization_help.js?v=2026-11-17.5"></script>
-<script src="./site_topbar.js?v=2026-11-17.5"></script>
+<script src="./prioritization_trend.js?v=2026-11-17.6"></script>
+<script src="./prioritization_species.js?v=2026-11-17.6"></script>
+<script src="./prioritization_submit.js?v=2026-11-17.6"></script>
+<script src="./prioritization_results.js?v=2026-11-17.6"></script>
+<script src="./prioritization_coverage.js?v=2026-11-17.6"></script>
+<script src="./prioritization_help.js?v=2026-11-17.6"></script>
+<script src="./site_topbar.js?v=2026-11-17.6"></script>
 
 <script>
 /* ---------------------------------------------------------------------------
@@ -644,6 +644,7 @@
       payload: payload,
       exportUrl: exportUrl,
       source: label,
+      fileName: meta && meta.source,
       /* Only where a tracked list is open — the history endpoint has nothing to
          key a submission by (§12.6). Without it the names stay plain text
          rather than becoming links to nothing. */
@@ -660,15 +661,10 @@
     document.getElementById('tab-coverage').hidden = false;
     PrioritizationHelp.setContext({ referenceCount: payload.reference_species_count || null });
 
-    /* The header's list identity belongs to the tracked list where there is
-       one — it is the stronger claim, and it is what the trend is keyed by.
-       Otherwise it names the thing that was actually screened. */
-    if (!tracked) {
-      document.getElementById('head-name').textContent = label || 'This submission';
-      document.getElementById('head-count').textContent = (payload.species_count || 0).toLocaleString();
-      document.getElementById('head-unit').textContent = 'species screened';
-      document.getElementById('head-right').hidden = false;
-    }
+    /* The header's list identity is shown for a tracked list only, which is
+       what the trend is keyed by. A submission no longer gets one (Fang,
+       2026-11-17): "This submission · N species screened" repeated the first
+       stat tile. */
   }
 
   /** `?submission=<id>` — reopen a finished run, or rejoin one still going. */
