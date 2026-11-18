@@ -56,8 +56,9 @@ const PrioritizationResults = (function () {
     High_New: 1, Medium_Improve: 2, Low_Sample: 3, Low_Active: 4, Low_Done: 5, Not_Assigned: 6,
   };
   /* Most-threatened first, so a sort on this column answers "what is at risk".
-     Anything outside the vocabulary — including a blank, which means the cached
-     IUCN release has no assessment for this name — sorts last. */
+     Anything outside the vocabulary — including NE (a blank before 2026-11-18),
+     which means the cached IUCN release has no assessment for this name — sorts
+     last. */
   const IUCN_RANK = { EX: 1, EW: 2, CR: 3, EN: 4, VU: 5, NT: 6, LC: 7, DD: 8 };
   const IUCN_THREATENED = { VU: 1, EN: 1, CR: 1, EW: 1, EX: 1 };
 
@@ -223,10 +224,15 @@ const PrioritizationResults = (function () {
 
   function iucn(row) {
     const category = (row.IUCN_Category || '').trim();
-    if (!category) {
+    if (!category || category === 'NE' || category === 'NA') {
       /* Distinct from NT / DD below: this is "we have no assessment", which is a
-         fact about our cached release, not a fact about the species. */
-      return '<span class="ebp-iucn none" title="No assessment for this name in our cached IUCN release.">—</span>';
+         fact about our cached release, not a fact about the species. The backend
+         writes NE for it since 2026-11-18, as the CLI and the workbook's
+         INSTRUCTIONS do; a submission stored before then carries a blank, and
+         both draw the same muted mark. */
+      const shown = category || '—';
+      return '<span class="ebp-iucn none" title="Not evaluated: no assessment for this name in our cached IUCN release.">'
+        + esc(shown) + '</span>';
     }
     const cls = IUCN_THREATENED[category] ? 'threat' : (category === 'LC' ? 'lc' : 'other');
     const trend = (row.IUCN_Population_Trend || '').trim();
