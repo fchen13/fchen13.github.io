@@ -94,12 +94,12 @@
      species module drew every bar grey. GitHub Pages lets browsers cache for 10
      minutes, so the same mix can follow any deploy. Bump the stamp in every tag
      whenever any of these modules changes. -->
-<script src="./prioritization_trend.js?v=2026-11-18.1"></script>
-<script src="./prioritization_species.js?v=2026-11-18.1"></script>
-<script src="./prioritization_submit.js?v=2026-11-18.1"></script>
-<script src="./prioritization_results.js?v=2026-11-18.1"></script>
-<script src="./prioritization_coverage.js?v=2026-11-18.1"></script>
-<script src="./prioritization_help.js?v=2026-11-18.1"></script>
+<script src="./prioritization_trend.js?v=2026-11-20.1"></script>
+<script src="./prioritization_species.js?v=2026-11-20.1"></script>
+<script src="./prioritization_submit.js?v=2026-11-19.1"></script>
+<script src="./prioritization_results.js?v=2026-11-20.3"></script>
+<script src="./prioritization_coverage.js?v=2026-11-19.1"></script>
+<script src="./prioritization_help.js?v=2026-11-20.3"></script>
 <script src="./site_topbar.js?v=2026-11-18.1"></script>
 
 <script>
@@ -471,7 +471,7 @@
        a web submission never gains a history, so this says who to ask. No
        contact address yet, by choice (Fang, 2026-10-28). */
     ['tab-trends', 'The <b>Changes over time</b> tab opens from a private link the EBP secretariat '
-      + 'sends when they track your list. It shows how a list’s priority labels change between runs.'],
+      + 'sends when they track your list. It shows how a list’s labels change between runs.'],
   ];
   function syncTabsNext() {
     const still = TABS_NEXT.filter(function (t) { return document.getElementById(t[0]).hidden; });
@@ -617,6 +617,9 @@
   });
 
   function showResults(payload, meta) {
+    /* In today's label names whatever its age (2026-11 rename): the backend
+       already upgrades stored runs, this covers one that reaches the page old. */
+    payload = PrioritizationSpecies.upgradePayload(payload);
     if (payload.id) announce(payload.id);
     document.getElementById('results-empty').hidden = true;
 

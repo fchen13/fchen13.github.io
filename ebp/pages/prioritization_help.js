@@ -8,7 +8,7 @@
  * WHY THIS EXISTS. Every label the page shows is glossed on hover, and hover is
  * not an answer: it is invisible on a tablet, invisible while scanning, and
  * unprintable. A PI reading results in a meeting had no way to learn what
- * `High_S` meant without downloading the .xlsx and opening a second application.
+ * `Species First` meant without downloading the .xlsx and opening a second application.
  *
  * WHY A DRAWER AND NOT A FIFTH TAB. The same labels appear in Results, in
  * Coverage and in both trend panels, so binding the explanation to one view
@@ -39,38 +39,47 @@ const PrioritizationHelp = (function () {
      read top-to-bottom in the same order the results table does. Held here
      rather than in the glossary because it is a display decision. */
   const TAX_ORDER = [
-    'Highest_P', 'Highest_C', 'Highest_O', 'Highest_F', 'Highest_G',
-    'High_S', 'Already_Covered', 'Unknown_S', 'Unknown', 'Unknown_G',
+    'Phylum First', 'Class First', 'Order First', 'Family First', 'Genus First',
+    'Species First', 'Species Covered', 'Unknown_S', 'Unknown', 'Unknown_G',
   ];
   const PROJ_ORDER = [
-    'High_New', 'Medium_Improve', 'Low_Sample', 'Low_Active', 'Low_Done', 'Not_Assigned', 'Unknown',
+    'Open', 'Below EBP Standard', 'Sampled', 'Being Sequenced', 'Meets EBP Standard', 'Species Not in GoaT',
   ];
 
-  /* The FILTER MATRIX — the actionable half of the two-column split, and the one
-     part of the INSTRUCTIONS sheet with no equivalent anywhere on the page until
-     now. Wording follows the sheet's `create_instructions_content()`.
+  /* The five clade-level firsts share one row of the pairing table. */
+  const CLADE = 'Phylum … Genus First';
+
+  /* READING THE TWO COLUMNS TOGETHER — what a pair of labels tells the reader,
+     never what to do (D010). Wording follows the sheet's
+     `create_instructions_content()` (approved by Fang, 2026-11-19).
 
      `compact` is what the Results view shows inline, beside the two filters,
-     because that is where the decision is actually made. */
+     because that is where a reader is filtering. */
   const MATRIX = [
-    { tax: 'Highest_G/F/O/C/P', proj: 'High_New', act: 'High priority for sequencing', compact: true },
-    { tax: 'Highest_G/F/O/C/P', proj: 'Low_Active', act: 'Coordinate with the indicated project(s)', compact: true },
-    { tax: 'Highest_G/F/O/C/P', proj: 'Low_Sample', act: 'Coordinate with the indicated project(s)' },
-    { tax: 'High_S', proj: 'High_New', act: 'Secondary target — the genus is already covered by another sequenced species, but this is still a valid candidate', compact: true },
-    { tax: 'Already_Covered', proj: 'any', act: 'Reference only — not a gap-filling target' },
-    { tax: 'Unknown_S', proj: 'any', act: 'The genus is covered, but the species name did not resolve — verify the name before acting' },
-    { tax: 'Unknown_G', proj: 'any', act: 'The species name did not resolve — verify it before acting' },
-    { tax: 'Unknown', proj: 'any', act: 'Taxonomic information is missing' },
+    { tax: CLADE, proj: 'Open', act: 'An open gap: a candidate for sequencing.', compact: true },
+    { tax: CLADE, proj: 'Being Sequenced', act: 'A project is already filling the gap. Coordinate with it (see Projects on this species).', compact: true },
+    { tax: CLADE, proj: 'Sampled', act: 'A project is already filling the gap. Coordinate with it (see Projects on this species).' },
+    { tax: CLADE, proj: 'Species Not in GoaT', act: 'The clade gap is real, but the name isn’t in GoaT. Verify the name first.' },
+    { tax: 'Species First', proj: 'Open', act: 'Would add a species to a genus that already has a genome.', compact: true },
+    { tax: 'Species Covered', proj: 'Below EBP Standard', act: 'A genome exists below EBP standard; no project reports work on it.' },
+    { tax: 'Species Covered', proj: 'Meets EBP Standard', act: 'Done to EBP standard.' },
+    { tax: 'Unknown_S', proj: 'any', act: 'Verify the name before reading either column.' },
+    { tax: 'Unknown_G', proj: 'any', act: 'Verify the name before reading either column.' },
+    { tax: 'Unknown', proj: 'any', act: 'GoaT holds the species but no lineage: its genome status is checked, its novelty cannot be.' },
   ];
 
-  /* The suffixes that appear inside `Projects_Working_On_Species`. The page
-     prints that column verbatim, so the vocabulary has to be readable somewhere;
-     the distinction between the last two is the one that matters (CLAUDE.md). */
+  /* The suffixes that appear inside `Projects_Working_On_Species`, one per
+     project (stage suffixes since 2026-11-19). The page prints that column
+     verbatim, so the vocabulary has to be readable somewhere; the distinction
+     between "(in INSDC)" and "(submitted to INSDC)" is the one that matters
+     (CLAUDE.md). */
   const PROJECT_SUFFIXES = [
-    ['(no suffix)', 'The project reports an active status for this species — it holds samples, or sequencing is under way.'],
+    ['(sampled)', 'The project holds samples (sample_collected, sample_acquired or sample_available); sequencing has not started.'],
+    ['(being sequenced)', 'Sequencing is under way (data_generation, in_assembly or in_progress), or the project reports <code>open</code>: data released outside INSDC.'],
     ['(in INSDC)', 'The assembly is public in INSDC and retrievable now.'],
     ['(submitted to INSDC)', 'The assembly has been produced and submitted, but is <b>not yet retrievable</b>. Deliberately distinct from “(in INSDC)”.'],
     ['(published)', 'The project reports the assembly as published.'],
+    ['(no suffix)', 'Only in a species history, on runs before November 2026: an active project, sampled or sequencing, before the two were told apart.'],
   ];
 
   const esc = (value) => String(value === null || value === undefined ? '' : value)
@@ -212,9 +221,9 @@ const PrioritizationHelp = (function () {
 
   function matrixRows(only) {
     return MATRIX.filter((row) => !only || row.compact).map(function (row) {
-      /* The combined Highest_* row takes Highest_P's fill, as on the workbook's
-         INSTRUCTIONS sheet. */
-      const tax = gloss('tax', row.tax.indexOf('/') > 0 ? 'Highest_P' : row.tax);
+      /* The combined clade-first row takes Phylum First's fill, as on the
+         workbook's INSTRUCTIONS sheet. */
+      const tax = gloss('tax', row.tax === CLADE ? 'Phylum First' : row.tax);
       const proj = row.proj === 'any' ? { cls: 'c-unknown', style: '' } : gloss('proj', row.proj);
       return '<tr><td><span class="ebp-help-chip ' + tax.cls + '"' + (tax.style || '') + '>' + esc(row.tax) + '</span>'
         + '<span class="ebp-help-arrow">+</span>'
@@ -227,7 +236,7 @@ const PrioritizationHelp = (function () {
       2026-11-17): three rows did not need a click to open. */
   function matrixHtml() {
     const rows = MATRIX.filter((row) => row.compact).map(function (row) {
-      const tax = gloss('tax', row.tax === 'High_S' ? 'High_S' : 'Highest_P');
+      const tax = gloss('tax', row.tax === CLADE ? 'Phylum First' : row.tax);
       const proj = gloss('proj', row.proj);
       return '<div class="row"><span class="ebp-help-chip ' + tax.cls + '"' + (tax.style || '')
         + '>' + esc(row.tax) + '</span><span class="ebp-help-arrow">+</span>'
@@ -246,14 +255,14 @@ const PrioritizationHelp = (function () {
     const ctx = context || {};
     return `
       <h3 id="ebp-help-two">The two columns</h3>
-      <p>Every species gets <b>two independent labels</b>. <em>Phylogenetic novelty</em> asks whether
-        it would be the first representative species of its taxon; <em>project status</em> asks whether
+      <p>Every species gets <b>two complementary labels</b>. <em>Phylogenetic novelty</em> asks whether
+        it would be the first representative species of its taxon; <em>genome status</em> asks whether
         other projects in the EBP network are working on it. They are separate questions, and a species can score high on
         both — a first-in-genus that another project is already sequencing is a
         <b>coordination opportunity</b>, not a low priority. That is why this page gives you two
         filters and never a single ranking.</p>
 
-      <h3 id="ebp-help-matrix">How to act on a combination</h3>
+      <h3 id="ebp-help-matrix">Reading the two columns together</h3>
       <table class="ebp-help-tbl"><thead><tr><th>Novelty + status</th><th>What it means for you</th></tr></thead>
         <tbody>${matrixRows(false)}</tbody></table>
 
@@ -264,8 +273,8 @@ const PrioritizationHelp = (function () {
         <code>First in…</code> column for the full picture.</p>
       ${labelTable('tax', TAX_ORDER, 'Label')}
 
-      <h3 id="ebp-help-status">Project status</h3>
-      <p>What is the EBP network already doing with this species? Independent of novelty.</p>
+      <h3 id="ebp-help-status">Genome status</h3>
+      <p>What is the EBP network already doing with this species?</p>
       ${labelTable('proj', PROJ_ORDER, 'Label')}
 
       <h3 id="ebp-help-firsts">The <code>First in…</code> column</h3>
@@ -286,7 +295,7 @@ const PrioritizationHelp = (function () {
       </tbody></table>
 
       <h3 id="ebp-help-iucn">IUCN</h3>
-      <p>The Red List category, <b>informational only</b> — it does not affect either priority label.
+      <p>The Red List category, <b>informational only</b> — it does not affect either label.
         A dash means our cached release carries no assessment for that name.</p>
 
       <h3 id="ebp-help-excel">What the Excel export adds</h3>

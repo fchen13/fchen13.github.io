@@ -25,7 +25,7 @@
  * WHAT A 14-LIST VERSION MUST HANDLE THAT ARIDE'S SIX RUNS HID (the mockup is
  * ARIDE-only and assumes all four away):
  *
- *   1. `tax` and `proj` CAN BE EMPTY, and that is not "no priority". A report
+ *   1. `tax` and `proj` CAN BE EMPTY, and that is not "no label". A report
  *      predating the Priority_Note split carried one column, not two — 17 of
  *      awcs_species' 18 runs are like this — so the labels cannot be read from
  *      it. An empty pill would read as a species with no status; the row says
@@ -55,10 +55,13 @@ const PrioritizationSpecies = (function () {
 
   /* Column -> what to call it in a sentence. The keys are `list_changelog`'s
      TIMELINE_FIELDS; anything outside that set is shown under its raw column
-     name rather than guessed at. */
+     name rather than guessed at. The old label headers and Being_Sequenced
+     (retired 2026-11-19) stay: older windows of a stored timeline carry them. */
   const FIELD = {
+    Phylogenetic_Novelty: 'novelty',
+    Genome_Status: 'genome status',
     Taxonomic_Priority: 'novelty',
-    Project_Priority: 'project status',
+    Project_Priority: 'genome status',
     Has_Assembly: 'has assembly',
     Being_Sequenced: 'being sequenced',
     Projects_Working_On_Species: 'projects',
@@ -81,9 +84,9 @@ const PrioritizationSpecies = (function () {
      trying to understand a surprise. */
   const CAUSE = {
     wrong_species: { kind: 'ours',
-      text: 'Ours — the earlier runs had matched the wrong GoaT record, and the correction changed the recommendation.' },
+      text: 'Ours — the earlier runs had matched the wrong GoaT record, and the correction changed the labels.' },
     wrong_species_silent: { kind: 'ours',
-      text: 'Ours — the earlier runs had matched the wrong GoaT record. The recommendation happened to land the same way.' },
+      text: 'Ours — the earlier runs had matched the wrong GoaT record. The labels happened to land the same way.' },
     rank_granularity: { kind: 'ours',
       text: 'Ours — the name now resolves to the species-level taxon rather than a subspecies record.' },
     rank_granularity_silent: { kind: 'ours',
@@ -115,74 +118,115 @@ const PrioritizationSpecies = (function () {
   };
 
   /* Novelty and status labels: a colour and a plain-English gloss (CLAUDE.md's
-     two tables, which are the workbook's INSTRUCTIONS sheet in prose).
+     two tables, which are the workbook's INSTRUCTIONS sheet in prose). Both
+     columns are descriptive since the 2026-11 rename (D010): each value states
+     a fact and makes no judgement of priority.
 
-     `Unknown` belongs to NOVELTY and `Not_Assigned` to PROJECT STATUS — they are
-     different questions, not two spellings of one (Fang, 2026-08-15). The one
-     exception is history: `Project_Priority = Unknown` appears on MDD's 6/7/9
-     May 2026 runs, an older spelling the 11 May run renamed, so it is glossed
-     under PROJ as what it meant then rather than left to render bare. */
+     `Unknown` belongs to NOVELTY and `Species Not in GoaT` to GENOME STATUS —
+     different questions, not two spellings of one (Fang, 2026-08-15). Labels
+     from before the rename, MDD's 6/7/9 May 2026 `Unknown` status among them,
+     are mapped to these by canon() before they are looked up (LEGACY_*). */
   const TAX = {
-    /* Worded as the home page's prioritization card (Fang, 2026-11-17). */
-    Highest_P: ['c-novel', 'first genome in its phylum, the highest taxonomic level not represented by another species in NCBI'],
-    Highest_C: ['c-novel', 'first genome in its class, the highest taxonomic level not represented by another species in NCBI'],
-    Highest_O: ['c-novel', 'first genome in its order, the highest taxonomic level not represented by another species in NCBI'],
-    Highest_F: ['c-novel', 'first genome in its family, the highest taxonomic level not represented by another species in NCBI'],
-    Highest_G: ['c-novel', 'first genome in its genus, the highest taxonomic level not represented by another species in NCBI'],
-    High_S: ['c-covered', 'no assembly, but not a first at any level — the taxon is already covered'],
-    Already_Covered: ['c-covered', 'an assembly already exists for this species, so novelty does not apply'],
-    Unknown_S: ['c-unknown', 'not found in GoaT; its genus was found and is not first at any level. Verify the name'],
-    Unknown_G: ['c-unknown', 'not found in GoaT, and neither was its genus — novelty cannot be assessed. Verify the name'],
-    Unknown: ['c-unknown', 'found in GoaT, but its lineage above genus is missing there — a GoaT data gap'],
+    /* Worded as the home page's prioritization card (Fang, 2026-11-17); the
+       live wording with today's names (Fang, 2026-11-20). */
+    'Phylum First': ['c-novel', 'first genome in its phylum, the highest taxonomic level not represented by another species in NCBI'],
+    'Class First': ['c-novel', 'first genome in its class, the highest taxonomic level not represented by another species in NCBI'],
+    'Order First': ['c-novel', 'first genome in its order, the highest taxonomic level not represented by another species in NCBI'],
+    'Family First': ['c-novel', 'first genome in its family, the highest taxonomic level not represented by another species in NCBI'],
+    'Genus First': ['c-novel', 'first genome in its genus, the highest taxonomic level not represented by another species in NCBI'],
+    'Species First': ['c-covered', 'no assembly, but not a first at any level — the taxon is already covered'],
+    'Species Covered': ['c-covered', 'an assembly already exists for this species, so novelty does not apply'],
+    'Unknown_S': ['c-unknown', 'not found in GoaT; its genus was found and is not first at any level. Verify the name'],
+    'Unknown_G': ['c-unknown', 'not found in GoaT, and neither was its genus — novelty cannot be assessed. Verify the name'],
+    'Unknown': ['c-unknown', 'found in GoaT, but its lineage above genus is missing there — a GoaT data gap'],
   };
+  /* The live wording with today's names. Two endings dropped as priority
+     verdicts (Open's "high priority for sequencing", Species Not in GoaT's
+     "before treating it as a sequencing opportunity"), and "or taxonomic
+     information is missing" with them: since 2026-11-19 that case is Unknown
+     novelty with a status of its own (Fang, 2026-11-20). */
   const PROJ = {
-    High_New: ['c-new', 'no assembly, no active EBP project working on the species; high priority for sequencing'],
-    Medium_Improve: ['c-improve', 'an assembly exists but is not EBP standard, and no project is active'],
-    Low_Active: ['c-low', 'an EBP project is sequencing this species now, or has submitted an assembly to INSDC'],
-    Low_Sample: ['c-low', 'an EBP project holds samples; sequencing has not started'],
-    Low_Done: ['c-low', 'an EBP-standard assembly is confirmed in GoaT'],
-    Not_Assigned: ['c-unknown', 'not found in GoaT, so neither assembly nor project status could be confirmed at species level, or taxonomic information is missing. Verify the name before treating it as a sequencing opportunity'],
-    Unknown: ['c-unknown', 'the older spelling of Not_Assigned, on runs before 11 May 2026: status unverifiable because the species was not found in GoaT. Verify the name'],
+    'Open': ['c-new', 'no assembly, no active EBP project working on the species'],
+    'Below EBP Standard': ['c-improve', 'an assembly exists but is not EBP standard, and no project is active'],
+    'Sampled': ['c-low', 'an EBP project holds samples; sequencing has not started'],
+    'Being Sequenced': ['c-low', 'an EBP project is sequencing this species now, or has submitted an assembly to INSDC'],
+    'Meets EBP Standard': ['c-low', 'an EBP-standard assembly is confirmed in GoaT'],
+    'Species Not in GoaT': ['c-unknown', 'not found in GoaT, so neither assembly nor project status could be confirmed at species level. Verify the name'],
+  };
+
+  /* Old label -> today's, per column (the 2026-11 rename, D010). The backend
+     reads stored submissions and trends in today's names; this copy is for a
+     payload that still reaches the page in the old ones, so it reads the same.
+     Pinned to LEGACY_LABEL_VALUES in generate_prioritization_tool.py by
+     test_label_parity.py. Per column: `Unknown` is a live novelty value. */
+  const LEGACY_TAX = {
+    'Highest_P': 'Phylum First',
+    'Highest_C': 'Class First',
+    'Highest_O': 'Order First',
+    'Highest_F': 'Family First',
+    'Highest_G': 'Genus First',
+    'High_S': 'Species First',
+    'Already_Covered': 'Species Covered',
+  };
+  const LEGACY_PROJ = {
+    'High_New': 'Open',
+    'Medium_Improve': 'Below EBP Standard',
+    'Low_Done': 'Meets EBP Standard',
+    'Low_Active': 'Being Sequenced',
+    'Low_Sample': 'Sampled',
+    'Not_Assigned': 'Species Not in GoaT',
+    'Unknown': 'Species Not in GoaT',
+  };
+
+  /** Today's name for a label of `kind` ('tax' | 'proj'), whatever its age. */
+  function canon(kind, label) {
+    const map = kind === 'tax' ? LEGACY_TAX : LEGACY_PROJ;
+    return (label && Object.prototype.hasOwnProperty.call(map, label)) ? map[label] : label;
+  }
+
+  /* A stored timeline field that holds a label, and its kind. */
+  const LABEL_FIELD = {
+    Phylogenetic_Novelty: 'tax', Taxonomic_Priority: 'tax',
+    Genome_Status: 'proj', Project_Priority: 'proj',
   };
 
   /* Each label's colour is the workbook's: the fill of its cell in ALL_SPECIES. A
      chip, a Results bar and a Coverage segment on this page therefore match the
      Excel file a PI opens (Fang, 2026-11-06). Novelty is the green ramp, darkest =
      broadest gap; project status is the blue ramp; grey = could not be assessed.
-     [fill, text]. Pinned to TP_SHADES / TP_FLAT / PP_FILLS in
+     [fill, text]. Pinned to NOVELTY_FILLS / GENOME_STATUS_FILLS in
      generate_prioritization_tool.py by test_label_parity.py, which reads these two
-     blocks by name. PROJ's historical `Unknown` takes Not_Assigned's grey. */
+     blocks by name. Colours unchanged by the 2026-11 rename. */
   const FILL_TAX = {
-    Highest_P: ['#135718', '#ffffff'],
-    Highest_C: ['#1b6d21', '#ffffff'],
-    Highest_O: ['#2c8331', '#ffffff'],
-    Highest_F: ['#3d9a40', '#000000'],
-    Highest_G: ['#57b058', '#000000'],
-    High_S: ['#a5d6a7', '#000000'],
-    Already_Covered: ['#f1f8e9', '#000000'],
-    Unknown_S: ['#eeeeee', '#000000'],
-    Unknown_G: ['#bdbdbd', '#000000'],
-    Unknown: ['#e0e0e0', '#000000'],
+    'Phylum First': ['#135718', '#ffffff'],
+    'Class First': ['#1b6d21', '#ffffff'],
+    'Order First': ['#2c8331', '#ffffff'],
+    'Family First': ['#3d9a40', '#000000'],
+    'Genus First': ['#57b058', '#000000'],
+    'Species First': ['#a5d6a7', '#000000'],
+    'Species Covered': ['#f1f8e9', '#000000'],
+    'Unknown_S': ['#eeeeee', '#000000'],
+    'Unknown_G': ['#bdbdbd', '#000000'],
+    'Unknown': ['#e0e0e0', '#000000'],
   };
   const FILL_PROJ = {
-    High_New: ['#01579b', '#ffffff'],
-    Medium_Improve: ['#1473cf', '#ffffff'],
-    Low_Sample: ['#4e99dd', '#000000'],
-    Low_Active: ['#83bdeb', '#000000'],
-    Low_Done: ['#e3f2fd', '#000000'],
-    Not_Assigned: ['#e0e0e0', '#000000'],
-    Unknown: ['#e0e0e0', '#000000'],
+    'Open': ['#01579b', '#ffffff'],
+    'Below EBP Standard': ['#1473cf', '#ffffff'],
+    'Sampled': ['#4e99dd', '#000000'],
+    'Being Sequenced': ['#83bdeb', '#000000'],
+    'Meets EBP Standard': ['#e3f2fd', '#000000'],
+    'Species Not in GoaT': ['#e0e0e0', '#000000'],
   };
 
   function fill(kind, label) {
-    const entry = (kind === 'tax' ? FILL_TAX : FILL_PROJ)[label];
+    const entry = (kind === 'tax' ? FILL_TAX : FILL_PROJ)[canon(kind, label)];
     return entry ? { fill: entry[0], ink: entry[1] } : null;
   }
 
   /* Inline, so it wins over the chip classes' own tints in every module that
-     draws a label chip. The hairline keeps the palest fills (Already_Covered,
-     Low_Done) visible as a chip on a white card; the workbook gets that from its
-     cell grid. */
+     draws a label chip. The hairline keeps the palest fills (Species Covered,
+     Meets EBP Standard) visible as a chip on a white card; the workbook gets that
+     from its cell grid. */
   function chipStyle(kind, label) {
     const swatch = fill(kind, label);
     return swatch ? ' style="background:' + swatch.fill + '; color:' + swatch.ink
@@ -372,9 +416,14 @@ const PrioritizationSpecies = (function () {
     const before = state.since && entry.date < state.since;
 
     const deltas = (entry.changed || []).map(function (change) {
+      /* A label field reads in today's names, whichever side of the rename the
+         window was stored on. */
+      const kind = LABEL_FIELD[change.field];
+      const was = kind ? canon(kind, change.was) : change.was;
+      const now = kind ? canon(kind, change.now) : change.now;
       return '<div class="ebp-tl-delta"><span class="f">'
         + esc(FIELD[change.field] || change.field) + '</span> <span class="was">'
-        + esc(change.was || '—') + '</span> → <span class="now">' + esc(change.now || '—')
+        + esc(was || '—') + '</span> → <span class="now">' + esc(now || '—')
         + '</span></div>';
     }).join('');
 
@@ -431,16 +480,16 @@ const PrioritizationSpecies = (function () {
     return ' · <b>was <em>' + esc(previous.resolved_as) + '</em></b>';
   }
 
-  /* The two priority labels. Both empty is the common case on old reports and it
-     is NOT "no priority": that report carried a single Priority_Note column, so
-     the two labels cannot be read from it at all. */
+  /* The two labels. Both empty is the common case on old reports and it is NOT
+     "no label": that report carried a single Priority_Note column, so the two
+     labels cannot be read from it at all. */
   function labels(entry) {
     const tax = entry.tax || '';
     const proj = entry.proj || '';
     if (!tax && !proj) {
       return '<div class="ebp-tl-labels"><span class="ebp-chip c-absent" title="This run’s '
         + 'report predates the two-column split — it carried a single Priority_Note, so neither '
-        + 'label can be read from it. Absent, not blank.">no priority columns in this run’s report</span></div>';
+        + 'label can be read from it. Absent, not blank.">no label columns in this run’s report</span></div>';
     }
     return '<div class="ebp-tl-labels">' + chip(tax, TAX) + chip(proj, PROJ) + '</div>';
   }
@@ -450,9 +499,11 @@ const PrioritizationSpecies = (function () {
       return '<span class="ebp-chip c-absent" title="This column is not in this run’s report.">'
         + 'not recorded</span>';
     }
-    const spec = glossary[value] || ['c-unknown', ''];
-    return '<span class="ebp-chip ' + spec[0] + '"' + chipStyle(glossary === TAX ? 'tax' : 'proj', value)
-      + (spec[1] ? ' title="' + esc(spec[1]) + '"' : '') + '>' + esc(value) + '</span>';
+    const kind = glossary === TAX ? 'tax' : 'proj';
+    const label = canon(kind, value);
+    const spec = glossary[label] || ['c-unknown', ''];
+    return '<span class="ebp-chip ' + spec[0] + '"' + chipStyle(kind, label)
+      + (spec[1] ? ' title="' + esc(spec[1]) + '"' : '') + '>' + esc(label) + '</span>';
   }
 
   /* A run of the list that this species is not in — it entered or left. Drawn
@@ -696,11 +747,12 @@ const PrioritizationSpecies = (function () {
      * Exported because the results table shows the same two labels this timeline
      * does, and this wording is the workbook's INSTRUCTIONS sheet in prose. Two
      * copies of it would drift, and the copy a PI happened to read would decide
-     * what they thought `High_S` meant. `kind` is 'tax' or 'proj'; an unmapped
-     * label is reported as unmapped rather than glossed as something else.
+     * what they thought `Species First` meant. `kind` is 'tax' or 'proj'; an
+     * old label is read as today's (canon), and an unmapped one is reported as
+     * unmapped rather than glossed as something else.
      */
     gloss(kind, label) {
-      const entry = (kind === 'tax' ? TAX : PROJ)[label];
+      const entry = (kind === 'tax' ? TAX : PROJ)[canon(kind, label)];
       const swatch = fill(kind, label);
       return entry
         ? { cls: entry[0], text: entry[1], fill: swatch && swatch.fill, style: chipStyle(kind, label) }
@@ -709,6 +761,55 @@ const PrioritizationSpecies = (function () {
 
     /** The workbook's {fill, ink} for a label, or null if it has none. */
     fill: fill,
+
+    /** Today's name for a label, whatever its age (see LEGACY_TAX / LEGACY_PROJ). */
+    canon: canon,
+
+    /**
+     * A submission payload in today's label names. [2026-11 rename, D010]
+     *
+     * The backend upgrades stored submissions itself, so this is a no-op for
+     * any payload it sends today. It exists for one that still carries
+     * Taxonomic_Priority / Project_Priority (a backend not yet updated, a
+     * cached response): rows and summary counts are mapped, and nothing is
+     * recounted from scratch. Returns a new object; the argument is untouched.
+     */
+    upgradePayload(payload) {
+      if (!payload) return payload;
+      const summary = payload.summary || {};
+      const rows = payload.results || [];
+      const legacy = ('taxonomic_priority' in summary) || ('project_priority' in summary)
+        || (rows.length > 0 && (('Taxonomic_Priority' in rows[0]) || ('Project_Priority' in rows[0])));
+      if (!legacy) return payload;
+      const columns = [['Taxonomic_Priority', 'Phylogenetic_Novelty', 'tax'],
+                       ['Project_Priority', 'Genome_Status', 'proj']];
+      const results = rows.map(function (row) {
+        const copy = Object.assign({}, row);
+        columns.forEach(function (spec) {
+          if (spec[0] in copy && !(spec[1] in copy)) {
+            copy[spec[1]] = canon(spec[2], copy[spec[0]]);
+            delete copy[spec[0]];
+          }
+        });
+        return copy;
+      });
+      function recount(oldKey, newKey, kind) {
+        const source = summary[newKey] || summary[oldKey] || {};
+        const counts = {};
+        Object.keys(source).forEach(function (label) {
+          const name = canon(kind, label);
+          counts[name] = (counts[name] || 0) + source[label];
+        });
+        return counts;
+      }
+      const upgraded = Object.assign({}, summary, {
+        phylogenetic_novelty: recount('taxonomic_priority', 'phylogenetic_novelty', 'tax'),
+        genome_status: recount('project_priority', 'genome_status', 'proj'),
+      });
+      delete upgraded.taxonomic_priority;
+      delete upgraded.project_priority;
+      return Object.assign({}, payload, { results: results, summary: upgraded });
+    },
 
     /**
      * Every label of one vocabulary, as [{label, cls, text}]. [Task 6]

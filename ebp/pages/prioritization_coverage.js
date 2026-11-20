@@ -19,10 +19,10 @@
  * THE THREE-WAY SPLIT IS THE WHOLE POINT, and folding it to two would be a lie.
  * Within a phylum a species is one of:
  *
- *   * NOVEL      — would be a first at some level (`Taxonomic_Priority` is one
- *                  of the `Highest_*`), broken down by how broad that first is.
+ *   * NOVEL      — would be a first at some level (`Phylogenetic_Novelty` is
+ *                  one of the five clade firsts), broken down by how broad that first is.
  *   * COVERED    — an assembly exists, or the taxon is already represented
- *                  (`Already_Covered` / `High_S`). A real finding.
+ *                  (`Species Covered` / `Species First`). A real finding.
  *   * UNASSESSED — `Unknown_G` / `Unknown_S` / `Unknown`: not found in GoaT, or
  *                  found with no lineage. **This is not "no gap here."** A
  *                  phylum that is 40% unassessed is a phylum we cannot speak
@@ -40,10 +40,10 @@ const PrioritizationCoverage = (function () {
 
   /* Broadest first — the ordering the workbook sorts by and the one the colour
      ramp encodes. A species is counted at exactly one of these: its
-     `Taxonomic_Priority`, which is already the broadest level it is first at. */
+     `Phylogenetic_Novelty`, which is already the broadest level it is first at. */
   const NOVEL_LEVELS = [
-    ['Highest_P', 'Phylum'], ['Highest_C', 'Class'], ['Highest_O', 'Order'],
-    ['Highest_F', 'Family'], ['Highest_G', 'Genus'],
+    ['Phylum First', 'Phylum'], ['Class First', 'Class'], ['Order First', 'Order'],
+    ['Family First', 'Family'], ['Genus First', 'Genus'],
   ];
   const NOVEL = NOVEL_LEVELS.map((level) => level[0]);
   const UNASSESSED = ['Unknown_G', 'Unknown_S', 'Unknown'];
@@ -51,7 +51,7 @@ const PrioritizationCoverage = (function () {
   /* Every colour here is a label's workbook fill, read from Panel B's table
      (FILL_TAX in prioritization_species.js), so a segment matches the chip in
      Results and the cell in ALL_SPECIES (Fang, 2026-11-06). Novel = the green
-     ramp, darkest = broadest gap; covered = High_S's pale green; not assessable =
+     ramp, darkest = broadest gap; covered = Species First's pale green; not assessable =
      solid grey. Grey if this view is ever loaded without Panel B. */
   let warned = false;
   function swatch(label) {
@@ -66,7 +66,7 @@ const PrioritizationCoverage = (function () {
   }
 
   /* Not assessable: solid, like the other segments (Fang, 2026-11-06; it was a
-     hatch). Not the workbook's Unknown_G BDBDBD: beside High_S's pale green that
+     hatch). Not the workbook's Unknown_G BDBDBD: beside Species First's pale green that
      scores OKLab dE 8.8, under the dataviz floor of 15. #8a8a8a clears covered and
      every green step (worst dE 15.7 normal vision, 8.6 colour-blind) and reads
      against the empty track at 3.2:1. */
@@ -138,7 +138,7 @@ const PrioritizationCoverage = (function () {
   .ebp-cov-bar{display:flex; gap:2px; height:15px; border-radius:4px; overflow:hidden; min-width:6px;
     background:var(--ink,#0b1310); border:1px solid var(--line,#22362b);}
   .ebp-cov-bar i{display:block; height:100%; flex:0 1 0; min-width:2px;}
-  /* Covered is High_S's pale green, set inline from swatch() like the novel
+  /* Covered is Species First's pale green, set inline from swatch() like the novel
      segments. Not a surface tint (--ink-4): on a white card that is very nearly
      the empty track, so a covered third read as nothing. The pale green clears
      the genus step by OKLab dE 16 (dataviz floor 15), the reason the green ramp
@@ -187,7 +187,7 @@ const PrioritizationCoverage = (function () {
         buckets.set(key, bucket);
       }
       bucket.total += 1;
-      const label = row.Taxonomic_Priority;
+      const label = row.Phylogenetic_Novelty;
       if (NOVEL.indexOf(label) >= 0) {
         bucket.novel += 1;
         bucket.levels[label] = (bucket.levels[label] || 0) + 1;
@@ -226,7 +226,7 @@ const PrioritizationCoverage = (function () {
           + level[1].toLowerCase()) + '"></i>';
       }).join('');
     const covered = bucket.covered
-      ? '<i class="cov" style="flex-grow:' + bucket.covered + '; background:' + swatch('High_S') + '" title="'
+      ? '<i class="cov" style="flex-grow:' + bucket.covered + '; background:' + swatch('Species First') + '" title="'
         + esc(bucket.covered + ' already covered — an assembly exists, or the taxon is already '
           + 'represented by a sequenced species') + '"></i>'
       : '';
@@ -296,7 +296,7 @@ const PrioritizationCoverage = (function () {
 
   function shell(payload) {
     const total = payload.species_count || (payload.results || []).length;
-    const counts = (payload.summary || {}).taxonomic_priority || {};
+    const counts = (payload.summary || {}).phylogenetic_novelty || {};
     const novel = NOVEL.reduce((sum, label) => sum + (counts[label] || 0), 0);
     const unassessed = UNASSESSED.reduce((sum, label) => sum + (counts[label] || 0), 0);
     const phyla = group(payload.results || [], 'Phylum');
@@ -319,7 +319,7 @@ const PrioritizationCoverage = (function () {
     <div class="ebp-cov-key">
       ${NOVEL_LEVELS.map((level) => '<span><i style="background:' + novelColor(level[0]) + '"></i>first in '
         + level[1].toLowerCase() + '</span>').join('')}
-      <span><i style="background:${swatch('High_S')}"></i>already covered</span>
+      <span><i style="background:${swatch('Species First')}"></i>already covered</span>
       <span><i style="background:${UNASSESSED_GREY}"></i>not assessable</span>
     </div>
 

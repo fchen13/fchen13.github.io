@@ -4,18 +4,18 @@
  *   const view = PrioritizationResults.render(host, {payload, exportUrl, onSpecies});
  *   view.redraw();   // after a theme flip, or when the tab becomes visible
  *
- * The two-filter workflow the workbook was built around (CLAUDE.md, "Priority
- * Labels — Two Orthogonal Columns"), on screen: filter `Taxonomic_Priority` for
- * where the phylogenetic gaps are, filter `Project_Priority` for who is already
- * there, and read the combination. They are deliberately two controls and never
- * one ranking — a first-in-genus species that another project is already
- * sequencing is a coordination opportunity, not a low priority, and a single
- * score would bury it.
+ * The two label columns the workbook is built around (CLAUDE.md, "Two
+ * complementary label columns"), on screen: filter `Phylogenetic_Novelty` for
+ * where the phylogenetic gaps are, filter `Genome_Status` for the species'
+ * assembly and who is already on it, and read the combination. Both state
+ * facts (D010). They are deliberately two controls and never one ranking — a
+ * first-in-genus species that another project is already sequencing is a
+ * coordination case, and a single score would bury it.
  *
  * EVERY NUMBER HERE COMES FROM THE PAYLOAD. Row values are the frame's own
  * columns and the tiles are `summary`, which the service computed with
  * `value_counts` over the same frame. Nothing is recounted client-side, so the
- * page and the Excel export cannot disagree about how many `High_New` there are.
+ * page and the Excel export cannot disagree about how many are `Open`.
  *
  * TWO THINGS THE TABLE MUST NOT SAY, both from CLAUDE.md:
  *
@@ -26,7 +26,7 @@
  *      `Has_Assembly = Yes` renders the cell as not-applicable instead. That
  *      check — not the cell value — is the documented way to tell a computed
  *      `No` from a skipped one.
- *   2. **`Not_Assigned` is not "no opportunity", and `Unknown_G` is not "novel".**
+ *   2. **`Species Not in GoaT` is not "nothing to do", and `Unknown_G` is not "novel".**
  *      Both mean the species was not found in GoaT, so its status could not be
  *      established at all. They are glossed as a prompt to check the name, in
  *      the same words Panel B uses — `PrioritizationSpecies.gloss()` is the one
@@ -43,18 +43,22 @@ const PrioritizationResults = (function () {
   'use strict';
 
   /* The workbook's own sort order (generate_prioritization_tool.py,
-     TAXONOMIC_PRIORITY_RANK / PROJECT_PRIORITY_RANK). Restated so the default
+     PHYLOGENETIC_NOVELTY_RANK / GENOME_STATUS_RANK). Restated so the default
      row order on screen is the row order in the exported .xlsx — the same list
      read two ways should not be two orders. Note `Unknown` (a GoaT lineage gap)
      ranks above `Unknown_G` (nothing resolvable at all), which is the Python
      order and not alphabetical. */
   const TAX_RANK = {
-    Highest_P: 1, Highest_C: 2, Highest_O: 3, Highest_F: 4, Highest_G: 5,
-    High_S: 6, Already_Covered: 7, Unknown_S: 8, Unknown: 9, Unknown_G: 10,
+    'Phylum First': 1, 'Class First': 2, 'Order First': 3, 'Family First': 4, 'Genus First': 5,
+    'Species First': 6, 'Species Covered': 7, 'Unknown_S': 8, 'Unknown': 9, 'Unknown_G': 10,
   };
   const PROJ_RANK = {
-    High_New: 1, Medium_Improve: 2, Low_Sample: 3, Low_Active: 4, Low_Done: 5, Not_Assigned: 6,
+    'Open': 1, 'Below EBP Standard': 2, 'Sampled': 3, 'Being Sequenced': 4,
+    'Meets EBP Standard': 5, 'Species Not in GoaT': 6,
   };
+  /* The five clade-level firsts. "Species First" also ends in " First" but is
+     not one, so membership is asked of this list, never of the suffix. */
+  const CLADE_FIRSTS = ['Phylum First', 'Class First', 'Order First', 'Family First', 'Genus First'];
   /* Most-threatened first, so a sort on this column answers "what is at risk".
      Anything outside the vocabulary — including NE (a blank before 2026-11-18),
      which means the cached IUCN release has no assessment for this name — sorts
@@ -107,12 +111,15 @@ const PrioritizationResults = (function () {
   .ebp-stat .stripe{position:absolute; left:0; top:0; bottom:0; width:4px;}
   .ebp-stat.s-total .n{color:var(--paper,#e9f2ec);}
   /* Each stripe is a label's workbook fill, set inline from Panel B's table (see
-     stripe()). The numbers stay in text ink: several fills (Medium_Improve, the
-     greys) are far too pale to be read as text. */
+     stripe()). The numbers stay in text ink: several fills (Meets EBP Standard,
+     the greys) are far too pale to be read as text. */
   .ebp-stat .n{color:var(--paper,#e9f2ec);}
   .ebp-stat.s-na .n{color:var(--paper-mute,#6f8a7b);}
 
   .ebp-res-charts{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  /* One title over each chart, centred on it and close to its bars (Fang,
+     2026-11-20). The card h2 rule sets the 12px margin this one tightens. */
+  .card h2.ebp-res-chart-h{text-align:center; margin-bottom:4px;}
   @media (max-width:760px){ .ebp-res-charts{grid-template-columns:1fr;} }
   .ebp-res-chart{height:190px;}
   .ebp-res-actions{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px;}
@@ -287,8 +294,8 @@ const PrioritizationResults = (function () {
   function rowHtml(row, clickable) {
     return '<tr>'
       + '<td>' + species(row, clickable) + '</td>'
-      + '<td>' + chip('tax', row.Taxonomic_Priority) + '</td>'
-      + '<td>' + chip('proj', row.Project_Priority) + '</td>'
+      + '<td>' + chip('tax', row.Phylogenetic_Novelty) + '</td>'
+      + '<td>' + chip('proj', row.Genome_Status) + '</td>'
       + '<td>' + firsts(row) + '</td>'
       + '<td>' + projects(row) + '</td>'
       + '<td>' + iucn(row) + '</td>'
@@ -299,10 +306,10 @@ const PrioritizationResults = (function () {
   // ── filter / sort ─────────────────────────────────────────────────────────
 
   const SORTERS = {
-    rank: (row) => (TAX_RANK[row.Taxonomic_Priority] || 99) * 100 + (PROJ_RANK[row.Project_Priority] || 99),
+    rank: (row) => (TAX_RANK[row.Phylogenetic_Novelty] || 99) * 100 + (PROJ_RANK[row.Genome_Status] || 99),
     name: (row) => String(row['Scientific Name'] || '').toLowerCase(),
-    tax: (row) => TAX_RANK[row.Taxonomic_Priority] || 99,
-    proj: (row) => PROJ_RANK[row.Project_Priority] || 99,
+    tax: (row) => TAX_RANK[row.Phylogenetic_Novelty] || 99,
+    proj: (row) => PROJ_RANK[row.Genome_Status] || 99,
     firsts: (row) => (row.Has_Assembly === 'Yes' ? 99
       : -LEVELS.filter((level) => row['First_in_' + level[1]] === 'Yes').length),
     iucn: (row) => IUCN_RANK[(row.IUCN_Category || '').trim()] || 99,
@@ -314,8 +321,8 @@ const PrioritizationResults = (function () {
     const query = els.search.value.trim().toLowerCase();
 
     view = rows.filter(function (row) {
-      if (tax && row.Taxonomic_Priority !== tax) return false;
-      if (proj && row.Project_Priority !== proj) return false;
+      if (tax && row.Phylogenetic_Novelty !== tax) return false;
+      if (proj && row.Genome_Status !== proj) return false;
       if (!query) return true;
       return ['Scientific Name', 'Species', 'Genus', 'Family', 'Order', 'Class', 'Phylum']
         .some((field) => String(row[field] || '').toLowerCase().indexOf(query) >= 0);
@@ -376,15 +383,15 @@ const PrioritizationResults = (function () {
   }
 
   /* A bar takes its label's workbook fill (Panel B's FILL_TAX / FILL_PROJ), so the
-     chart, the chips and the Excel cells are one colour code. The five Highest_*
-     steps are already a ramp there, darkest = broadest gap, so no fading is
+     chart, the chips and the Excel cells are one colour code. The five clade
+     firsts are already a ramp there, darkest = broadest gap, so no fading is
      applied here. */
   function colorFor(kind, label) {
     return gloss(kind, label).fill || cssVar('--paper-mute', '#6f8a7b');
   }
 
-  /* Already_Covered, Low_Done and the greys are near-white: a white bar on a white
-     card reads as no bar, so those get an outline. */
+  /* Species Covered, Meets EBP Standard and the greys are near-white: a white bar
+     on a white card reads as no bar, so those get an outline. */
   function isPale(hex) {
     if (!/^#[0-9a-f]{6}$/i.test(hex)) return false;
     const channel = (i) => parseInt(hex.slice(i, i + 2), 16) / 255;
@@ -408,7 +415,7 @@ const PrioritizationResults = (function () {
       /* `left` is padding OUTSIDE the space containLabel reserves for the axis
          labels. It is 8 rather than 0 because containLabel's measurement runs a
          couple of pixels short on the longest label, which clipped the first
-         letter of `Medium_Improve` against the canvas edge. */
+         letter of the longest label against the canvas edge. */
       grid: { left: 8, right: 42, top: 4, bottom: 4, containLabel: true },
       tooltip: {
         trigger: 'item',
@@ -442,8 +449,8 @@ const PrioritizationResults = (function () {
   function buildCharts(summary) {
     if (typeof echarts === 'undefined' || !els.charts) return;
     charts = [
-      [els.charts.querySelector('#ebp-chart-tax'), 'tax', summary.taxonomic_priority || {}, TAX_RANK],
-      [els.charts.querySelector('#ebp-chart-proj'), 'proj', summary.project_priority || {}, PROJ_RANK],
+      [els.charts.querySelector('#ebp-chart-tax'), 'tax', summary.phylogenetic_novelty || {}, TAX_RANK],
+      [els.charts.querySelector('#ebp-chart-proj'), 'proj', summary.genome_status || {}, PROJ_RANK],
     ].map(function (spec) {
       const instance = echarts.init(spec[0]);
       instance.setOption(option(spec[1], spec[2], spec[3]));
@@ -463,12 +470,12 @@ const PrioritizationResults = (function () {
 
   function shell(payload, opts) {
     const summary = payload.summary || {};
-    const tax = summary.taxonomic_priority || {};
-    const proj = summary.project_priority || {};
+    const tax = summary.phylogenetic_novelty || {};
+    const proj = summary.genome_status || {};
     const total = payload.species_count || (payload.results || []).length;
-    const novel = Object.keys(tax).filter((label) => label.indexOf('Highest_') === 0)
-      .reduce((sum, label) => sum + tax[label], 0);
-    const elsewhere = (proj.Low_Active || 0) + (proj.Low_Sample || 0) + (proj.Low_Done || 0);
+    const novel = CLADE_FIRSTS.reduce((sum, label) => sum + (tax[label] || 0), 0);
+    const elsewhere = (proj['Being Sequenced'] || 0) + (proj.Sampled || 0)
+      + (proj['Meets EBP Standard'] || 0);
     const reference = payload.reference_species_count;
 
     /* Which column of an upload the names were read from, and why (Fang,
@@ -506,18 +513,20 @@ const PrioritizationResults = (function () {
       : '';
 
     /* The charts' caption says only what the charts need (Fang, 2026-11-17):
-       what the two labels ask is the page strapline's job, and was said twice. */
+       what the two labels ask is the page strapline's job, and was said twice.
+       Each chart carries its own title, so the caption no longer says which
+       side is which (Fang, 2026-11-20). */
     const chartsCard = typeof echarts === 'undefined' ? '' : `
       <div class="card">
-        <h2>Where this list sits on each priority dimension</h2>
         <div class="ebp-res-charts">
-          <div id="ebp-chart-tax" class="ebp-res-chart"></div>
-          <div id="ebp-chart-proj" class="ebp-res-chart"></div>
+          <div><h2 class="ebp-res-chart-h">Phylogenetic novelty</h2>
+            <div id="ebp-chart-tax" class="ebp-res-chart"></div></div>
+          <div><h2 class="ebp-res-chart-h">Genome status</h2>
+            <div id="ebp-chart-proj" class="ebp-res-chart"></div></div>
         </div>
-        <p class="ebp-res-cap"><b>Left: phylogenetic novelty</b>, darkest at the broadest gap.
-          <b>Right: project status.</b> Both charts count the same species, so they do not add up to
+        <p class="ebp-res-cap">Both charts count the same species, so they do not add up to
           each other. A species can be a first in its genus <em>and</em> already be sequenced
-          elsewhere: that is a coordination opportunity, not a low priority.</p>
+          elsewhere: that is a coordination opportunity.</p>
       </div>`;
 
     return `
@@ -544,15 +553,15 @@ const PrioritizationResults = (function () {
 
     <div class="ebp-stats">
       <div class="ebp-stat s-total"><div class="n">${num(total)}</div><div class="l">Species screened</div></div>
-      <div class="ebp-stat s-novel"><span class="stripe"${stripe('tax', 'Highest_O')}></span><div class="n">${num(novel)}</div>
+      <div class="ebp-stat s-novel"><span class="stripe"${stripe('tax', 'Order First')}></span><div class="n">${num(novel)}</div>
         <div class="l">First representative of its taxon</div></div>
-      <div class="ebp-stat s-new"><span class="stripe"${stripe('proj', 'High_New')}></span><div class="n">${num(proj.High_New)}</div>
+      <div class="ebp-stat s-new"><span class="stripe"${stripe('proj', 'Open')}></span><div class="n">${num(proj.Open)}</div>
         <div class="l">Open — no active project</div></div>
-      <div class="ebp-stat s-improve"><span class="stripe"${stripe('proj', 'Medium_Improve')}></span><div class="n">${num(proj.Medium_Improve)}</div>
+      <div class="ebp-stat s-improve"><span class="stripe"${stripe('proj', 'Below EBP Standard')}></span><div class="n">${num(proj['Below EBP Standard'])}</div>
         <div class="l">Improvable assembly</div></div>
-      <div class="ebp-stat s-low"><span class="stripe"${stripe('proj', 'Low_Active')}></span><div class="n">${num(elsewhere)}</div>
+      <div class="ebp-stat s-low"><span class="stripe"${stripe('proj', 'Being Sequenced')}></span><div class="n">${num(elsewhere)}</div>
         <div class="l">Active or done elsewhere</div></div>
-      <div class="ebp-stat s-na"><span class="stripe"${stripe('tax', 'Unknown_G')}></span><div class="n">${num(proj.Not_Assigned)}</div>
+      <div class="ebp-stat s-na"><span class="stripe"${stripe('tax', 'Unknown_G')}></span><div class="n">${num(proj['Species Not in GoaT'])}</div>
         <div class="l">Not found in GoaT — check the name</div></div>
     </div>
 
@@ -582,7 +591,7 @@ const PrioritizationResults = (function () {
           <thead><tr>
             <th class="srt" data-sort="name">Species <span class="ar"></span></th>
             <th class="srt" data-sort="tax">Phylogenetic novelty <span class="ar"></span></th>
-            <th class="srt" data-sort="proj">Project status <span class="ar"></span></th>
+            <th class="srt" data-sort="proj">Genome status <span class="ar"></span></th>
             <th class="srt" data-sort="firsts">First in… (G·F·O·C·P) <span class="ar"></span></th>
             <th>Projects on this species</th>
             <th class="srt" data-sort="iucn">IUCN <span class="ar"></span></th>

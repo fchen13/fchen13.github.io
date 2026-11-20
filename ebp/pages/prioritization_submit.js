@@ -26,7 +26,7 @@
  * scoring. No endpoint behind it exists, and inventing a client-side one would
  * be inventing taxonomy. What the backend actually does with a name it cannot
  * resolve is assess it from its genus and report it as `Unknown_S` / `Unknown_G`
- * + `Not_Assigned` — visible in the results table, never silently dropped. The
+ * + `Species Not in GoaT` — visible in the results table, never silently dropped. The
  * "What happens" card says that rather than promising a review step.
  *
  * NO LIST NAME FIELD, for the same reason. The mockup has one; a submission has
@@ -233,7 +233,7 @@ const PrioritizationSubmit = (function () {
             <li><span class="k">3</span><div><b>IUCN Red List.</b> Conservation category from
               <span id="ebp-iucn-release">the latest IUCN release we hold</span>.</div></li>
             <li><span class="k">4</span><div><b>Prioritization analysis.</b> Each species gets two
-              labels: phylogenetic novelty and project status.</div></li>
+              labels: phylogenetic novelty and genome status.</div></li>
           </ul>
           <p class="ebp-keep"><b>Where your list goes.</b> Your names, results and upload are stored on
             the EBP backend, so the Excel export matches what you saw.</p>

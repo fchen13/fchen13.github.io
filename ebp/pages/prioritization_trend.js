@@ -24,13 +24,13 @@
  * (the mockup is ARIDE-only and assumes all three away):
  *
  *   1. A run can be MISSING a metric entirely. Reports predating the
- *      Project_Priority split or the IUCN join carry no such column, and
+ *      two-label split or the IUCN join carry no such column, and
  *      `list_changelog` omits the metric rather than zeroing it (8 of
  *      awcs_species' 18 runs are like this). Plotting `undefined` draws a line
  *      to the floor on a run that simply did not measure. Such runs are left
  *      unplotted and counted in the sub-line.
  *   2. `series_identity` does not hold everywhere. `first_in_genus` is the same
- *      set as the Highest_* novelty labels on ARIDE and NOT on Liste_Roscoff;
+ *      set as the clade-first novelty labels on ARIDE and NOT on Liste_Roscoff;
  *      `unassigned` is the `not_found` set on current reports and not on MDD's
  *      May runs. A label claiming the identity is wrong on those lists, so the
  *      label changes and — where two real series exist — a second line is
@@ -45,16 +45,19 @@ const PrioritizationTrend = (function () {
 
   /* One metric per line. Six by default — the set §7a names. `first_in_genus`
      also IS "would be a phylogenetic first" wherever series_identity holds:
-     every Highest_* label implies First_in_Genus = Yes, so they are the same
+     every clade-first label implies First_in_Genus = Yes, so they are the same
      set by construction and must appear as ONE series, never two lines that
-     cannot diverge. */
+     cannot diverge. The keys predate the 2026-11 label rename and are stored,
+     so they stay. Line names keep the live wording; label names in the glosses
+     are today's, and "the clearest sequencing targets" went as a priority
+     verdict (Fang, 2026-11-20). */
   const BASE_METRICS = [
     { key: 'open', label: 'Open opportunities',
-      gloss: 'no active project and no assembly — the clearest sequencing targets' },
+      gloss: 'no active project and no assembly' },
     { key: 'first_in_genus', label: 'First representative of its taxon',
-      gloss: 'would be the first genome in its genus, or a broader taxon. Identical to the Highest_* set by construction, so it is one line, not two' },
+      gloss: 'would be the first genome in its genus, or a broader taxon. Identical to the clade-first labels by construction, so it is one line, not two' },
     { key: 'active', label: 'Active elsewhere',
-      gloss: 'an EBP project is sequencing this species now (Low_Active). Species only at the sample stage are counted separately' },
+      gloss: 'an EBP project is sequencing this species now (Being Sequenced). Species only at the sample stage are counted separately' },
     { key: 'improve', label: 'Improvable assembly',
       gloss: 'an assembly exists but is not EBP standard, and no project is active' },
     { key: 'unassigned', label: 'Unidentifiable in GoaT',
@@ -186,17 +189,18 @@ const PrioritizationTrend = (function () {
       const spec = { key: metric.key, label: metric.label, gloss: metric.gloss };
 
       if (metric.key === 'first_in_genus' && identity.first_in_genus_equals_highest === false) {
-        // Liste_Roscoff: six species are Highest_F with First_in_Genus = No.
+        // Liste_Roscoff: six species are Family First with First_in_Genus = No.
         // Calling this line "would be a phylogenetic first" would be a claim
         // this list's own data contradicts.
         spec.label = 'First in genus';
         spec.gloss = 'would be the first assembly in its genus. On this list that is NOT the same '
-          + 'set as the Highest_* novelty labels, so this line stands for first-in-genus only'
+          + 'set as the clade-first novelty labels, so this line stands for first-in-genus only'
           + (notes ? ' (' + notes + ')' : '');
       }
       if (metric.key === 'unassigned' && identity.unassigned_equals_not_found === false) {
-        spec.label = 'Not assigned a priority';
-        spec.gloss = 'species the report left as Not_Assigned. On this list that is NOT the same '
+        spec.label = 'Labelled Species Not in GoaT';
+        spec.gloss = 'species the report labelled Species Not in GoaT (Not_Assigned before the 2026-11 '
+          + 'rename). On this list that is NOT the same '
           + 'set as the names GoaT could not identify, which is the separate line below'
           + (notes ? ' (' + notes + ')' : '');
       }
@@ -356,7 +360,7 @@ const PrioritizationTrend = (function () {
 
     /* Default metric: `open` — the question the tool exists to answer — but only
        where this list actually has a series to draw. `open` is recorded on ONE
-       of awcs_species' 18 runs (the other 17 predate the Project_Priority
+       of awcs_species' 18 runs (the other 17 predate the two-label
        split), and opening on a single dot would present the richest history in
        the system as a list that has never been measured. Falling back to the
        best-covered metric picks `first_in_genus`, which runs the full 18. */

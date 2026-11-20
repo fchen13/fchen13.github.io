@@ -63,7 +63,7 @@
 
            THIS RAMP MEANS "WHICH RANK" AND NOTHING ELSE, and it is shared: the
            taxa-reached row's rank dots, the prioritization card's novelty ladder
-           (Highest_P purple -> Highest_G green) and that card's accent gradient all
+           (Phylum First purple -> Genus First green) and that card's accent gradient all
            read from it. Recolour one and the other two stop agreeing.
 
            The page runs two colour languages and each carries one meaning:
@@ -533,13 +533,13 @@
                    in, not computed, so it does not need the backend.
 
                    Verified 2026-10-28 against live GoaT and the IUCN cache:
-                   * Highest_F -- GoaT's assembly index holds 0 assemblies under
+                   * Family First (Highest_F until the 2026-11 rename) -- GoaT's assembly index holds 0 assemblies under
                      Pyrgulopsis and 0 under Hydrobiidae, 41 under the order
                      Littorinimorpha. A taxon search with assembly_span DOES return
                      one Hydrobiidae species (Peringia ulvae), but that value's
                      aggregation_source is 'ancestor': an estimate, not a genome.
                      The tool's reference cache agrees: no Hydrobiidae assembly.
-                   * High_New -- no sequencing_status in any project, no assembly.
+                   * Open (High_New until the rename) -- no sequencing_status in any project, no assembly.
                    * CR -- global assessment (2012), IUCN 2026-1, decreasing.
                    Labels move with GoaT: the first Hydrobiidae genome makes this
                    row wrong. Re-check before reusing it. One short phrase per
@@ -548,8 +548,8 @@
                 <figcaption class="pl">Example · one species from a screened list</figcaption>
                 <div class="ex-name"><i>Pyrgulopsis trivialis</i> <span class="ex-tax">· a freshwater springsnail</span></div>
                 <div class="ladder ex">
-                  <div class="lad"><span class="sw" style="background:var(--r-family)"></span><span class="lb">Highest_F</span><span class="ds">First genome in its family, the highest taxonomic level not represented by another species in NCBI</span></div>
-                  <div class="lad"><span class="sw" style="background:var(--green-deep)"></span><span class="lb">High_New</span><span class="ds">No assembly, no active EBP project working on the species; high priority for sequencing</span></div>
+                  <div class="lad"><span class="sw" style="background:var(--r-family)"></span><span class="lb">Family First</span><span class="ds">First genome in its family, the highest taxonomic level not represented by another species in NCBI</span></div>
+                  <div class="lad"><span class="sw" style="background:var(--green-deep)"></span><span class="lb">Open</span><span class="ds">No assembly, no active EBP project working on the species</span></div>
                   <div class="lad"><span class="sw" style="background:var(--iucn-cr)"></span><span class="lb">CR</span><span class="ds">Critically Endangered (IUCN)</span></div>
                 </div>
               </figure>
