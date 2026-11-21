@@ -229,12 +229,20 @@ const PrioritizationTrend = (function () {
        side by side is exactly the confusion the proposal warns about. */
     const kindWord = WORDS[kinds.length] || kinds.length;
 
+    /* A window where no source moved has no kinds to show: say so plainly
+       rather than "0 of them … in the zero kinds below" over an empty grid.
+       ARIDE_master's 9 → 10 Oct 2026 window is the case: 11 names edited in
+       the list, nothing moved in GoaT (Fang, 2026-11-20). */
+    const external = !kinds.length && !moves.external
+      ? ' None of them because something shifted in an external source — GoaT, an EBP project, or IUCN.'
+      : ' ' + moves.external
+        + ' of them because something shifted in an external source — GoaT, an EBP project, or IUCN '
+        + '— in the ' + kindWord + ' kind' + (kinds.length === 1 ? '' : 's') + ' below.';
+
     return '<div class="ebp-moves">'
       + '<h3>What kinds of movement this window contains</h3>'
       + '<p class="lead"><b>' + total + ' species changed between ' + esc(pretty(moves.since))
-      + ' and ' + esc(pretty(moves.to)) + '.</b> ' + moves.external
-      + ' of them because something shifted in an external source — GoaT, an EBP project, or IUCN '
-      + '— in the ' + kindWord + ' kind' + (kinds.length === 1 ? '' : 's') + ' below.'
+      + ' and ' + esc(pretty(moves.to)) + '.</b>' + external
       // Going forward the normal case is zero of ours, and "the other 0 moved
       // because a correction shipped" would be a strange thing to read.
       + (moves.ours ? ' ' + moves.ours + ' moved because a lookup correction shipped on our side.' : '')
@@ -242,7 +250,7 @@ const PrioritizationTrend = (function () {
       // neither the network moving nor us — it is the input moving.
       + (membership ? ' ' + membership + ' entered or left the list itself.' : '')
       + '</p>'
-      + '<div class="ebp-movegrid">' + kinds.map(function (kind, index) {
+      + (kinds.length ? '<div class="ebp-movegrid">' + kinds.map(function (kind, index) {
         return '<div class="ebp-move" data-kind="' + esc(kind.key) + '">'
           + '<button class="ebp-move-head" aria-expanded="false" aria-controls="ebp-kind-' + index + '">'
           + '<span class="n">' + kind.count + '</span>'
@@ -255,7 +263,20 @@ const PrioritizationTrend = (function () {
             return '<button class="ebp-sp-chip" data-name="' + esc(name) + '">' + esc(name) + '</button>';
           }).join('')
           + '</div></div>';
-      }).join('') + '</div></div>';
+      }).join('') + '</div>' : '') + '</div>';
+  }
+
+  /* "The same N names" holds only while no name entered or left the list.
+     After a list edit the count is the newest run's, and the runs before it
+     were of a slightly different list (Fang, 2026-11-20). */
+  function listEdited(runs) {
+    return runs.some(function (run) { return run.flow && run.flow.membership; });
+  }
+
+  function namesPhrase(payload, runs) {
+    return listEdited(runs)
+      ? 'of this list (' + payload.species_count + ' names in the newest run; names were added or removed between runs)'
+      : 'of the same ' + payload.species_count + ' names';
   }
 
   function shell(payload, metrics) {
@@ -279,7 +300,9 @@ const PrioritizationTrend = (function () {
       + '<div class="ebp-trend-legend">'
       + '<span><i class="ln"></i>Source movement</span>'
       + '<span><i class="ln dash"></i>Window containing a change of ours</span>'
-      + '<span><i class="pt"></i>A dated run of the same ' + payload.species_count + ' names</span>'
+      + '<span><i class="pt"></i>' + (listEdited(runs)
+        ? 'A dated run of this list'
+        : 'A dated run of the same ' + payload.species_count + ' names') + '</span>'
       + '<span class="muted">Vertical axis fitted to the range, not zero-based · hover a point for its window</span>'
       + '</div>'
       + '<div class="ebp-trend-note" hidden><span class="ic">◈</span><span class="ebp-trend-integrity"></span></div>'
@@ -595,8 +618,8 @@ const PrioritizationTrend = (function () {
       const newest = plotted[plotted.length - 1];
 
       let text = 'Tracking <b>' + esc(m.label) + '</b> — ' + esc(m.gloss) + ' — across '
-        + plotted.length + ' dated run' + (plotted.length === 1 ? '' : 's') + ' of the same '
-        + payload.species_count + ' names, '
+        + plotted.length + ' dated run' + (plotted.length === 1 ? '' : 's') + ' '
+        + namesPhrase(payload, plotted.slice(1)) + ', '
         + (plotted.length === 1
           ? 'on ' + esc(prettyYear(newest.date))
           : esc(prettyYear(first.date)) + ' to ' + esc(prettyYear(newest.date))) + '.';
